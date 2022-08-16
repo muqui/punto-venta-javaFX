@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+
+<AnchorPane fx:id="anchorPaneMain" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.albertocoronanavarro.puntoventafx.PrimaryController">
+   <children>
+      <BorderPane layoutX="-3.0" layoutY="3.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="3.0" AnchorPane.rightAnchor="3.0" AnchorPane.topAnchor="3.0">
+         <top>
+            <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+              <items>
+                <Button fx:id="btnVender" mnemonicParsing="false" onAction="#actionBtnVender" text="Ventas" />
+                  <Button fx:id="btnProductos" mnemonicParsing="false" onAction="#actionBtnProducts" text="Productos" />
+                  <Button mnemonicParsing="false" text="inventario" />
+                  <Button mnemonicParsing="false" text="Clientes" />
+                  <Button mnemonicParsing="false" text="Configuracion" />
+              </items>
+            </ToolBar>
+         </top>
+         <center>
+            <AnchorPane fx:id="anchorPaneContenido" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+         </center>
+      </BorderPane>
+   </children>
+</AnchorPane>

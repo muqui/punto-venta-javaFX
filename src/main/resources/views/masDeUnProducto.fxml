@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane id="AnchorPane" prefHeight="191.0" prefWidth="520.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MasDeUnProductoController">
+    <stylesheets>
+        <URL value="@/styles/masdeunproducto.css" />
+    </stylesheets>
+   <children>
+      <Label layoutX="14.0" layoutY="14.0" text="Codio de barras" />
+      <TextField id="txtCodigo" fx:id="txtCodigo" layoutX="14.0" layoutY="39.0" prefHeight="25.0" prefWidth="486.0" />
+      <Label layoutX="14.0" layoutY="73.0" text="Cantidad" />
+      <TextField id="txtCantidad" fx:id="txtCantidad" layoutX="14.0" layoutY="96.0" prefHeight="25.0" prefWidth="486.0" />
+      <Button id="btnAceptar" fx:id="btnAceptar" layoutX="448.0" layoutY="146.0" mnemonicParsing="false" onAction="#actionbtnGuardar" text="Aceptar" />
+      <Button id="btnCancelar" fx:id="btnCancelar" layoutX="376.0" layoutY="146.0" mnemonicParsing="false" text="Cancelar" />
+   </children>
+</AnchorPane>
