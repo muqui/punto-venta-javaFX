@@ -6,7 +6,9 @@
 package controller;
 
 import beans.Producto;
+import beans.Usuario;
 import com.albertocoronanavarro.puntoventafx.App;
+import com.albertocoronanavarro.puntoventafx.PrimaryController;
 //import com.sun.javafx.scene.control.skin.TableHeaderRow;
 import dao.DaoProducto;
 import java.io.IOException;
@@ -55,11 +57,16 @@ import javafx.stage.StageStyle;
  */
 public class VentasController implements Initializable {
 
+//    public VentasController(Usuario usuario){
+//       this.usuario = usuario;
+//    }
+    private Usuario usuario;
+    private boolean mayoreo = false;
     Producto producto = new Producto();
     double totalProductos = 0;
     String leyendaCantidadTotal = " Total productos";
     ObservableList<Producto> listProducto;
-    DaoProducto tblProducto = new DaoProducto();
+    DaoProducto daoProducto = new DaoProducto();
     //Estos 3 arraList son para llenar las tablas de venta
     ArrayList<Tab> tabArrayList = new ArrayList<Tab>(); // se crar un array de tabs.
     ArrayList<ObservableList<Producto>> observableListArrayList = new ArrayList<ObservableList<Producto>>(); // Se crea un array de ObsevableList
@@ -73,10 +80,46 @@ public class VentasController implements Initializable {
     private Label labelTotalProductos;
 
     @FXML
+    private Label txtVentasMayoreo;
+
+    @FXML
+    private Button btnCobrar;
+
+    @FXML
     private Label labelTotal;
     @FXML
     TabPane tabPaneTicket;
-    
+
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        txtVentasMayoreo.setVisible(false);
+        //recibimos el usuario desde Main(App)
+        this.usuario = App.getUser();
+        System.out.println("Desde APP" + this.usuario.getNombre());
+
+        crearTicket("Ticket 1");
+        txtCodigoBarras.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent ke) {
+                if (ke.getCode().equals(KeyCode.ENTER)) {
+
+                    insertarProductoTicket(txtCodigoBarras.getText(), 1);
+                }
+            }
+        });
+
+    }
+
+    //Busca de producto
+    @FXML
+    void btnBuscarAction(ActionEvent event) {
+        buscarProducto();
+    }
+
+    @FXML
+    void btnMayoreoAction(ActionEvent event) {
+        mayoreo();
+    }
 
     @FXML // cambia el ticket seleccionado.
     void onActionBtnCambiarTicket(ActionEvent event) {
@@ -87,7 +130,12 @@ public class VentasController implements Initializable {
             tabPaneTicket.getSelectionModel().selectFirst();
         }
         tabPaneTicket.getSelectionModel().select(tabSeleccionado + 1);
-      
+
+    }
+
+    @FXML
+    void btnCobrarAction(ActionEvent event) {
+        precobrar();
     }
 
     @FXML
@@ -102,11 +150,12 @@ public class VentasController implements Initializable {
         }
 
     }
+
     //Abre ventana para registrar mas de un pago
-      @FXML
+    @FXML
     void actionbtnInsertarMasDe1(ActionEvent event) {
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/masDeUnProducto.fxml") );
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/masDeUnProducto.fxml"));
             Parent root = fxmlLoader.load();
             MasDeUnProductoController masdeuno = fxmlLoader.getController();
             Scene scene = new Scene(root);
@@ -115,17 +164,16 @@ public class VentasController implements Initializable {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setScene(scene);
             stage.showAndWait();
-            
+
             String codigo = masdeuno.getCodigo();
             double cantidad = Double.parseDouble(masdeuno.getCantidad());
-            
-            System.out.println("CANTIDAD " + cantidad +  " CODIGO " + codigo);
-            insetarProductoTicket(codigo, cantidad);
-            
+
+            System.out.println("CANTIDAD " + cantidad + " CODIGO " + codigo);
+            insertarProductoTicket(codigo, cantidad);
+
         } catch (IOException ex) {
             Logger.getLogger(VentasController.class.getName()).log(Level.SEVERE, null, ex);
         }
-         
 
     }
 
@@ -140,7 +188,7 @@ public class VentasController implements Initializable {
 
     @FXML
     void ActionBtnAgregarProducto(ActionEvent event) {
-        insetarProductoTicket(txtCodigoBarras.getText(), 1);
+        insertarProductoTicket(txtCodigoBarras.getText(), 1);
     }
 
     @FXML //Elimina tickets menos el primero.
@@ -159,40 +207,24 @@ public class VentasController implements Initializable {
     /**
      * Initializes the controller class.
      */
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-
-        crearTicket("Ticket 1");
-        txtCodigoBarras.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent ke) {
-                if (ke.getCode().equals(KeyCode.ENTER)) {
-
-                    insetarProductoTicket(txtCodigoBarras.getText(), 1);
-                }
-            }
-        });
-
-    }
-
     public void crearTicket(String nombre) {
 
         TableView tableView = new TableView();
         tableView.setId("miTabla");
         tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY); // NECESARIO PARA CAMBIAR EL ANCHO DE LA TABLA
         //evita el reordenamiento( las columnas no se mueven de lugar).
-        tableView.widthProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> source, Number oldWidth, Number newWidth) {
-                TableHeaderRow header = (TableHeaderRow) tableView.lookup("TableHeaderRow");
-                header.reorderingProperty().addListener(new ChangeListener<Boolean>() {
-                    @Override
-                    public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                        header.setReordering(false);
-                    }
-                });
-            }
-        });
+//        tableView.widthProperty().addListener(new ChangeListener<Number>() {
+//            @Override
+//            public void changed(ObservableValue<? extends Number> source, Number oldWidth, Number newWidth) {
+//                TableHeaderRow header = (TableHeaderRow) tableView.lookup("TableHeaderRow");
+//                header.reorderingProperty().addListener(new ChangeListener<Boolean>() {
+//                    @Override
+//                    public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+//                        header.setReordering(false);
+//                    }
+//                });
+//            }
+//        });
         int numTabs = tabPaneTicket.getTabs().size();
 
         TableColumn<Producto, String> column1 = new TableColumn<>("CODIGO");
@@ -263,64 +295,65 @@ public class VentasController implements Initializable {
     *
     * Agrega producto al ticket
     *
-    */
-    public void insetarProductoTicket(String codigo, double cantidad) {
+     */
+    public void insertarProductoTicket(String codigo, double cantidad) {
         //String codigoBarras = txtCodigoBarras.getText();
         String codigoBarras = codigo;
         Producto producto = getProduct(codigoBarras, cantidad);
-       // System.out.println("cantidad product " + producto.getCantidad());
+        // System.out.println("cantidad product " + producto.getCantidad());
         if (producto == null) {
             txtCodigoBarras.setText("");
-                            Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.initStyle(StageStyle.UTILITY);
-                alert.setTitle("Error");
-                alert.setHeaderText(null);
-                alert.setContentText("No existe el producto!");
-                alert.showAndWait();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.initStyle(StageStyle.UTILITY);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);
+            alert.setContentText("No existe el producto! " + this.usuario.getNombre());
+            alert.showAndWait();
         } else {  //Existe el producto INICIO
-       // producto.setCantidad(cantidad);
-         System.out.println("cantidad product set to zero " + producto.getCantidad());
-        int tabSeleccionado = tabPaneTicket.getSelectionModel().getSelectedIndex(); // Selecciona el tab Seleccionado.    
-        boolean existe = existeProductoEnticket(tabSeleccionado, codigoBarras, cantidad );
-        Node selectedContent = tabArrayList.get(tabSeleccionado).getContent();
-        if (listaProductoArrayList.get(tabSeleccionado).size() <= 0) {
-           
-            
-            listaProductoArrayList.get(tabSeleccionado).add(producto); // add producto to list
-        } else {
-            if (existe == false) { // if product doesn't exist add it to ticket             
-                listaProductoArrayList.get(tabSeleccionado).add(getProduct(codigoBarras, cantidad)); // add producto to list
+            // producto.setCantidad(cantidad);
 
+            int tabSeleccionado = tabPaneTicket.getSelectionModel().getSelectedIndex(); // Selecciona el tab Seleccionado.    
+            boolean existe = existeProductoEnticket(tabSeleccionado, codigoBarras, cantidad);
+            Node selectedContent = tabArrayList.get(tabSeleccionado).getContent();
+            if (listaProductoArrayList.get(tabSeleccionado).size() <= 0) {
+
+                System.out.println(" inserta producto.................... xxxxxxab ");
+                listaProductoArrayList.get(tabSeleccionado).add(producto); // add producto to list
+            } else {
+                if (existe == false) { // if product doesn't exist add it to ticket  
+
+                    listaProductoArrayList.get(tabSeleccionado).add(getProduct(codigoBarras, cantidad)); // add producto to list
+
+                }
             }
-        }
 
-        labelTotal.setText("" + totalTicket(tabSeleccionado));
-        labelTotalProductos.setText("" + CantidadProductosTicket(tabSeleccionado) + leyendaCantidadTotal);
-        ObservableList<Producto> data = observableListArrayList.get(tabSeleccionado);
-        
-        data = FXCollections.observableList(listaProductoArrayList.get(tabSeleccionado));
-        
-        data.forEach((tab) -> {
-            tab.getBotonAgregar().setOnAction(this::eventoTabla);            
-            tab.getBotonAgregar().setMaxWidth(Double.MAX_VALUE);
-            tab.getBotonAgregar().setMaxHeight(Double.MAX_VALUE);
-            tab.getBotonBorrar().setOnAction(this::eventoTabla);
-            tab.getBotonBorrar().setMaxWidth(Double.MAX_VALUE);
-            tab.getBotonBorrar().setMaxHeight(Double.MAX_VALUE);
-            
-            tab.getBotonEliminar().setOnAction(this::eventoTabla);            
-            tab.getBotonEliminar().setMaxWidth(Double.MAX_VALUE);
-            tab.getBotonEliminar().setMaxHeight(Double.MAX_VALUE);
-           
-        });
-        TableView tableView = (TableView) selectedContent.lookup("#miTabla");
+            labelTotal.setText("" + totalTicket(tabSeleccionado));
+            labelTotalProductos.setText("" + CantidadProductosTicket(tabSeleccionado) + leyendaCantidadTotal);
+            ObservableList<Producto> data = observableListArrayList.get(tabSeleccionado);
 
-        tableView.setItems(data);
-        // alto de la fila
-        tableView.setFixedCellSize(50);
-        tableView.refresh();
-        //clear field
-        txtCodigoBarras.setText("");
+            data = FXCollections.observableList(listaProductoArrayList.get(tabSeleccionado));
+
+            data.forEach((tab) -> {
+                tab.getBotonAgregar().setOnAction(this::eventoTabla);
+                tab.getBotonAgregar().setMaxWidth(Double.MAX_VALUE);
+                tab.getBotonAgregar().setMaxHeight(Double.MAX_VALUE);
+                tab.getBotonBorrar().setOnAction(this::eventoTabla);
+                tab.getBotonBorrar().setMaxWidth(Double.MAX_VALUE);
+                tab.getBotonBorrar().setMaxHeight(Double.MAX_VALUE);
+
+                tab.getBotonEliminar().setOnAction(this::eventoTabla);
+                tab.getBotonEliminar().setMaxWidth(Double.MAX_VALUE);
+                tab.getBotonEliminar().setMaxHeight(Double.MAX_VALUE);
+
+            });
+            TableView tableView = (TableView) selectedContent.lookup("#miTabla");
+
+            tableView.setItems(data);
+            // alto de la fila
+            tableView.setFixedCellSize(50);
+            tableView.refresh();
+            //clear field
+            txtCodigoBarras.setText("");
         }//Existe el producto FIN
 
     }
@@ -329,11 +362,17 @@ public class VentasController implements Initializable {
     * Return Producto from database but update amonut to 1, set the amount total.
      */
     private Producto getProduct(String codigoBarras, double cantidad) {
-        Producto p = tblProducto.getProducto(codigoBarras); // get Producto from dababase
+        Producto p = daoProducto.getProducto(codigoBarras); // get Producto from dababase
+
         if (p != null) {
-            p.setTotalTicket(p.getPrecioVentaUnitario());
+
+            //selecciona el precio mayoreo o menudeo.
+            double precio = mayoreo ? p.getPrecioMayoreo() : p.getPrecioVentaUnitario();
+            p.setPrecioVentaUnitario(precio);
+            p.setTotalTicket(p.getPrecioVentaUnitario() * cantidad);
+            System.out.println("aqui registra" + p.getPrecioVentaUnitario());
             p.setCantidad(cantidad);
-           // p.setCantidad(1); // update amount to one
+            // p.setCantidad(1); // update amount to one
         }
 
         return p;
@@ -385,28 +424,28 @@ public class VentasController implements Initializable {
     }
 
     private void eventoTabla(ActionEvent event) {
-       
+
         int tabSeleccionado = tabPaneTicket.getSelectionModel().getSelectedIndex();
-         System.out.println("BOTON PRESIONADO = " + tabSeleccionado);
+        System.out.println("BOTON PRESIONADO = " + tabSeleccionado);
         ObservableList<Producto> data = observableListArrayList.get(tabSeleccionado);
         Node selectedContent = tabArrayList.get(tabSeleccionado).getContent();
 
         data = FXCollections.observableList(listaProductoArrayList.get(tabSeleccionado));
-         TableView tableView = (TableView) selectedContent.lookup("#miTabla");
+        TableView tableView = (TableView) selectedContent.lookup("#miTabla");
         for (int i = 0; data.size() > i; i++) {
             Producto p = data.get(i);
             //delete item from ticket
             if (event.getSource() == p.getBotonEliminar()) {
-                
-               // delete by itself
-               data.remove(p);
-              
+
+                // delete by itself
+                data.remove(p);
+
             }
             if (event.getSource() == p.getBotonAgregar()) {
-              
+
                 p.setCantidad(p.getCantidad() + 1);
                 p.setTotalTicket(p.getCantidad() * p.getPrecioVentaUnitario());
-             
+
             }
             if (event.getSource() == p.getBotonBorrar()) {
 
@@ -419,14 +458,99 @@ public class VentasController implements Initializable {
             }
         }
 
-       
-
         tableView.setItems(data);
         tableView.refresh();
         // suma del precio total
         labelTotal.setText("" + totalTicket(tabSeleccionado));
         //Suma la cantidad total de productos
         labelTotalProductos.setText("" + CantidadProductosTicket(tabSeleccionado) + leyendaCantidadTotal);
+    }
+
+    /**
+     * @return the usuario
+     */
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    /**
+     * @param usuario the usuario to set
+     */
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
+    private void buscarProducto() {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/buscar.fxml"));
+            Parent root = fxmlLoader.load();
+            BuscarController buscarController = fxmlLoader.getController();
+            Scene scene = new Scene(root);
+            Stage stage = new Stage();
+            // stage.setResizable(false);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(scene);
+            stage.showAndWait();
+
+            if (!buscarController.getCodigo().equalsIgnoreCase("")) {
+                insertarProductoTicket(buscarController.getCodigo(), 1);
+            }
+
+        } catch (IOException ex) {
+            Logger.getLogger(VentasController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
+    private void mayoreo() {
+        mayoreo = !mayoreo;
+        txtVentasMayoreo.setVisible(mayoreo);
+        System.out.println("Mayoreo " + mayoreo);
+
+    }
+
+    private void precobrar() {
+
+        //Carga el modal de cobrar.
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/cobrar.fxml"));
+            Parent root = fxmlLoader.load();
+            CobrarController cobrarController = fxmlLoader.getController();
+            Scene scene = new Scene(root);
+            Stage stage = new Stage();
+            stage.setResizable(false);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(scene);
+            stage.showAndWait();
+
+        } catch (IOException ex) {
+            Logger.getLogger(VentasController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        int tabSeleccionado = tabPaneTicket.getSelectionModel().getSelectedIndex(); // Selecciona el tab Seleccionado.    
+
+        System.out.println("cobrar......" + totalTicket(tabSeleccionado));
+
+        ObservableList<Producto> data = observableListArrayList.get(tabSeleccionado);
+
+        data = FXCollections.observableList(listaProductoArrayList.get(tabSeleccionado));
+
+        daoProducto.saveSale(data);
+        // clear ticket
+        Node selectedContent = tabArrayList.get(tabSeleccionado).getContent();
+        TableView tableView = (TableView) selectedContent.lookup("#miTabla");
+        for (int i = data.size() - 1; i >= 0; i--) {
+            Producto p = data.get(i);
+            //delete item from ticket
+            data.remove(p);
+        }
+        tableView.setItems(data);
+        tableView.refresh();
+       
+        labelTotal.setText("$ 0");
+       
+        labelTotalProductos.setText("0"  + leyendaCantidadTotal);
+
     }
 
 }
