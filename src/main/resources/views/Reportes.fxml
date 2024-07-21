@@ -1,19 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.net.URL?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="1015.0" styleClass="mainFxmlClass" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ReportesController">
-    <stylesheets>
-        <URL value="@/styles/reportes.css" />
-    </stylesheets>
+<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="1015.0" styleClass="mainFxmlClass" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ReportesController">
+    
    <children>
       <TabPane layoutX="14.0" layoutY="7.0" prefHeight="389.0" prefWidth="1000.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="4.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="7.0">
         <tabs>
@@ -29,12 +25,7 @@
                         <ComboBox fx:id="comboUser" layoutX="500.0" layoutY="10.0" onAction="#onActonComboUser" prefWidth="150.0" />
                         <Label layoutX="662.0" layoutY="17.0" text="Departamento" />
                         <ComboBox fx:id="comobDepartament" layoutX="739.0" layoutY="10.0" onAction="#onActonComboDepartament" prefWidth="150.0" />
-                        <TableView fx:id="tableSales" layoutX="14.0" layoutY="57.0" prefHeight="262.0" prefWidth="978.0" AnchorPane.bottomAnchor="41.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="8.0" AnchorPane.topAnchor="57.0">
-                          <columns>
-                            <TableColumn prefWidth="75.0" text="C1" />
-                            <TableColumn prefWidth="75.0" text="C2" />
-                          </columns>
-                        </TableView>
+                        <TableView fx:id="tableSales" layoutX="14.0" layoutY="57.0" prefHeight="262.0" prefWidth="978.0" AnchorPane.bottomAnchor="41.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="8.0" AnchorPane.topAnchor="57.0" />
                         <Label layoutX="947.0" layoutY="329.0" text="Total" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="27.0" />
                      </children>
                   </AnchorPane>

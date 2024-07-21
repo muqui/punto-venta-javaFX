@@ -14,8 +14,8 @@
    <children>
       <Label layoutX="29.0" layoutY="44.0" text="Usuario" />
       <Label layoutX="36.0" layoutY="100.0" text="Contraseña" />
-      <TextField fx:id="txtUsuer" layoutX="106.0" layoutY="40.0" prefHeight="25.0" prefWidth="330.0" text="admin" />
+      <TextField fx:id="txtUsuer" layoutX="106.0" layoutY="40.0" prefHeight="25.0" prefWidth="330.0" text="muqui_0001@hotmail.com" />
       <Button fx:id="btnAceptar" layoutX="353.0" layoutY="137.0" mnemonicParsing="false" onAction="#btnAceptarAction" prefHeight="25.0" prefWidth="85.0" text="Aceptar" />
-      <PasswordField fx:id="txtPassword" layoutX="106.0" layoutY="88.0" prefHeight="25.0" prefWidth="330.0" text="Corona" />
+      <PasswordField fx:id="txtPassword" layoutX="106.0" layoutY="88.0" prefHeight="25.0" prefWidth="330.0" text="123456" />
    </children>
 </AnchorPane>

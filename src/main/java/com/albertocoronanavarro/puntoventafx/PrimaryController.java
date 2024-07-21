@@ -1,12 +1,8 @@
 package com.albertocoronanavarro.puntoventafx;
 
-import beans.Usuario;
-import controller.LoginController;
-import controller.MasDeUnProductoController;
-import controller.VentasController;
+
+import dto.UserDTO;
 import java.io.IOException;
-import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
@@ -14,19 +10,13 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 public class PrimaryController implements Initializable {
 
-    Usuario usuario = new Usuario();
-    Node nodeVenta, nodeProducto,nodeReportes;
+    UserDTO usuario = new UserDTO();
+    Node nodeVenta, nodeProducto,nodeReporte, nodeInventory;
 
     @FXML
     private AnchorPane anchorPaneContenido;
@@ -47,23 +37,23 @@ public class PrimaryController implements Initializable {
     void actionBtnReports(ActionEvent event) {
        nodeReports();
     }
+    
+             @FXML
+    void actionBtnInventory(ActionEvent event) {
+       nodeInventory();
+    }
 
     private void nodeVentas() {
         pantallaVentas();
     }
 
     private void nodeProductos() {
+        System.out.println("Cargar alta producto");
         try {
 
             if (nodeProducto == null) {
-                System.out.println("VACIO");
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.initStyle(StageStyle.UTILITY);
-                alert.setTitle("success");
-                alert.setHeaderText(null);
-                alert.setContentText("Infromatin Message");
-                alert.showAndWait();
-                nodeProducto = (Node) FXMLLoader.load(getClass().getResource("/views/productos.fxml"));
+               
+                nodeProducto = (Node) FXMLLoader.load(getClass().getResource("/views/Product.fxml"));
 
             }
             anchorPaneContenido.getChildren().setAll(nodeProducto);
@@ -80,12 +70,7 @@ public class PrimaryController implements Initializable {
 
     }
 
-    public void prueba(Usuario usuario) {
-       // System.out.println("Gato " + usuario.getNombre());
-       // this.btnVender.setText(usuario.getNombre());
-        this.usuario = usuario;
-    }
-
+   
     private void pantallaVentas() {
         try {
 
@@ -108,20 +93,32 @@ public class PrimaryController implements Initializable {
     }
 
     private void nodeReports() {
-      try {
+        
+        System.out.println("Cargar reporte");
+             try {
 
-            if (nodeProducto == null) {
+//            if (nodeReporte == null) {
+////                Usuario u = new Usuario();
+////                u.setNombre("Alngel");
+//                nodeReporte = (Node) FXMLLoader.load(getClass().getResource("/views/Reportes.fxml"));
+//                
+//            }
+            nodeReporte = (Node) FXMLLoader.load(getClass().getResource("/views/Reportes.fxml"));
+
+            anchorPaneContenido.getChildren().setAll(nodeReporte);
           
-             //   nodeProducto = (Node) FXMLLoader.load(getClass().getResource("/views/Reportes.fxml"));
-
-            }
-             nodeProducto = (Node) FXMLLoader.load(getClass().getResource("/views/Reportes.fxml"));
-            anchorPaneContenido.getChildren().setAll(nodeProducto);
-
         } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
-    
 
+    private void nodeInventory() {
+         System.out.println("Cargar inventario");
+             try {
+            nodeInventory = (Node) FXMLLoader.load(getClass().getResource("/views/Inventory.fxml"));
+            anchorPaneContenido.getChildren().setAll(nodeInventory);         
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+       }
 }

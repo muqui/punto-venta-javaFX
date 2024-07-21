@@ -3,7 +3,13 @@ module com.albertocoronanavarro.puntoventafx {
     requires javafx.fxml;
     requires java.base;
     requires java.sql;
-    
+    requires java.net.http; // Agregado para HttpClient
+    requires unirest.java;  // Agregado para Unirest
+     requires org.json;      // Agregado para la biblioteca JSON 
+     requires com.fasterxml.jackson.databind;
+     
+      opens beans to com.fasterxml.jackson.databind;
+   
     opens com.albertocoronanavarro.puntoventafx to javafx.fxml;
     exports com.albertocoronanavarro.puntoventafx;
     
@@ -13,8 +19,10 @@ module com.albertocoronanavarro.puntoventafx {
     opens conexionMYSQL to javafx.fxml;
     exports conexionMYSQL;
     
-     opens beans to javafx.fxml;
+     
     exports beans;
+    
+    exports dto;
     
     
     

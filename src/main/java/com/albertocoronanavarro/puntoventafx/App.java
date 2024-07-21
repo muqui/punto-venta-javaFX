@@ -1,7 +1,7 @@
 package com.albertocoronanavarro.puntoventafx;
 
-import beans.Usuario;
 import controller.VentasController;
+import dto.UserDTO;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -17,7 +17,7 @@ import javafx.event.ActionEvent;
  * JavaFX App
  */
 public class App extends Application {
-    private static Usuario usuario;
+    private static UserDTO usuario;
     private static Stage stg;
 
    
@@ -26,7 +26,7 @@ public class App extends Application {
     public void start(Stage primaryStage) {
         
         try {
-            stg = primaryStage;
+            setStg(primaryStage);
 
             Parent root = FXMLLoader.load(getClass().getResource("/views/login.fxml"));
             primaryStage.setTitle("Ventas");
@@ -42,45 +42,59 @@ public class App extends Application {
         launch(args);
     }
 
-    public void changeScene(String primary, Usuario usuario, ActionEvent event) throws IOException {
+    public void changeScene(String primary, UserDTO usuario, ActionEvent event) throws IOException {
         
          FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(primary));
             Parent root = fxmlLoader.load();
             PrimaryController primaryController = fxmlLoader.getController();
-            primaryController.prueba(usuario);
+//            primaryController.prueba(usuario);
             
-          //  this.setUsuario(usuario);
+            this.setUsuario(usuario);
         
-        stg.setTitle("" + usuario.getNombre());
-         stg.getScene().setRoot(root);
-         stg.setMaximized(true);
+        getStg().setTitle("" + usuario.getName());
+         getStg().getScene().setRoot(root);
+         getStg().setMaximized(true);
          
-         this.setUsuario(usuario);
+      
 
     }
 
    
     public static Stage getStage() {
-        return stg;
-    }
-    
-     public static Usuario getUser() {
-        return getUsuario();
+        return getStg();
     }
 
     /**
      * @return the usuario
      */
-    public static Usuario getUsuario() {
+    public static UserDTO getUsuario() {
         return usuario;
     }
 
     /**
      * @param aUsuario the usuario to set
      */
-    public static void setUsuario(Usuario aUsuario) {
+    public static void setUsuario(UserDTO aUsuario) {
         usuario = aUsuario;
     }
+
+    /**
+     * @return the stg
+     */
+    public static Stage getStg() {
+        return stg;
+    }
+
+    /**
+     * @param aStg the stg to set
+     */
+    public static void setStg(Stage aStg) {
+        stg = aStg;
+    }
+    
+  
+
+ 
 
    
 

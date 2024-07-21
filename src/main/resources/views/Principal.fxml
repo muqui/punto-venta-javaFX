@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 
-<AnchorPane fx:id="anchorPaneMain" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.albertocoronanavarro.puntoventafx.PrimaryController">
+<AnchorPane fx:id="anchorPaneMain" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.albertocoronanavarro.puntoventafx.PrimaryController">
    <children>
       <BorderPane layoutX="-3.0" layoutY="3.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="3.0" AnchorPane.rightAnchor="3.0" AnchorPane.topAnchor="3.0">
          <top>
@@ -13,7 +13,7 @@
               <items>
                 <Button fx:id="btnVender" mnemonicParsing="false" onAction="#actionBtnVender" text="Ventas" />
                   <Button fx:id="btnProductos" mnemonicParsing="false" onAction="#actionBtnProducts" text="Productos" />
-                  <Button mnemonicParsing="false" text="inventario" />
+                  <Button fx:id="btnInventory" mnemonicParsing="false" onAction="#actionBtnInventory" text="inventario" />
                   <Button mnemonicParsing="false" text="Clientes" />
                   <Button mnemonicParsing="false" text="Configuracion" />
                   <Button fx:id="btnReports" mnemonicParsing="false" onAction="#actionBtnReports" prefHeight="25.0" prefWidth="80.0" text="Reportes" />

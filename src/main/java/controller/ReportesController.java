@@ -4,15 +4,24 @@
  */
 package controller;
 
-import beans.Producto;
-import beans.Usuario;
+import beans.OrderDetail;
 import beans.VentaDetalle;
-import dao.DaoDepartamento;
-import dao.DaoPersona;
-import dao.DaoProducto;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import dto.OrderDTO;
+import dto.OrderDetailDTO;
+import java.io.IOException;
+
+import java.net.HttpURLConnection;
 import java.net.URL;
-import java.time.LocalDate;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -29,49 +38,52 @@ import javafx.scene.control.cell.PropertyValueFactory;
  * @author albert
  */
 public class ReportesController implements Initializable {
-    
-    
-   
+
+    private ObservableList<OrderDetail> orderDetailsList = FXCollections.observableArrayList();
     @FXML
-    private TableView<VentaDetalle> tableSales;
-     @FXML
+    private TableColumn<OrderDTO, String> TableColumnBarcode;
+
+    @FXML
+    private TableColumn<OrderDTO, Integer> TableColumnId;
+
+    @FXML
+    private TableView<OrderDetailDTO> tableSales;
+    @FXML
     private DatePicker dateEnd;
-     @FXML
+    @FXML
     private ComboBox<String> comboUser;
 
     @FXML
-    private ComboBox<String> comobDepartament; 
+    private ComboBox<String> comobDepartament;
 
     @FXML
     private DatePicker dateStar;
-    DaoProducto daoProducto = new DaoProducto();
-    DaoPersona daoPersona = new DaoPersona();
-    DaoDepartamento daoDepartamento = new DaoDepartamento();
 
     ObservableList<VentaDetalle> data;
-     @FXML
+
+    @FXML
     void onActonComboDepartament(ActionEvent event) {
-         System.out.println("action comobo department");
-         llenarTablaVentas();
+        System.out.println("action comobo department");
+        // llenarTablaVentas();
     }
 
     @FXML
     void onActonComboUser(ActionEvent event) {
-           System.out.println("action comobo user");
-         llenarTablaVentas();
+        System.out.println("action comobo user");
+        // llenarTablaVentas();
     }
-    
-     @FXML
+
+    @FXML
     void onActionDateEnd(ActionEvent event) {
-       //  System.out.println("Fecha final " + dateEnd.getValue());
-          llenarTablaVentas();
+        //  System.out.println("Fecha final " + dateEnd.getValue());
+        //  llenarTablaVentas();
     }
 
     @FXML
     void onActionDateStart(ActionEvent event) {
-          //  System.out.println("Fecha inicial " + dateStar.getValue());
-             llenarTablaVentas();
-             
+        //  System.out.println("Fecha inicial " + dateStar.getValue());
+        //   llenarTablaVentas();
+
     }
 
     /**
@@ -79,80 +91,85 @@ public class ReportesController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
-        dateStar.setValue(LocalDate.now());
-        dateEnd.setValue(LocalDate.now());
-        daoDepartamento.getSellsTableData("");
-       
-        comboUser.setItems( daoPersona.getSellsTableData(""));
-        comboUser.getSelectionModel().selectFirst();
-        comobDepartament.setItems(daoDepartamento.getSellsTableData(""));
-        comobDepartament.getSelectionModel().selectFirst();
-         llenarTablaVentas();
+
+        try {
+            TableColumn<OrderDetailDTO, Integer> columnId = new TableColumn<>("Detail ID");
+            columnId.setCellValueFactory(new PropertyValueFactory<>("id"));
+            columnId.setResizable(true);
+            //            TableColumn<OrderDetailDTO, Integer> column1 = new TableColumn<>("Order ID");
+//            column1.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getOrder().getId()).asObject());
+//            column1.setResizable(true);
+//            column1.setMaxWidth(1f * Integer.MAX_VALUE * 10);
+
+            TableColumn<OrderDetailDTO, String> columnDate = new TableColumn<>("Order Date");
+            columnDate.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getOrder().getDate()));
+            columnDate.setResizable(true);
+            
+              TableColumn<OrderDetailDTO, String> columnUserName = new TableColumn<>("Usuario");
+            columnUserName.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getOrder().getUser().getName()));
+            columnUserName.setResizable(true);
+            
+            TableColumn<OrderDetailDTO, Double> columnPrice = new TableColumn<>("Precio Menudeo");  //precio venta
+            columnPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
+            columnPrice.setResizable(true);
+            
+            TableColumn<OrderDetailDTO, Double> columnPurchasePrice = new TableColumn<>("Precio Menudeo");  //precio venta
+            columnPurchasePrice.setCellValueFactory(new PropertyValueFactory<>("purchasePrice"));
+            columnPurchasePrice.setResizable(true);
+            
+
+            TableColumn<OrderDetailDTO, Integer> columnAmount = new TableColumn<>("Cantidad");
+            columnAmount.setCellValueFactory(new PropertyValueFactory<>("amount"));
+            columnAmount.setResizable(true);
+            
+
+            TableColumn<OrderDetailDTO, String> columnName = new TableColumn<>("Producto");
+            columnName.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getProduct().getName()));
+            columnName.setResizable(true);
+           
+
+            tableSales.getColumns().addAll(columnDate, columnId,columnUserName,columnName, columnAmount, columnPrice, columnPurchasePrice);
+            tableSales.setItems(fetchOrderDetails());
+
+        } catch (IOException ex) {
+            Logger.getLogger(ReportesController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
 
-    public void llenarTablaVentas() {
-        tableSales.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        data = daoProducto.getSellsTableData(dateStar.getValue().toString(), dateEnd.getValue().toString(), comboUser.getValue(), comobDepartament.getValue());
-//        data.forEach((tab) -> {
-//            tab.getBotonAgregar().setOnAction(this::eventoTabla);
-//
-//        });
-        System.out.println("Llenar tabla");
+    // Método para obtener la lista de pedidos como ObservableList
+    private ObservableList<OrderDetailDTO> fetchOrderDetails() throws IOException {
+        URL url = new URL("http://localhost:3000/orders");
 
-        //celda id Venta
-        TableColumn tableColumnID = new TableColumn("ID venta");
-        tableColumnID.setCellValueFactory(new PropertyValueFactory<VentaDetalle, String>("idVenta"));
-        tableColumnID.setMaxWidth(1f * Integer.MAX_VALUE * 5);
-        //celda Fecha
-        TableColumn tableColumFecha = new TableColumn("Fecha");
-        tableColumFecha.setCellValueFactory(new PropertyValueFactory<VentaDetalle, String>("fecha"));
-        tableColumFecha.setMaxWidth(1f * Integer.MAX_VALUE * 15);
-        //Codigo
-        TableColumn tableColumCodigo = new TableColumn("Codigo");
-        tableColumCodigo.setCellValueFactory(new PropertyValueFactory<VentaDetalle, String>("codigo"));
-        tableColumCodigo.setMaxWidth(1f * Integer.MAX_VALUE * 8);
-        //Nombre
-        TableColumn tableColumNombre = new TableColumn("Nombre");
-        tableColumNombre.setCellValueFactory(new PropertyValueFactory<VentaDetalle, String>("nombre"));
-        tableColumNombre.setMaxWidth(1f * Integer.MAX_VALUE * 20);
-        // Departamento
-        TableColumn<VentaDetalle, String> tableColumDepartamento = new TableColumn<>("Departamento");
-        tableColumDepartamento.setCellValueFactory(new PropertyValueFactory<>("departamento"));
-        tableColumDepartamento.setMaxWidth(1f * Integer.MAX_VALUE * 7);
-        //Usuario
-        TableColumn<VentaDetalle, String> tableColumUsuario = new TableColumn<>("Usuario");
-        tableColumUsuario.setCellValueFactory(new PropertyValueFactory<>("usuario"));
-        tableColumUsuario.setMaxWidth(1f * Integer.MAX_VALUE * 7);
-        //Cantidad
-        TableColumn<VentaDetalle, String> tableColumCantidad = new TableColumn<>("Cantidad");
-        tableColumCantidad.setCellValueFactory(new PropertyValueFactory<>("cantidad"));
-        tableColumCantidad.setMaxWidth(1f * Integer.MAX_VALUE * 5);
-        //Precio
-        TableColumn<VentaDetalle, String> tableColumPrecio = new TableColumn<>("Precio");
-        tableColumPrecio.setCellValueFactory(new PropertyValueFactory<>("precio"));
-        tableColumPrecio.setMaxWidth(1f * Integer.MAX_VALUE * 5);
-        //Costo
-        TableColumn<VentaDetalle, String> tableColumCosto = new TableColumn<>("Costo");
-        tableColumCosto.setCellValueFactory(new PropertyValueFactory<>("costo"));
-        tableColumCosto.setMaxWidth(1f * Integer.MAX_VALUE * 5);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.connect();
 
-        //pago Con
-        TableColumn<VentaDetalle, String> tableColumPagoCon = new TableColumn<>("Pago");
-        tableColumPagoCon.setCellValueFactory(new PropertyValueFactory<>("pagoCon"));
-        tableColumPagoCon.setMaxWidth(1f * Integer.MAX_VALUE * 5);
-        
-         //Ganancia
-        TableColumn<VentaDetalle, String> tableColumGanancia = new TableColumn<>("ganacia");
-        tableColumGanancia.setCellValueFactory(new PropertyValueFactory<>("ganacia"));
-        tableColumGanancia.setMaxWidth(1f * Integer.MAX_VALUE * 9);
-        //total
-        TableColumn<VentaDetalle, String> tableColumTotal = new TableColumn<>("Total");
-        tableColumTotal.setCellValueFactory(new PropertyValueFactory<>("total"));
-        tableColumTotal.setMaxWidth(1f * Integer.MAX_VALUE * 9);
-        tableSales.setItems(data);
-        tableSales.getColumns().setAll(tableColumnID, tableColumFecha, tableColumCodigo, tableColumNombre, tableColumDepartamento, tableColumUsuario, tableColumCantidad, tableColumPrecio, tableColumCosto, tableColumPagoCon,tableColumGanancia,tableColumTotal);
+        int responseCode = conn.getResponseCode();
+        if (responseCode != 200) {
+            throw new RuntimeException("HttpResponseCode: " + responseCode);
+        } else {
+            Scanner scanner = new Scanner(url.openStream());
+            StringBuilder inline = new StringBuilder();
+            while (scanner.hasNext()) {
+                inline.append(scanner.nextLine());
+            }
+            scanner.close();
 
+            ObjectMapper mapper = new ObjectMapper();
+            List<OrderDTO> orders = mapper.readValue(inline.toString(), new TypeReference<List<OrderDTO>>() {
+            });
+
+            // Flatten the structure
+            ObservableList<OrderDetailDTO> orderDetailsList = FXCollections.observableArrayList();
+            for (OrderDTO order : orders) {
+                for (OrderDetailDTO detail : order.getOrderDetails()) {
+                    detail.setOrder(order); // Set reference to the parent order
+                    orderDetailsList.add(detail);
+                }
+            }
+            return orderDetailsList;
+        }
     }
 
 }
