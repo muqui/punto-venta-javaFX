@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dto.OrderDTO;
 import dto.OrderDetailDTO;
 import java.io.IOException;
+import java.math.BigDecimal;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -20,6 +21,7 @@ import java.util.ResourceBundle;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -29,8 +31,10 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.util.Callback;
 
 /**
  * FXML Controller class
@@ -93,42 +97,50 @@ public class ReportesController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
 
         try {
-            TableColumn<OrderDetailDTO, Integer> columnId = new TableColumn<>("Detail ID");
-            columnId.setCellValueFactory(new PropertyValueFactory<>("id"));
-            columnId.setResizable(true);
+
             //            TableColumn<OrderDetailDTO, Integer> column1 = new TableColumn<>("Order ID");
 //            column1.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getOrder().getId()).asObject());
 //            column1.setResizable(true);
 //            column1.setMaxWidth(1f * Integer.MAX_VALUE * 10);
-
             TableColumn<OrderDetailDTO, String> columnDate = new TableColumn<>("Order Date");
             columnDate.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getOrder().getDate()));
             columnDate.setResizable(true);
-            
-              TableColumn<OrderDetailDTO, String> columnUserName = new TableColumn<>("Usuario");
+
+            //codigo de barras
+            TableColumn<OrderDetailDTO, String> columnBarcode = new TableColumn<>("Codigo de barras");
+            columnBarcode.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getProduct().getBarcode()));
+            columnBarcode.setResizable(true);
+
+            TableColumn<OrderDetailDTO, String> columnUserName = new TableColumn<>("Usuario");
             columnUserName.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getOrder().getUser().getName()));
             columnUserName.setResizable(true);
-            
-            TableColumn<OrderDetailDTO, Double> columnPrice = new TableColumn<>("Precio Menudeo");  //precio venta
+
+            TableColumn<OrderDetailDTO, Double> columnPrice = new TableColumn<>("Precio venta ");  //precio venta
             columnPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
             columnPrice.setResizable(true);
-            
-            TableColumn<OrderDetailDTO, Double> columnPurchasePrice = new TableColumn<>("Precio Menudeo");  //precio venta
+
+            TableColumn<OrderDetailDTO, Double> columnPurchasePrice = new TableColumn<>("Precio compra");  //precio venta
             columnPurchasePrice.setCellValueFactory(new PropertyValueFactory<>("purchasePrice"));
             columnPurchasePrice.setResizable(true);
-            
 
             TableColumn<OrderDetailDTO, Integer> columnAmount = new TableColumn<>("Cantidad");
             columnAmount.setCellValueFactory(new PropertyValueFactory<>("amount"));
             columnAmount.setResizable(true);
-            
 
             TableColumn<OrderDetailDTO, String> columnName = new TableColumn<>("Producto");
             columnName.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getProduct().getName()));
             columnName.setResizable(true);
-           
 
-            tableSales.getColumns().addAll(columnDate, columnId,columnUserName,columnName, columnAmount, columnPrice, columnPurchasePrice);
+            // Nueva columna para la diferencia
+            TableColumn<OrderDetailDTO, BigDecimal> columnProfit = new TableColumn<>("Beneficio");
+            columnProfit.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<OrderDetailDTO, BigDecimal>, javafx.beans.value.ObservableValue<BigDecimal>>() {
+                @Override
+                public javafx.beans.value.ObservableValue<BigDecimal> call(CellDataFeatures<OrderDetailDTO, BigDecimal> param) {
+                    return new ReadOnlyObjectWrapper<>(param.getValue().getProfit());
+                }
+            });
+
+            tableSales.getColumns().addAll(columnDate, columnUserName, columnBarcode, columnName, columnAmount, columnPrice, columnPurchasePrice, columnProfit);
             tableSales.setItems(fetchOrderDetails());
 
         } catch (IOException ex) {

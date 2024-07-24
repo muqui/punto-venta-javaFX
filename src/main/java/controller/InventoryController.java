@@ -21,6 +21,7 @@ import java.util.ResourceBundle;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -183,8 +184,14 @@ public class InventoryController implements Initializable {
             columnPrice.setCellValueFactory(new PropertyValueFactory<>("purchasePrice"));
             columnPrice.setPrefWidth(100); // Ajusta el ancho según sea necesario
 
+            //Columna total precio compra
+            // Columna para el precio
+            TableColumn<EntryDTO, BigDecimal> columnTotalPrice = new TableColumn<>("total compra");
+            columnTotalPrice.setCellValueFactory(new PropertyValueFactory<>("purchaseTotalPrice"));
+            columnTotalPrice.setPrefWidth(100); // Ajusta el ancho según sea necesario
+
             // Agregar las columnas a la tabla
-            tableViewEntries.getColumns().addAll(columnDate, columnProductBarcode, columnProductName, columnAmount, columnPrice);
+            tableViewEntries.getColumns().addAll(columnDate, columnProductBarcode, columnProductName, columnAmount, columnPrice, columnTotalPrice);
 
             tableViewEntries.setItems(fetchEntries());
             tableViewEntries.widthProperty().addListener((obs, oldVal, newVal) -> {
@@ -193,8 +200,8 @@ public class InventoryController implements Initializable {
                 columnProductBarcode.setPrefWidth(tableWidth * .20);
                 columnProductName.setPrefWidth(tableWidth * 0.20); // 40% width
                 columnAmount.setPrefWidth(tableWidth * 0.20); // 30% width
-                columnPrice.setPrefWidth(tableWidth * 0.20); // 30% width
-
+                columnPrice.setPrefWidth(tableWidth * 0.10); // 30% width
+                columnTotalPrice.setPrefWidth(tableWidth * 0.10);
             });
 
         } catch (Exception e) {
@@ -259,19 +266,24 @@ public class InventoryController implements Initializable {
             columnBarcode.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getProduct().getBarcode()));
             columnBarcode.setResizable(true);
 
-            TableColumn<OrderDetailDTO, Double> columnPrice = new TableColumn<>("Precio Menudeo");  //precio venta
-            columnPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
+            // Columna para el precio del producto
+            TableColumn<OrderDetailDTO, BigDecimal> columnPrice = new TableColumn<>("Precio Menudeo");  // Precio venta
+            columnPrice.setCellValueFactory(new PropertyValueFactory<>("purchasePrice"));
             columnPrice.setResizable(true);
 
             TableColumn<OrderDetailDTO, Integer> columnAmount = new TableColumn<>("Cantidad");
             columnAmount.setCellValueFactory(new PropertyValueFactory<>("amount"));
             columnAmount.setResizable(true);
 
+            TableColumn<OrderDetailDTO, Integer> columnTotalPrice = new TableColumn<>("Precio total");
+            columnTotalPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
+            columnTotalPrice.setResizable(true);
+
             TableColumn<OrderDetailDTO, String> columnNameProduct = new TableColumn<>("Producto");
             columnNameProduct.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getProduct().getName()));
             columnNameProduct.setResizable(true);
 
-            tableViewOutputs.getColumns().addAll(columnDate, columnBarcode, columnNameProduct, columnAmount, columnPrice);
+            tableViewOutputs.getColumns().addAll(columnDate, columnBarcode, columnNameProduct, columnAmount, columnPrice, columnTotalPrice);
             tableViewOutputs.setItems(fetchOrderDetails());
             tableViewOutputs.widthProperty().addListener((obs, oldVal, newVal) -> {
                 double tableWidth = newVal.doubleValue();
@@ -279,7 +291,8 @@ public class InventoryController implements Initializable {
                 columnBarcode.setPrefWidth(tableWidth * .20);
                 columnNameProduct.setPrefWidth(tableWidth * 0.20); // 40% width
                 columnAmount.setPrefWidth(tableWidth * 0.20); // 30% width
-                columnPrice.setPrefWidth(tableWidth * 0.20); // 30% width
+                columnPrice.setPrefWidth(tableWidth * 0.10); // 30% width
+                columnTotalPrice.setPrefWidth(tableWidth * 0.10); // 30% width
 
             });
 

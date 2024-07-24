@@ -9,6 +9,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dto.DepartmentDTO;
 import dto.ProductDTO;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
@@ -29,6 +32,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
 import javafx.util.StringConverter;
 
 /**
@@ -37,6 +41,8 @@ import javafx.util.StringConverter;
  * @author albert
  */
 public class ProductController implements Initializable {
+
+    
 
     @FXML
     private Button btnSaveProduct;
@@ -76,8 +82,7 @@ public class ProductController implements Initializable {
 
     @FXML
     private TextField txtSavewholesalePrice;
-    
-    
+
     @FXML
     private TextField txtSupplier;
 
@@ -88,7 +93,8 @@ public class ProductController implements Initializable {
             product.setName(txtSaveName.getText());
             product.setDescription(txtSaveDescription.getText());
             product.setBarcode(txtSaveBarcode.getText());
-            product.setPrice(Double.parseDouble(txtSavePrice.getText()));
+            //product.setPrice(Double.parseDouble(txtSavePrice.getText()));
+            product.setPrice(new BigDecimal(txtSavePrice.getText()));
             product.setStock(Integer.parseInt(txtSaveAmount.getText()));
             product.setImgUrl("imagen url");
             DepartmentDTO selectedDepartment = comboSaveDepart.getValue();
@@ -116,11 +122,12 @@ public class ProductController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+       
         fillChoiceBoxGanancias();
         fillChoiceBoxDepartament();
         fillChoiceBoxHowToSell();
 
-         txtSavepurchasePrice.focusedProperty().addListener((observable, oldValue, newValue) -> {
+        txtSavepurchasePrice.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue) {
                 // El TextField ha perdido el foco
                 handleTextFieldFocusLost();
@@ -128,19 +135,21 @@ public class ProductController implements Initializable {
         });
     }
 
-     private void handleTextFieldFocusLost() {
+    private void handleTextFieldFocusLost() {
         // Código para manejar la pérdida de foco del TextField
         System.out.println("txtSavePrice ha perdido el foco");
         // Aquí puedes agregar cualquier acción que desees realizar
         try {
-            double precioMenudeo = calculateSellingPrice(Double.parseDouble(txtSavepurchasePrice.getText()), Double.parseDouble(comboSaveGanancia.getValue()));
-            txtSavePrice.setText(""+precioMenudeo);
+            // double precioMenudeo = calculateSellingPrice(Double.parseDouble(txtSavepurchasePrice.getText()), Double.parseDouble(comboSaveGanancia.getValue()));
+            BigDecimal precioMenudeo = calculateSellingPrice(new BigDecimal(txtSavepurchasePrice.getText()), new BigDecimal(comboSaveGanancia.getValue()));
+            txtSavePrice.setText("" + precioMenudeo);
         } catch (NumberFormatException e) {
             System.out.println("Formato de precio inválido");
             // Muestra una alerta si el formato es inválido
             showAlert("Error", "Formato de precio inválido");
         }
     }
+
     private void showAlert(String title, String message) {
         Alert alert = new Alert(AlertType.INFORMATION);
         alert.setTitle(title);
@@ -162,15 +171,16 @@ public class ProductController implements Initializable {
     private void fillChoiceBoxHowToSell() {
         ObservableList<String> howToSell = FXCollections.observableArrayList();
         howToSell.add("Unidad");
+        howToSell.add("Granel");
+        howToSell.add("Paquete");
         comboSaveHowTosell.setItems(howToSell);
         // Establecer valor por defecto
         comboSaveHowTosell.setValue("Unidad");
-        comboSaveHowTosell.setValue("Granel");
-        comboSaveHowTosell.setValue("Paquete");
+
     }
 
     private void fillChoiceBoxDepartament() {
-                try {
+        try {
             String urlString = "http://localhost:3000/categories"; // Cambia esto por la URL correcta de tu API
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -189,7 +199,8 @@ public class ProductController implements Initializable {
                 scanner.close();
 
                 ObjectMapper mapper = new ObjectMapper();
-                List<DepartmentDTO> departments = mapper.readValue(inline.toString(), new TypeReference<List<DepartmentDTO>>() {});
+                List<DepartmentDTO> departments = mapper.readValue(inline.toString(), new TypeReference<List<DepartmentDTO>>() {
+                });
 
                 ObservableList<DepartmentDTO> departamentList = FXCollections.observableArrayList(departments);
                 comboSaveDepart.setItems(departamentList);
@@ -217,9 +228,12 @@ public class ProductController implements Initializable {
         }
     }
 
-    // Método para calcular el precio de venta
-    public static double calculateSellingPrice(double cost, double profitMargin) {
-        return cost / (1 - profitMargin / 100);
+    public static BigDecimal calculateSellingPrice(BigDecimal cost, BigDecimal profitMargin) {
+        // Convertir el porcentaje de margen de beneficio a un decimal
+        BigDecimal profitMarginDecimal = profitMargin.divide(BigDecimal.valueOf(100));
+        // Calcular el precio de venta
+        BigDecimal sellingPrice = cost.divide(BigDecimal.ONE.subtract(profitMarginDecimal), RoundingMode.HALF_UP);
+        return sellingPrice;
     }
 
     private void sendProductToApi(ProductDTO product) throws Exception {

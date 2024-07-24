@@ -18,6 +18,7 @@ public class EntryDTO {
     private Date date;
     private BigDecimal amount;
     private BigDecimal purchasePrice;
+    private BigDecimal purchaseTotalPrice;
     private ProductDTO product; // Añadimos el campo product
 
     public EntryDTO() {
@@ -110,6 +111,20 @@ public class EntryDTO {
      */
     public void setPurchasePrice(BigDecimal purchasePrice) {
         this.purchasePrice = purchasePrice;
+    }
+
+    /**
+     * @return the purchaseTotalPrice
+     */
+    public BigDecimal getPurchaseTotalPrice() {
+        return purchaseTotalPrice;
+    }
+
+    /**
+     * @param purchaseTotalPrice the purchaseTotalPrice to set
+     */
+    public void setPurchaseTotalPrice(BigDecimal purchaseTotalPrice) {
+        this.purchaseTotalPrice = purchaseTotalPrice;
     }
 
  

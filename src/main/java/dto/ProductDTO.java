@@ -4,6 +4,8 @@
  */
 package dto;
 
+import java.math.BigDecimal;
+
 /**
  *
  * @author albert
@@ -16,7 +18,7 @@ public class ProductDTO {
     private String name;
     private String description;
     private String barcode;
-    private double price;
+    private BigDecimal price;
     private int stock;
     private String imgUrl;
     private int categoryId;
@@ -99,14 +101,14 @@ public class ProductDTO {
     /**
      * @return the price
      */
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
     /**
      * @param price the price to set
      */
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 

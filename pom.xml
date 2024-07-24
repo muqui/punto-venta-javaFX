@@ -11,6 +11,16 @@
     </properties>
     <dependencies>
         <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>kernel</artifactId>
+            <version>7.2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>layout</artifactId>
+            <version>7.2.3</version>
+        </dependency>
+        <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20210307</version>
@@ -23,7 +33,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.0.2</version>
+            <version>8.0.26</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
@@ -97,7 +107,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- Plugin para empaquetar las dependencias en un JAR -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -105,7 +114,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.albertocoronanavarro.puntoventafx.Main</mainClass> <!-- Reemplaza con tu clase principal -->
+                            <mainClass>com.albertocoronanavarro.puntoventafx.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
@@ -122,7 +131,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- Plugin para copiar las dependencias a la carpeta lib -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
