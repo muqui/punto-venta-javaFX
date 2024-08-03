@@ -24,7 +24,6 @@ import com.itextpdf.layout.properties.UnitValue;
 import dto.UserDTO;
 import java.io.File;
 import java.io.FileOutputStream;
-//import com.sun.javafx.scene.control.skin.TableHeaderRow;
 
 import javafx.print.PageLayout;
 import javafx.print.PageOrientation;
@@ -83,21 +82,12 @@ import org.json.JSONObject;
  */
 public class VentasController implements Initializable {
 
-    // Product productFromDataBase;
-//    public VentasController(Usuario usuario){
-//       this.usuario = usuario;
-//    }
-    private UserDTO usuario;
+//    private UserDTO usuario;
     private boolean mayoreo = false;
     // Producto producto = new Producto();
     double totalProductos = 0;
     String leyendaCantidadTotal = " Total productos";
-//    ObservableList<Producto> listProducto;
-//    DaoProducto daoProducto = new DaoProducto();
-    //Estos 3 arraList son para llenar las tablas de venta
     ArrayList<Tab> tabArrayList = new ArrayList<Tab>(); // se crar un array de tabs.
-    // ArrayList<ObservableList<Producto>> observableListArrayList = new ArrayList<ObservableList<Producto>>(); // Se crea un array de ObsevableList
-    // ArrayList<List<Producto>> listaProductoArrayList = new ArrayList<List<Producto>>(); // Se crea una lista de lsita de productos
 
     ArrayList<ObservableList<Product>> observableListArrayList = new ArrayList<ObservableList<Product>>(); // Se crea un array de ObsevableList
     ArrayList<List<Product>> listaProductoArrayList = new ArrayList<List<Product>>(); // Se crea una lista de lsita de productos
@@ -142,8 +132,8 @@ public class VentasController implements Initializable {
 
         txtVentasMayoreo.setVisible(false);
         //recibimos el usuario desde Main(App)
-        this.usuario = App.getUsuario();
-        System.out.println("Desde APP" + this.usuario.getEmail());
+//        this.usuario = App.getUsuario();
+  //      System.out.println("Desde APP" + this.usuario.getEmail());
 
         crearTicket("Ticket 1");
         txtCodigoBarras.setOnKeyPressed(new EventHandler<KeyEvent>() {
@@ -609,20 +599,20 @@ public class VentasController implements Initializable {
         //Suma la cantidad total de productos
         labelTotalProductos.setText("" + CantidadProductosTicket(tabSeleccionado) + leyendaCantidadTotal);
     }
-
-    /**
-     * @return the usuario
-     */
-    public UserDTO getUsuario() {
-        return usuario;
-    }
-
-    /**
-     * @param usuario the usuario to set
-     */
-    public void setUsuario(UserDTO usuario) {
-        this.usuario = usuario;
-    }
+//
+//    /**
+//     * @return the usuario
+//     */
+//    public UserDTO getUsuario() {
+//        return usuario;
+//    }
+//
+//    /**
+//     * @param usuario the usuario to set
+//     */
+//    public void setUsuario(UserDTO usuario) {
+//        this.usuario = usuario;
+//    }
 
     private void buscarProducto() {
         try {
@@ -705,7 +695,7 @@ public class VentasController implements Initializable {
         User user = new User();
         Product product = new Product();
 
-        user.setId(this.usuario.getId());
+     //   user.setId(this.usuario.getId());
         order.setUser(user);
 
         ObservableList<Product> products = observableListArrayList.get(tabSeleccionado);
@@ -776,7 +766,7 @@ public class VentasController implements Initializable {
 
         if (existe == false) { // if product doesn't exist add it to ticket  
 
-            listaProductoArrayList.get(tabSeleccionado).add(product); // add producto to list
+           listaProductoArrayList.get(tabSeleccionado).add(product); // add producto to list
         }
 
         labelTotal.setText("" + totalTicket(tabSeleccionado));

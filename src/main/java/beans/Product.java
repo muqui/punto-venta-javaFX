@@ -32,6 +32,11 @@ public class Product {
     private final BooleanProperty stocktaking;
     private final BooleanProperty minimumStock;
 
+    @Override
+    public String toString() {
+        return "Product{" + "id=" + id + ", name=" + name + ", description=" + description + ", barcode=" + barcode + ", price=" + price + ", stock=" + stock + ", imgUrl=" + imgUrl + ", categoryId=" + categoryId + ", amount=" + amount + ", total=" + total + ", botonAgregar=" + botonAgregar + ", botonBorrar=" + botonBorrar + ", botonEliminar=" + botonEliminar + ", howToSell=" + howToSell + ", purchasePrice=" + purchasePrice + ", wholesalePrice=" + wholesalePrice + ", stocktaking=" + stocktaking + ", minimumStock=" + minimumStock + '}';
+    }
+
     public Product() {
         this.minimumStock = new SimpleBooleanProperty();
         this.stocktaking = new SimpleBooleanProperty();

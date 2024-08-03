@@ -4,10 +4,13 @@
  */
 package controller;
 
+import beans.Product;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import static controller.VentasController.calculateDiscountedPrice;
 import dto.DepartmentDTO;
 import dto.ProductDTO;
+import dto.ProductFindDTO;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -18,22 +21,35 @@ import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.StringConverter;
+import org.json.JSONObject;
 
 /**
  * FXML Controller class
@@ -42,7 +58,9 @@ import javafx.util.StringConverter;
  */
 public class ProductController implements Initializable {
 
-    
+    ObservableList<Product> data;
+
+    ArrayList<Product> productList = new ArrayList<Product>();
 
     @FXML
     private Button btnSaveProduct;
@@ -87,6 +105,15 @@ public class ProductController implements Initializable {
     private TextField txtSupplier;
 
     @FXML
+    private TableView<Product> tableViewPackage;   // ESTA TABLA MUESTRA LOS PRODUCTOS QUE SERAN GUARDADOS EN LA TABLA
+
+    @FXML
+    void btnFindProductAnction(ActionEvent event) {
+        System.out.println("CARGAR BUSCAR PARA CARGAR A PAQUETE");
+        buscarProducto();
+    }
+
+    @FXML
     void btnSaveAction(ActionEvent event) {
         try {
             ProductDTO product = new ProductDTO();
@@ -122,11 +149,11 @@ public class ProductController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-       
+
         fillChoiceBoxGanancias();
         fillChoiceBoxDepartament();
         fillChoiceBoxHowToSell();
-
+        initializeTableColumns();
         txtSavepurchasePrice.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue) {
                 // El TextField ha perdido el foco
@@ -267,4 +294,184 @@ public class ProductController implements Initializable {
 
     }
 
+    private void buscarProducto() {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/buscar.fxml"));
+            Parent root = fxmlLoader.load();
+            BuscarController buscarController = fxmlLoader.getController();
+            Scene scene = new Scene(root);
+            Stage stage = new Stage();
+            //stage.setResizable(false);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(scene);
+            stage.showAndWait();
+
+            String codigo = buscarController.getCodigo();
+
+            if (!codigo.isEmpty()) {
+                Product product = getProductByBarcode(codigo);
+                System.out.println("PRODUCTO= " + product.toString());
+                productList.add(product);
+
+            }
+            data = FXCollections.observableList(productList);
+            data.forEach((tab) -> {
+                tab.getBotonAgregar().setOnAction(this::eventoTabla);
+                tab.getBotonAgregar().setMaxWidth(Double.MAX_VALUE);
+                tab.getBotonAgregar().setMaxHeight(Double.MAX_VALUE);
+                tab.getBotonBorrar().setOnAction(this::eventoTabla);
+                tab.getBotonBorrar().setMaxWidth(Double.MAX_VALUE);
+                tab.getBotonBorrar().setMaxHeight(Double.MAX_VALUE);
+
+                tab.getBotonEliminar().setOnAction(this::eventoTabla);
+                tab.getBotonEliminar().setMaxWidth(Double.MAX_VALUE);
+                tab.getBotonEliminar().setMaxHeight(Double.MAX_VALUE);
+
+            });
+            tableViewPackage.setItems(data);
+
+        } catch (IOException ex) {
+            Logger.getLogger(VentasController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
+    /*
+    Regresa el producto desde la rest api.
+     */
+    public Product getProductByBarcode(String barcode) {
+        Product product = new Product();
+
+        try {
+
+            // Crear un cliente HTTP
+            HttpClient client = HttpClient.newHttpClient();
+
+            // Construir la solicitud GET
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI("http://localhost:3000/products/" + barcode))
+                    .header("Content-Type", "application/json")
+                    .GET()
+                    .build();
+
+            // Enviar la solicitud y recibir la respuesta
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            // Manejar la respuesta
+            if (response.statusCode() == 200) {
+
+                // Parsear la respuesta JSON
+                JSONObject jsonResponse = new JSONObject(response.body());
+                // Crear una instancia de Product y asignar valores
+
+                product.setId(jsonResponse.getInt("id"));
+                product.setName(jsonResponse.getString("name"));
+                product.setDescription(jsonResponse.getString("description"));
+                product.setBarcode(jsonResponse.getString("barcode"));
+                // product.setPrice(jsonResponse.getDouble("price"));
+                product.setPrice(jsonResponse.getBigDecimal("price"));
+                product.setStock(jsonResponse.getInt("stock"));
+                product.setImgUrl(jsonResponse.getString("imgUrl"));
+                product.setCategoryId(jsonResponse.getInt("categoryId"));
+                product.setTotal(jsonResponse.getBigDecimal("price"));
+                product.setPurchasePrice(jsonResponse.getBigDecimal("purchasePrice"));
+                product.setHowToSell(jsonResponse.getString("howToSell"));
+
+            } else {
+                System.out.println("Error en la solicitud: " + response.statusCode());
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.initStyle(StageStyle.UTILITY);
+                alert.setTitle("Error");
+                alert.setHeaderText(null);
+                alert.setContentText("Producto no encontrado.");
+                alert.showAndWait();
+            }
+
+        } catch (Exception e) {
+        }
+        return product;
+    }
+
+    private void initializeTableColumns() {
+        tableViewPackage.getColumns().clear(); // Limpiar las columnas de la tabla antes de agregar nuevas
+
+        TableColumn<Product, String> columnBarcode = new TableColumn<>("Codigo");
+        columnBarcode.setCellValueFactory(new PropertyValueFactory<>("barcode"));
+        
+        TableColumn<Product, String> columnAmount = new TableColumn<>("Cantidad");
+        columnAmount.setCellValueFactory(new PropertyValueFactory<>("amount"));
+        
+
+        TableColumn<Product, String> columnName = new TableColumn<>("Nombre");
+        columnName.setCellValueFactory(new PropertyValueFactory<>("name"));
+
+        TableColumn<Product, Double> columnPrice = new TableColumn<>("Precio de venta");
+        columnPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
+
+        TableColumn<Product, Integer> columnStock = new TableColumn<>("Precio de compra");
+        columnStock.setCellValueFactory(new PropertyValueFactory<>("purchasePrice"));
+
+        TableColumn<Product, Button> columnButtonAdd = new TableColumn<>("Acción");
+        columnButtonAdd.setCellValueFactory(new PropertyValueFactory<>("botonAgregar"));
+        
+         TableColumn<Product, Button> columnButtonDelete = new TableColumn<>("Acción");
+        columnButtonDelete.setCellValueFactory(new PropertyValueFactory<>("botonEliminar"));
+        
+         TableColumn<Product, Button> columnButtonless = new TableColumn<>("Acción");
+        columnButtonless.setCellValueFactory(new PropertyValueFactory<>("botonBorrar"));
+
+        tableViewPackage.getColumns().addAll(columnBarcode, columnName,columnAmount, columnPrice, columnStock, columnButtonAdd,columnButtonless, columnButtonDelete );
+
+        // Set table width listener to adjust column widths in percentages
+        tableViewPackage.widthProperty().addListener((obs, oldVal, newVal) -> {
+            double tableWidth = newVal.doubleValue();
+            columnBarcode.setPrefWidth(tableWidth * 0.15); // 15% width
+             columnAmount.setPrefWidth(tableWidth * 0.10); 
+            columnName.setPrefWidth(tableWidth * 0.15); // 15% width
+            columnPrice.setPrefWidth(tableWidth * 0.15); // 15% width
+            columnStock.setPrefWidth(tableWidth * 0.15); // 15% width
+            columnButtonAdd.setPrefWidth(tableWidth * 0.10);
+            columnButtonless.setPrefWidth(tableWidth * 0.10);
+            columnButtonDelete.setPrefWidth(tableWidth * 0.10);
+        });
+    }
+
+    private void eventoTabla(ActionEvent event) {
+          for (int i = 0; data.size() > i; i++) {
+            Product p = data.get(i);
+            //delete item from ticket
+            if (event.getSource() == p.getBotonEliminar()) {
+
+                // delete by itself
+                data.remove(p);
+
+            }
+            if (event.getSource() == p.getBotonAgregar()) {
+
+                //  p.setAmount(p.getAmount() + 1);
+                p.setAmount(p.getAmount().add(BigDecimal.ONE));
+                //  p.setTotal(p.getAmount() * p.getPrice());
+                p.setTotal(p.getAmount().multiply(p.getPrice()));
+
+            }
+            if (event.getSource() == p.getBotonBorrar()) {
+
+                if (p.getAmount().compareTo(BigDecimal.ONE) > 0) {
+                    p.setAmount(p.getAmount().subtract(BigDecimal.ONE));
+                    p.setTotal(p.getAmount().multiply(p.getPrice()));
+                    System.out.println("cantidad " + p.getAmount());
+                }
+
+//                if (p.getAmount() > 1) {
+//                    p.setAmount(p.getAmount() - 1);
+//                    p.setTotal(p.getAmount() * p.getPrice());
+//                    System.out.println("cantidad " + p.getAmount());
+//                }
+            }
+        }
+
+        tableViewPackage.setItems(data);
+        tableViewPackage.refresh();
+
+    }
 }

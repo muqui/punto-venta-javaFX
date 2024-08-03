@@ -53,7 +53,7 @@
                            <children>
                               <Label alignment="CENTER" layoutX="373.0" layoutY="5.0" text="PRODUCTOS DE PAQUETE" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
                               <TableView fx:id="tableViewPackage" layoutX="14.0" layoutY="59.0" prefHeight="178.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
-                              <Button fx:id="btnAddProductToPackage" layoutX="14.0" layoutY="23.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="146.0" text="Añadir Producto" />
+                              <Button fx:id="btnAddProductToPackage" layoutX="14.0" layoutY="23.0" mnemonicParsing="false" onAction="#btnFindProductAnction" prefHeight="26.0" prefWidth="146.0" text="Añadir Producto" />
                            </children>
                         </AnchorPane>
                             </children>
