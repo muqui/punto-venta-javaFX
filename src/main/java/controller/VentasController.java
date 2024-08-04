@@ -82,7 +82,7 @@ import org.json.JSONObject;
  */
 public class VentasController implements Initializable {
 
-//    private UserDTO usuario;
+    private UserDTO user;
     private boolean mayoreo = false;
     // Producto producto = new Producto();
     double totalProductos = 0;
@@ -132,8 +132,8 @@ public class VentasController implements Initializable {
 
         txtVentasMayoreo.setVisible(false);
         //recibimos el usuario desde Main(App)
-//        this.usuario = App.getUsuario();
-  //      System.out.println("Desde APP" + this.usuario.getEmail());
+        this.user = App.getUsuario();
+        //      System.out.println("Desde APP" + this.usuario.getEmail());
 
         crearTicket("Ticket 1");
         txtCodigoBarras.setOnKeyPressed(new EventHandler<KeyEvent>() {
@@ -249,27 +249,27 @@ public class VentasController implements Initializable {
             BigDecimal cantidad = new BigDecimal(masdeuno.getCantidad());
 
             Product product = insertToTicket(codigo); // recibe el producto desde la rest api  
-                       //hacer descuento
-                    if (!txtDiscount.getText().trim().equalsIgnoreCase("")) {
-                        BigDecimal discountPercentage = new BigDecimal(txtDiscount.getText());
-                        discountPercentage = discountPercentage.setScale(2, RoundingMode.HALF_UP);
+            //hacer descuento
+            if (!txtDiscount.getText().trim().equalsIgnoreCase("")) {
+                BigDecimal discountPercentage = new BigDecimal(txtDiscount.getText());
+                discountPercentage = discountPercentage.setScale(2, RoundingMode.HALF_UP);
 
-                        System.out.println("DESCUENTO TEXT =" + discountPercentage);
-                        if (discountPercentage.compareTo(BigDecimal.ZERO) > 0) {
+                System.out.println("DESCUENTO TEXT =" + discountPercentage);
+                if (discountPercentage.compareTo(BigDecimal.ZERO) > 0) {
 
-                            BigDecimal discountedPrice = calculateDiscountedPrice(product.getPrice(), discountPercentage);
+                    BigDecimal discountedPrice = calculateDiscountedPrice(product.getPrice(), discountPercentage);
 
-                            System.out.println("precio regresado con descuento= " + discountedPrice);
+                    System.out.println("precio regresado con descuento= " + discountedPrice);
 
-                            System.out.println("precio de venta Normal= " + product.getPrice());
+                    System.out.println("precio de venta Normal= " + product.getPrice());
 
-                            product.setPrice(discountedPrice);
-                            product.setTotal(discountedPrice);
-                            System.out.println("precio de venta Con descuento= " + discountedPrice);
+                    product.setPrice(discountedPrice);
+                    product.setTotal(discountedPrice);
+                    System.out.println("precio de venta Con descuento= " + discountedPrice);
 
-                        }
+                }
 
-                    }
+            }
 
             if (product.getBarcode() != null) {  // si el producto existe se carga al ticket
                 //product.setTotal(product.getPrice() * cantidad);  // Calcula el total.
@@ -399,93 +399,6 @@ public class VentasController implements Initializable {
         labelTotalProductos.setText("" + CantidadProductosTicket(numTabs) + leyendaCantidadTotal);
 
     }
-
-    /*
-    *
-    * Agrega producto al ticket
-    *
-     */
-//    public void insertarProductoTicket(String codigo, double cantidad) {
-//        //String codigoBarras = txtCodigoBarras.getText();
-//        String codigoBarras = codigo;
-//        Producto producto = getProduct(codigoBarras, cantidad);
-//        // System.out.println("cantidad product " + producto.getCantidad());
-//        if (producto == null) {
-//            txtCodigoBarras.setText("");
-//            Alert alert = new Alert(Alert.AlertType.ERROR);
-//            alert.initStyle(StageStyle.UTILITY);
-//            alert.setTitle("Error");
-//            alert.setHeaderText(null);
-//            alert.setContentText("No existe el producto! " + this.usuario.getNombre());
-//            alert.showAndWait();
-//        } else {  //Existe el producto INICIO
-//            // producto.setCantidad(cantidad);
-//
-//            int tabSeleccionado = tabPaneTicket.getSelectionModel().getSelectedIndex(); // Selecciona el tab Seleccionado.    
-//            boolean existe = existeProductoEnticket(tabSeleccionado, codigoBarras, cantidad);
-//            Node selectedContent = tabArrayList.get(tabSeleccionado).getContent();
-//            if (listaProductoArrayList.get(tabSeleccionado).size() <= 0) {
-//
-//                System.out.println(" inserta producto.................... xxxxxxab ");
-//                listaProductoArrayList.get(tabSeleccionado).add(producto); // add producto to list
-//            } else {
-//                if (existe == false) { // if product doesn't exist add it to ticket  
-//
-//                    listaProductoArrayList.get(tabSeleccionado).add(getProduct(codigoBarras, cantidad)); // add producto to list
-//
-//                }
-//            }
-//
-//            labelTotal.setText("" + totalTicket(tabSeleccionado));
-//            labelTotalProductos.setText("" + CantidadProductosTicket(tabSeleccionado) + leyendaCantidadTotal);
-//            ObservableList<Producto> data = observableListArrayList.get(tabSeleccionado);
-//
-//            data = FXCollections.observableList(listaProductoArrayList.get(tabSeleccionado));
-//
-//            data.forEach((tab) -> {
-//                tab.getBotonAgregar().setOnAction(this::eventoTabla);
-//                tab.getBotonAgregar().setMaxWidth(Double.MAX_VALUE);
-//                tab.getBotonAgregar().setMaxHeight(Double.MAX_VALUE);
-//                tab.getBotonBorrar().setOnAction(this::eventoTabla);
-//                tab.getBotonBorrar().setMaxWidth(Double.MAX_VALUE);
-//                tab.getBotonBorrar().setMaxHeight(Double.MAX_VALUE);
-//
-//                tab.getBotonEliminar().setOnAction(this::eventoTabla);
-//                tab.getBotonEliminar().setMaxWidth(Double.MAX_VALUE);
-//                tab.getBotonEliminar().setMaxHeight(Double.MAX_VALUE);
-//
-//            });
-//            TableView tableView = (TableView) selectedContent.lookup("#miTabla");
-//
-//            tableView.setItems(data);
-//            // alto de la fila
-//            tableView.setFixedCellSize(50);
-//            tableView.refresh();
-//            //clear field
-//            txtCodigoBarras.setText("");
-//        }//Existe el producto FIN
-//
-//    }
-
-    /*
-    * Return Producto from database but update amonut to 1, set the amount total.
-     */
-//    private Producto getProduct(String codigoBarras, double cantidad) {
-//        Producto p = daoProducto.getProducto(codigoBarras); // get Producto from dababase
-//
-//        if (p != null) {
-//
-//            //selecciona el precio mayoreo o menudeo.
-//            double precio = mayoreo ? p.getPrecioMayoreo() : p.getPrecioVentaUnitario();
-//            p.setPrecioVentaUnitario(precio);
-//            p.setTotalTicket(p.getPrecioVentaUnitario() * cantidad);
-//            System.out.println("aqui registra" + p.getPrecioVentaUnitario());
-//            p.setCantidad(cantidad);
-//            // p.setCantidad(1); // update amount to one
-//        }
-//
-//        return p;
-//    }
 
     /*
     * Check if exist product in ticket, update amoutn an d total price
@@ -639,27 +552,27 @@ public class VentasController implements Initializable {
                     cantidad = dialogAmount();
                 }
 
-                           //hacer descuento
-                    if (!txtDiscount.getText().trim().equalsIgnoreCase("")) {
-                        BigDecimal discountPercentage = new BigDecimal(txtDiscount.getText());
-                        discountPercentage = discountPercentage.setScale(2, RoundingMode.HALF_UP);
+                //hacer descuento
+                if (!txtDiscount.getText().trim().equalsIgnoreCase("")) {
+                    BigDecimal discountPercentage = new BigDecimal(txtDiscount.getText());
+                    discountPercentage = discountPercentage.setScale(2, RoundingMode.HALF_UP);
 
-                        System.out.println("DESCUENTO TEXT =" + discountPercentage);
-                        if (discountPercentage.compareTo(BigDecimal.ZERO) > 0) {
+                    System.out.println("DESCUENTO TEXT =" + discountPercentage);
+                    if (discountPercentage.compareTo(BigDecimal.ZERO) > 0) {
 
-                            BigDecimal discountedPrice = calculateDiscountedPrice(product.getPrice(), discountPercentage);
+                        BigDecimal discountedPrice = calculateDiscountedPrice(product.getPrice(), discountPercentage);
 
-                            System.out.println("precio regresado con descuento= " + discountedPrice);
+                        System.out.println("precio regresado con descuento= " + discountedPrice);
 
-                            System.out.println("precio de venta Normal= " + product.getPrice());
+                        System.out.println("precio de venta Normal= " + product.getPrice());
 
-                            product.setPrice(discountedPrice);
-                            product.setTotal(discountedPrice);
-                            System.out.println("precio de venta Con descuento= " + discountedPrice);
-
-                        }
+                        product.setPrice(discountedPrice);
+                        product.setTotal(discountedPrice);
+                        System.out.println("precio de venta Con descuento= " + discountedPrice);
 
                     }
+
+                }
                 if (product.getBarcode() != null) {  // si el producto existe se carga al ticket
                     //   product.setTotal(product.getPrice() * 1);  // Calcula el total.
                     product.setTotal(product.getPrice().multiply(BigDecimal.ONE));  // Calcula el total.
@@ -667,11 +580,7 @@ public class VentasController implements Initializable {
                     insertarProductoTicket(product, cantidad); // Envia el producto al ticket (tableView)
                 }
             }
-//
-//            if (!buscarController.getCodigo().equalsIgnoreCase("")) {
-//                insertarProductoTicket(buscarController.getCodigo(), 1);
-//            }
-//
+
         } catch (IOException ex) {
             Logger.getLogger(VentasController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -695,7 +604,7 @@ public class VentasController implements Initializable {
         User user = new User();
         Product product = new Product();
 
-     //   user.setId(this.usuario.getId());
+        user.setId(this.user.getId());
         order.setUser(user);
 
         ObservableList<Product> products = observableListArrayList.get(tabSeleccionado);
@@ -766,7 +675,7 @@ public class VentasController implements Initializable {
 
         if (existe == false) { // if product doesn't exist add it to ticket  
 
-           listaProductoArrayList.get(tabSeleccionado).add(product); // add producto to list
+            listaProductoArrayList.get(tabSeleccionado).add(product); // add producto to list
         }
 
         labelTotal.setText("" + totalTicket(tabSeleccionado));
