@@ -4,7 +4,10 @@
  */
 package dto;
 
+import beans.PackageContent;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -31,6 +34,10 @@ public class ProductDTO {
     
     private double entriy;
     private double output;
+    
+    private double quantity;
+    
+     private List<PackageContent> packageContents = new ArrayList<>();
 
     @Override
     public String toString() {
@@ -264,6 +271,34 @@ public class ProductDTO {
      */
     public void setSupplier(String supplier) {
         this.supplier = supplier;
+    }
+
+    /**
+     * @return the packageContents
+     */
+    public List<PackageContent> getPackageContents() {
+        return packageContents;
+    }
+
+    /**
+     * @param packageContents the packageContents to set
+     */
+    public void setPackageContents(List<PackageContent> packageContents) {
+        this.packageContents = packageContents;
+    }
+
+    /**
+     * @return the quantity
+     */
+    public double getQuantity() {
+        return quantity;
+    }
+
+    /**
+     * @param quantity the quantity to set
+     */
+    public void setQuantity(double quantity) {
+        this.quantity = quantity;
     }
 
    

@@ -9,6 +9,8 @@ import javafx.beans.property.StringProperty;
 import javafx.scene.control.Button;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Product {
 
@@ -25,12 +27,19 @@ public class Product {
     private Button botonAgregar;
     private Button botonBorrar;
     private Button botonEliminar;
-    
+
     private final StringProperty howToSell;
     private BigDecimal purchasePrice;
-    private BigDecimal wholesalePrice;   
+    private BigDecimal wholesalePrice;
     private final BooleanProperty stocktaking;
     private final BooleanProperty minimumStock;
+
+    //cambios
+    private final StringProperty supplier = new SimpleStringProperty();
+    private final IntegerProperty entry = new SimpleIntegerProperty();
+    private final IntegerProperty output = new SimpleIntegerProperty();
+    private final IntegerProperty quantity = new SimpleIntegerProperty();
+    private List<PackageContent> packageContents = new ArrayList<>();
 
     @Override
     public String toString() {
@@ -240,5 +249,19 @@ public class Product {
 
     public StringProperty howToSellProperty() {
         return howToSell;
+    }
+
+    /**
+     * @return the packageContents
+     */
+    public List<PackageContent> getPackageContents() {
+        return packageContents;
+    }
+
+    /**
+     * @param packageContents the packageContents to set
+     */
+    public void setPackageContents(List<PackageContent> packageContents) {
+        this.packageContents = packageContents;
     }
 }

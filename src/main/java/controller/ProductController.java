@@ -4,13 +4,16 @@
  */
 package controller;
 
+import beans.PackageContent;
 import beans.Product;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.source.tree.BreakTree;
 import dto.DepartmentDTO;
 import dto.ProductDTO;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -35,6 +38,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TableColumn;
@@ -106,7 +110,7 @@ public class ProductController implements Initializable {
     @FXML
     void btnFindProductAnction(ActionEvent event) {
         System.out.println("CARGAR BUSCAR PARA CARGAR A PAQUETE");
-        
+
         Product product = buscarProducto();
         addTable(product);
     }
@@ -133,6 +137,16 @@ public class ProductController implements Initializable {
             product.setEntriy(Double.parseDouble(txtSaveAmount.getText()));
             product.setSupplier(txtSupplier.getText());
             product.setOutput(0);
+            product.setQuantity(100.00);
+
+// Iterar sobre la lista usando el índice
+            for (int i = 0; i < data.size(); i++) {
+
+                PackageContent content = new PackageContent();
+                content.setProductId(data.get(i).getId());
+                content.setQuantity(new BigDecimal("10.00"));
+                product.getPackageContents().add(content);
+            }
 
             System.out.println(product.toString());
 
@@ -276,12 +290,26 @@ public class ProductController implements Initializable {
                     .build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+             String responseBody = response.body();
             System.out.println("Resultado =" + response.body());
+            
+               // Parse the response body as JSON
+                JSONObject jsonResponse = new JSONObject(responseBody);
+                 // Access the "message" field
+                String message = jsonResponse.getString("message");
+                System.out.println("Message = " + message);
 
             if (response.statusCode() == 201) {
                 showAlert("Éxito", "Producto guardado exitosamente.");
             } else {
                 // Manejar error de autenticación
+                if(message.equalsIgnoreCase("product exists")){
+                     //showAlert("Info", "El producto ya existe, puede actualizarlo " );
+                     showAlertUpdateProduct("Info", "El producto existe, Desea actualizarlo?");
+                
+            }
+                else
+                
                 showAlert("Error", "Error al guardar el producto. Código de estado: " + response.statusCode());
             }
 
@@ -314,7 +342,6 @@ public class ProductController implements Initializable {
 
             }
 
-
         } catch (IOException ex) {
             Logger.getLogger(VentasController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -322,15 +349,12 @@ public class ProductController implements Initializable {
     }
 
     private void addTable(Product product) {
-        
+
         boolean exists = existProdcutIntable(product.getBarcode(), new BigDecimal("1"));
-        if(exists == false){  //si ek producto no esta en la tabla se agrega 1.
-           productList.add(product);
+        if (exists == false) {  //si ek producto no esta en la tabla se agrega 1.
+            productList.add(product);
         }
-        
-        
-        
-      
+
         data = FXCollections.observableList(productList);
         data.forEach((tab) -> {
             tab.getBotonAgregar().setOnAction(this::eventoTabla);
@@ -346,7 +370,7 @@ public class ProductController implements Initializable {
 
         });
         tableViewPackage.setItems(data);
-         tableViewPackage.refresh();
+        tableViewPackage.refresh();
 
     }
 
@@ -465,7 +489,6 @@ public class ProductController implements Initializable {
                 p.setAmount(p.getAmount().add(BigDecimal.ONE));
                 //  p.setTotal(p.getAmount() * p.getPrice());
                 p.setTotal(p.getAmount().multiply(p.getPurchasePrice()));
-                
 
             }
             if (event.getSource() == p.getBotonBorrar()) {
@@ -488,10 +511,10 @@ public class ProductController implements Initializable {
         tableViewPackage.refresh();
 
     }
-    
-    public boolean existProdcutIntable(String codigoBarras, BigDecimal cantidad){
+
+    public boolean existProdcutIntable(String codigoBarras, BigDecimal cantidad) {
         boolean exists = false;
-                for (int i = 0; i < productList.size(); i++) {
+        for (int i = 0; i < productList.size(); i++) {
             Product p = productList.get(i);
             System.out.println("PRODUCTO YA ESTA EN EL TICKET" + p.toString());
             if (p.getBarcode().equalsIgnoreCase(codigoBarras)) {
@@ -510,8 +533,37 @@ public class ProductController implements Initializable {
                 break;
             }
         }
-        
+
         return exists;
-        
+
+    }
+    
+    public  void showAlertUpdateProduct(String title, String message) {
+        // Crear una alerta de tipo INFORMACIÓN
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+
+        // Añadir los botones "OK" y "Actualizar"
+        ButtonType cancelButton = new ButtonType("Cancelar");
+        ButtonType updateButton = new ButtonType("Actualizar");
+
+        alert.getButtonTypes().setAll(cancelButton, updateButton);
+
+        // Mostrar la alerta y esperar a que el usuario responda
+        ButtonType result = alert.showAndWait().orElse(cancelButton);
+
+        // Manejar la respuesta del usuario
+        if (result == updateButton) {
+            // Acción cuando se presiona el botón "Actualizar"
+            System.out.println("Actualizar presionado");
+            // Aquí puedes agregar el código para manejar la actualización
+            btnSaveProduct.setText("Actualizar");
+        } else {
+            // Acción cuando se presiona el botón "OK"
+            System.out.println("cancel presionado");
+            // Aquí puedes agregar el código para manejar la opción "OK"
+        }
     }
 }
