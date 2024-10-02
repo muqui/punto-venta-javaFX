@@ -10,10 +10,10 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane id="AnchorPane" prefHeight="583.0" prefWidth="1015.0" styleClass="mainFxmlClass" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ProductController">
+<AnchorPane id="AnchorPane" prefHeight="583.0" prefWidth="1067.0" styleClass="mainFxmlClass" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ProductController">
    
     <children>
-        <TabPane layoutX="14.0" layoutY="7.0" prefHeight="389.0" prefWidth="1000.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="4.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="7.0">
+        <TabPane fx:id="tabPaneAddProduct" layoutX="14.0" layoutY="7.0" onMouseClicked="#tabPaneAddProductMouseCliked" prefHeight="389.0" prefWidth="1000.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="4.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="7.0">
             <tabs>
                 <Tab text="Alta">
                     <content>
@@ -65,9 +65,14 @@
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                     </content>
                 </Tab>
-                <Tab text="Egresos">
+                <Tab text="Departamento">
                     <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <Label layoutX="22.0" layoutY="36.0" text="Crear departamento" />
+                        <TextField fx:id="txtCrearDepartamento" layoutX="162.0" layoutY="32.0" prefHeight="26.0" prefWidth="231.0" />
+                        <Button fx:id="btnCrearDepartamento" layoutX="432.0" layoutY="32.0" mnemonicParsing="false" onAction="#OnActionBtnCrearDepartamento" text="Crear" />
+                     </children></AnchorPane>
                     </content>
                 </Tab>
                 <Tab text="Completo">

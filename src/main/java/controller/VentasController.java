@@ -121,6 +121,9 @@ public class VentasController implements Initializable {
 
     @FXML
     private TextField txtDiscount;
+    
+    
+   
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {

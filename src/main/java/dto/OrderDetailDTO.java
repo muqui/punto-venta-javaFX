@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 public class OrderDetailDTO {
     private int id;
     private BigDecimal price;
-    private int amount;
+    private BigDecimal amount;
     private BigDecimal  purchasePrice;
     private ProductDTO product;
      private OrderDTO order; // Add a reference to the parent OrderDTO
@@ -59,19 +59,7 @@ public class OrderDetailDTO {
         this.price = price;
     }
 
-    /**
-     * @return the amount
-     */
-    public int getAmount() {
-        return amount;
-    }
-
-    /**
-     * @param amount the amount to set
-     */
-    public void setAmount(int amount) {
-        this.amount = amount;
-    }
+ 
 
     /**
      * @return the product
@@ -104,5 +92,19 @@ public class OrderDetailDTO {
       // Método para calcular la diferencia
     public BigDecimal getProfit() {
         return getPrice().subtract(getPurchasePrice());
+    }
+
+    /**
+     * @return the amount
+     */
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    /**
+     * @param amount the amount to set
+     */
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
     }
 }

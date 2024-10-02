@@ -4,6 +4,7 @@
  */
 package controller;
 
+import config.ConfigLoader;
 import beans.PackageContent;
 import beans.Product;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -12,6 +13,7 @@ import com.sun.source.tree.BreakTree;
 import dto.DepartmentDTO;
 import dto.ProductDTO;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
@@ -41,10 +43,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -108,6 +112,74 @@ public class ProductController implements Initializable {
     private TableView<Product> tableViewPackage;   // ESTA TABLA MUESTRA LOS PRODUCTOS QUE SERAN GUARDADOS EN LA TABLA
 
     @FXML
+    private TextField txtCrearDepartamento;
+    
+       @FXML
+    private TabPane tabPaneAddProduct;
+    
+    @FXML
+    void tabPaneAddProductMouseCliked(MouseEvent event) {
+        int tabSeleccionado = tabPaneAddProduct.getSelectionModel().getSelectedIndex();
+        System.out.println("presionaste crear producto" + tabSeleccionado);
+        
+        if(tabSeleccionado == 0){
+            fillChoiceBoxDepartament();
+        }
+          
+    }
+
+    @FXML
+    void OnActionBtnCrearDepartamento(ActionEvent event) {
+        System.out.println("A QUI SE VE A CREAR UN NUEVO DEPARTAMENTO" + txtCrearDepartamento.getText());
+        ConfigLoader configLoader = new ConfigLoader();
+        String apiUrl = configLoader.getProperty("api.base.url")  + configLoader.getProperty("api.endpoint.categories");
+
+        System.out.println("Llamando a la API: " + apiUrl);
+
+          try {
+            // Convertir ProductDTO a JSON
+            ObjectMapper objectMapper = new ObjectMapper();
+            DepartmentDTO departamentDto =new DepartmentDTO();
+            departamentDto.setName(txtCrearDepartamento.getText().trim());
+            String jsonProduct = objectMapper.writeValueAsString(departamentDto);
+
+            // Crear cliente HTTP
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI(apiUrl))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonProduct))
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 201) {
+                showAlert("Éxito", "Departamento creado exitosamente.");
+            } else {
+                String responseBody = response.body();
+                System.out.println("Resultado =" + response.body());
+
+                // Parse the response body as JSON
+                JSONObject jsonResponse = new JSONObject(responseBody);
+                // Access the "message" field
+                String message = jsonResponse.getString("message");
+                System.out.println("Message = " + message);
+                
+                showAlert("Error", "Error al crear departmamento:  " + message);
+
+            
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error API " + e);
+            showAlert("Error", "Error al conectarse con la API.");
+        }
+
+       
+
+    }
+
+    @FXML
     void btnFindProductAnction(ActionEvent event) {
         System.out.println("CARGAR BUSCAR PARA CARGAR A PAQUETE");
 
@@ -140,18 +212,32 @@ public class ProductController implements Initializable {
             product.setQuantity(100.00);
 
 // Iterar sobre la lista usando el índice
-            for (int i = 0; i < data.size(); i++) {
+            boolean save = true;
+            if (comboSaveHowTosell.getValue().equalsIgnoreCase("Paquete")) {
 
-                PackageContent content = new PackageContent();
-                content.setProductId(data.get(i).getId());
-                content.setQuantity(new BigDecimal("10.00"));
-                product.getPackageContents().add(content);
+                if (data == null) {
+                    System.out.println("ESTA VACIA LA LISTA");
+                    showAlert("Error", "Productos del paquete no puede estar vacio.");
+                    save = false;
+                } else {
+                    for (int i = 0; i < data.size(); i++) {
+                        PackageContent content = new PackageContent();
+                        content.setProductId(data.get(i).getId());
+                        content.setQuantity(new BigDecimal("10.00"));
+                        product.getPackageContents().add(content);
+                    }
+                    save = true;
+                }
+
             }
 
             System.out.println(product.toString());
+            if (save) {
+                sendProductToApi(product);
+            }
 
-            sendProductToApi(product);
         } catch (Exception e) {
+            System.out.println("exection " + e);
         }
 
     }
@@ -290,27 +376,27 @@ public class ProductController implements Initializable {
                     .build();
 
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-             String responseBody = response.body();
-            System.out.println("Resultado =" + response.body());
-            
-               // Parse the response body as JSON
-                JSONObject jsonResponse = new JSONObject(responseBody);
-                 // Access the "message" field
-                String message = jsonResponse.getString("message");
-                System.out.println("Message = " + message);
 
             if (response.statusCode() == 201) {
                 showAlert("Éxito", "Producto guardado exitosamente.");
             } else {
+                String responseBody = response.body();
+                System.out.println("Resultado =" + response.body());
+
+                // Parse the response body as JSON
+                JSONObject jsonResponse = new JSONObject(responseBody);
+                // Access the "message" field
+                String message = jsonResponse.getString("message");
+                System.out.println("Message = " + message);
+
                 // Manejar error de autenticación
-                if(message.equalsIgnoreCase("product exists")){
-                     //showAlert("Info", "El producto ya existe, puede actualizarlo " );
-                     showAlertUpdateProduct("Info", "El producto existe, Desea actualizarlo?");
-                
-            }
-                else
-                
-                showAlert("Error", "Error al guardar el producto. Código de estado: " + response.statusCode());
+                if (message.equalsIgnoreCase("product exists")) {
+                    //showAlert("Info", "El producto ya existe, puede actualizarlo " );
+                    showAlertUpdateProduct("Info", "El producto existe, Desea actualizarlo?");
+
+                } else {
+                    showAlert("Error", "Error al guardar el producto. Código de estado: " + response.statusCode());
+                }
             }
 
         } catch (Exception e) {
@@ -431,6 +517,8 @@ public class ProductController implements Initializable {
     }
 
     private void initializeTableColumns() {
+        
+        System.out.println("se lanzo");
         tableViewPackage.getColumns().clear(); // Limpiar las columnas de la tabla antes de agregar nuevas
 
         TableColumn<Product, String> columnBarcode = new TableColumn<>("Codigo");
@@ -537,8 +625,8 @@ public class ProductController implements Initializable {
         return exists;
 
     }
-    
-    public  void showAlertUpdateProduct(String title, String message) {
+
+    public void showAlertUpdateProduct(String title, String message) {
         // Crear una alerta de tipo INFORMACIÓN
         Alert alert = new Alert(AlertType.INFORMATION);
         alert.setTitle(title);
