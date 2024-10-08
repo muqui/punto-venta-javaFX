@@ -1,6 +1,5 @@
 package com.albertocoronanavarro.puntoventafx;
 
-
 import dto.UserDTO;
 import java.io.IOException;
 import java.net.URL;
@@ -16,7 +15,10 @@ import javafx.scene.layout.AnchorPane;
 public class PrimaryController implements Initializable {
 
     UserDTO usuario = new UserDTO();
-    Node nodeVenta, nodeProducto,nodeReporte, nodeInventory;
+    Node nodeVenta, nodeProducto, nodeReporte, nodeInventory, nodeCaja;
+
+    @FXML
+    private Button btnCaja;
 
     @FXML
     private AnchorPane anchorPaneContenido;
@@ -33,18 +35,43 @@ public class PrimaryController implements Initializable {
     void actionBtnProducts(ActionEvent event) {
         nodeProductos();
     }
-     @FXML
+
+    @FXML
     void actionBtnReports(ActionEvent event) {
-       nodeReports();
+        nodeReports();
     }
-    
-             @FXML
+
+    @FXML
     void actionBtnInventory(ActionEvent event) {
-       nodeInventory();
+        nodeInventory();
     }
 
     private void nodeVentas() {
         pantallaVentas();
+    }
+
+    @FXML
+    void onActionCaja(ActionEvent event) {
+
+        pantallaCaja();
+    }
+
+    private void pantallaCaja() {
+        System.out.println("Cargar Caja");
+        try {
+
+            if (nodeCaja == null) {
+//                Usuario u = new Usuario();
+//                u.setNombre("Alngel");
+                nodeCaja = (Node) FXMLLoader.load(getClass().getResource("/views/caja.fxml"));
+
+            }
+
+            anchorPaneContenido.getChildren().setAll(nodeCaja);
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
     private void nodeProductos() {
@@ -52,7 +79,7 @@ public class PrimaryController implements Initializable {
         try {
 
             if (nodeProducto == null) {
-               
+
                 nodeProducto = (Node) FXMLLoader.load(getClass().getResource("/views/Product.fxml"));
 
             }
@@ -70,7 +97,6 @@ public class PrimaryController implements Initializable {
 
     }
 
-   
     private void pantallaVentas() {
         try {
 
@@ -78,14 +104,10 @@ public class PrimaryController implements Initializable {
 //                Usuario u = new Usuario();
 //                u.setNombre("Alngel");
                 nodeVenta = (Node) FXMLLoader.load(getClass().getResource("/views/ventas.fxml"));
-                
+
             }
-           
 
             anchorPaneContenido.getChildren().setAll(nodeVenta);
-            
-            
-            
 
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -93,9 +115,9 @@ public class PrimaryController implements Initializable {
     }
 
     private void nodeReports() {
-        
+
         System.out.println("Cargar reporte");
-             try {
+        try {
 
 //            if (nodeReporte == null) {
 ////                Usuario u = new Usuario();
@@ -106,19 +128,19 @@ public class PrimaryController implements Initializable {
             nodeReporte = (Node) FXMLLoader.load(getClass().getResource("/views/Reportes.fxml"));
 
             anchorPaneContenido.getChildren().setAll(nodeReporte);
-          
+
         } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
 
     private void nodeInventory() {
-         System.out.println("Cargar inventario");
-             try {
+        System.out.println("Cargar inventario");
+        try {
             nodeInventory = (Node) FXMLLoader.load(getClass().getResource("/views/Inventory.fxml"));
-            anchorPaneContenido.getChildren().setAll(nodeInventory);         
+            anchorPaneContenido.getChildren().setAll(nodeInventory);
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-       }
+    }
 }

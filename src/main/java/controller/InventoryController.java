@@ -4,6 +4,7 @@
  */
 package controller;
 
+import api.ProductApi;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dto.EntryDTO;
@@ -25,11 +26,14 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 
@@ -39,6 +43,9 @@ import javafx.scene.input.MouseEvent;
  * @author albert
  */
 public class InventoryController implements Initializable {
+    
+     ProductApi productApi = new ProductApi();
+    
 
     @FXML
     private TableView<ProductDTO> tableProducts;
@@ -49,13 +56,60 @@ public class InventoryController implements Initializable {
 
     @FXML
     private TabPane tabPaneInventory;
+    
+    
+    @FXML
+    private TextField txtAddInventoryAdd;
+
+    @FXML
+    private TextField txtAddInventoryBarcode;
+
+    @FXML
+    private TextField txtAddInventoryName;
+
+    @FXML
+    private TextField txtAddInventoryPrice;
+
+    @FXML
+    private TextField txtAddInventorySupplier;
+
+    @FXML
+    private TextField txtAddInventoryholesalePrice;
+
+    @FXML
+    private TextField txtAddInventorypurchasePrice;
+    
+    @FXML
+    private ComboBox<?> ComboAddInventoryProfit;
+    
+    @FXML
+    void onActionBtnUpdateProduct(ActionEvent event) {
+        String barcode = txtAddInventoryBarcode.getText();
+        ProductDTO productDto = productApi.getProductByBarcode(barcode);
+        int newStock = Integer.parseInt(txtAddInventoryAdd.getText());
+        System.out.println("producto amodificar =    " + productDto.toString());
+        productDto.setEntriy(newStock);
+        productDto.setPurchasePrice(Double.parseDouble(txtAddInventorypurchasePrice.getText()));
+        productDto.setPrice(new BigDecimal(txtAddInventoryPrice.getText()));
+        productDto.setSupplier(txtAddInventorySupplier.getText());
+        productApi.updateProduct(productDto);
+       
+
+    }
+
 
     @FXML
     void mouseClickTabPaneInventory(MouseEvent event) {
         int tabSeleccionado = tabPaneInventory.getSelectionModel().getSelectedIndex();
 
+        if (tabSeleccionado == 0) {
+            fetchDataInventorie();
+        }
         if (tabSeleccionado == 1) {
-
+            entries();
+        }
+        if (tabSeleccionado == 1) {
+            outputs();
         }
         System.out.println("tab seleccionado" + tabSeleccionado);
     }
@@ -70,7 +124,14 @@ public class InventoryController implements Initializable {
         try {
             entries();  //carga los datos de lasa entradas al inventario
             outputs(); //carga los datos de las salidas al inventario
-            TableColumn<ProductDTO, Integer> columnbarcode = new TableColumn<>("Codigo");
+            fetchDataInventorie(); // carga las informacion del inventario.
+
+        } catch (Exception e) {
+        }
+    }
+    public void fetchDataInventorie(){
+        try {
+                        TableColumn<ProductDTO, Integer> columnbarcode = new TableColumn<>("Codigo");
             columnbarcode.setCellValueFactory(new PropertyValueFactory<>("barcode"));
             columnbarcode.setPrefWidth(150); // Set specific width for barcode column
 
@@ -119,11 +180,9 @@ public class InventoryController implements Initializable {
                 columnPurchasePrice.setPrefWidth(tableWidth * 0.10); // 30% width
                 columnTotalStockValue.setPrefWidth(tableWidth * 0.10);
             });
-
         } catch (Exception e) {
         }
     }
-
     private ObservableList<ProductDTO> fetchProducts() throws IOException {
         URL url = new URL("http://localhost:3000/products/");
 

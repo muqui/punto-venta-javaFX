@@ -223,8 +223,9 @@ public class ProductController implements Initializable {
                     for (int i = 0; i < data.size(); i++) {
                         PackageContent content = new PackageContent();
                         content.setProductId(data.get(i).getId());
-                        content.setQuantity(new BigDecimal("10.00"));
+                        content.setQuantity(data.get(i).getAmount());
                         product.getPackageContents().add(content);
+                       
                     }
                     save = true;
                 }

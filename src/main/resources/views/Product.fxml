@@ -60,10 +60,47 @@
                         </AnchorPane>
                     </content>
                 </Tab>
-                <Tab text="Modificcar">
-                    <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                    </content>
+                <Tab text="Modificar">
+               <content>
+                  <AnchorPane fx:id="comboSaveCategory1" prefHeight="550.0" prefWidth="1000.0">
+                     <children>
+                        <Label layoutX="14.0" layoutY="21.0" prefHeight="18.0" prefWidth="972.0" text="MODIFICAR PRODUCTO" />
+                        <Label layoutX="14.0" layoutY="57.0" text="Codigo barras" />
+                        <Label layoutX="360.0" layoutY="57.0" text="Como se vende" />
+                        <Label layoutX="668.0" layoutY="57.0" text="Departamento" />
+                        <TextField fx:id="txtSaveBarcode1" layoutX="108.0" layoutY="53.0" prefHeight="26.0" prefWidth="238.0" />
+                        <TextField fx:id="txtSaveName1" layoutX="66.0" layoutY="337.0" prefHeight="26.0" prefWidth="287.0" AnchorPane.leftAnchor="66.0" />
+                        <TextField fx:id="txtSaveDescription1" layoutX="475.0" layoutY="337.0" prefHeight="26.0" prefWidth="515.0" AnchorPane.leftAnchor="475.0" AnchorPane.rightAnchor="10.0" />
+                        <TextField fx:id="txtSavepurchasePrice1" layoutX="113.0" layoutY="385.0" prefHeight="26.0" prefWidth="141.0" AnchorPane.leftAnchor="113.0" />
+                        <TextField fx:id="txtSavePrice1" layoutX="612.0" layoutY="385.0" prefHeight="26.0" prefWidth="128.0" AnchorPane.leftAnchor="612.0" />
+                        <TextField fx:id="txtSavewholesalePrice1" layoutX="854.0" layoutY="385.0" prefHeight="26.0" prefWidth="134.0" AnchorPane.leftAnchor="856.0" AnchorPane.rightAnchor="10.0" />
+                        <CheckBox fx:id="isstocktaking1" layoutX="14.0" layoutY="423.0" mnemonicParsing="false" text="Usar inventario" AnchorPane.leftAnchor="14.0" />
+                        <TextField fx:id="txtSaveAmount1" layoutX="82.0" layoutY="454.0" prefHeight="26.0" prefWidth="240.0" />
+                        <TextField fx:id="txtSaveminimumStock1" layoutX="408.0" layoutY="454.0" prefHeight="26.0" prefWidth="228.0" />
+                        <TextField fx:id="txtSupplier1" layoutX="722.0" layoutY="454.0" prefHeight="26.0" prefWidth="236.0" AnchorPane.leftAnchor="722.0" AnchorPane.rightAnchor="10.0" />
+                        <Label layoutX="368.0" layoutY="341.0" prefHeight="18.0" prefWidth="94.0" text="Descripcion" />
+                        <Label layoutX="502.0" layoutY="389.0" text="Precio menudeo" />
+                        <Label layoutX="261.0" layoutY="389.0" text="\% Ganancia" />
+                        <Label layoutX="18.0" layoutY="389.0" text="Precio compra" AnchorPane.leftAnchor="14.0" />
+                        <ChoiceBox fx:id="comboSaveGanancia1" layoutX="336.0" layoutY="385.0" prefHeight="26.0" prefWidth="157.0" AnchorPane.leftAnchor="336.0" />
+                        <Label layoutX="14.0" layoutY="458.0" text="Cantidad" AnchorPane.leftAnchor="14.0" />
+                        <Label layoutX="336.0" layoutY="458.0" text="Minimo" />
+                        <Button fx:id="btnSaveProduct1" layoutX="913.0" layoutY="318.0" mnemonicParsing="false" onAction="#btnSaveAction" text="Modificar" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="18.0" />
+                        <Label layoutX="745.0" layoutY="389.0" text="Precio mayoreo" AnchorPane.leftAnchor="745.0" />
+                        <ChoiceBox fx:id="comboSaveHowTosell1" layoutX="460.0" layoutY="53.0" prefHeight="26.0" prefWidth="194.0" />
+                        <ChoiceBox fx:id="comboSaveDepart1" layoutX="772.0" layoutY="53.0" prefWidth="150.0" />
+                        <Label layoutX="14.0" layoutY="341.0" text="Name" AnchorPane.leftAnchor="14.0" />
+                        <Label layoutX="649.0" layoutY="458.0" text="Proveedor" />
+                        <AnchorPane fx:id="anchorPanePackage1" layoutX="13.0" layoutY="89.0" prefHeight="241.0" prefWidth="975.0" AnchorPane.leftAnchor="13.0" AnchorPane.rightAnchor="12.0">
+                           <children>
+                              <Label alignment="CENTER" layoutX="373.0" layoutY="5.0" text="PRODUCTOS DE PAQUETE" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+                              <TableView fx:id="tableViewPackage1" layoutX="14.0" layoutY="59.0" prefHeight="178.0" prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+                              <Button fx:id="btnAddProductToPackage1" layoutX="14.0" layoutY="23.0" mnemonicParsing="false" onAction="#btnFindProductAnction" prefHeight="26.0" prefWidth="146.0" text="Añadir Producto" />
+                           </children>
+                        </AnchorPane>
+                     </children>
+                  </AnchorPane>
+               </content>
                 </Tab>
                 <Tab text="Departamento">
                     <content>
@@ -73,11 +110,6 @@
                         <TextField fx:id="txtCrearDepartamento" layoutX="162.0" layoutY="32.0" prefHeight="26.0" prefWidth="231.0" />
                         <Button fx:id="btnCrearDepartamento" layoutX="432.0" layoutY="32.0" mnemonicParsing="false" onAction="#OnActionBtnCrearDepartamento" text="Crear" />
                      </children></AnchorPane>
-                    </content>
-                </Tab>
-                <Tab text="Completo">
-                    <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                     </content>
                 </Tab>
             </tabs>

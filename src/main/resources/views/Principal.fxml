@@ -17,7 +17,7 @@
                   <Button mnemonicParsing="false" text="Clientes" />
                   <Button mnemonicParsing="false" text="Configuracion" />
                   <Button fx:id="btnReports" mnemonicParsing="false" onAction="#actionBtnReports" prefHeight="25.0" prefWidth="80.0" text="Reportes" />
-                  <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="75.0" text="Caja" />
+                  <Button fx:id="btnCaja" mnemonicParsing="false" onAction="#onActionCaja" prefHeight="26.0" prefWidth="75.0" text="Caja" />
               </items>
             </ToolBar>
          </top>

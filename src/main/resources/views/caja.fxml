@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="1015.0" styleClass="mainFxmlClass" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.CajaController">
+    
+   <children>
+      <TabPane layoutX="14.0" layoutY="7.0" prefHeight="389.0" prefWidth="1000.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="4.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="7.0">
+        <tabs>
+          <Tab text="Ingresos">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <ComboBox layoutX="384.0" layoutY="72.0" prefHeight="26.0" prefWidth="188.0" />
+                        <Label layoutX="27.0" layoutY="76.0" text="Fecha" />
+                        <DatePicker layoutX="114.0" layoutY="72.0" />
+                        <Label layoutX="318.0" layoutY="76.0" text="Nombre" />
+                        <Label layoutX="27.0" layoutY="121.0" text="Descripcion" />
+                        <Label layoutX="27.0" layoutY="210.0" text="Cantidad" />
+                        <TextArea layoutX="115.0" layoutY="117.0" prefHeight="69.0" prefWidth="458.0" />
+                        <TextField layoutX="114.0" layoutY="206.0" prefHeight="26.0" prefWidth="459.0" />
+                        <Button layoutX="916.0" layoutY="310.0" mnemonicParsing="false" text="Button" AnchorPane.bottomAnchor="22.0" AnchorPane.rightAnchor="24.0" />
+                        <Label alignment="CENTER" contentDisplay="CENTER" layoutX="27.0" layoutY="22.0" prefHeight="18.0" prefWidth="543.0" text="Capurar Ingreso" textAlignment="CENTER" />
+                        <Button layoutX="27.0" layoutY="255.0" mnemonicParsing="false" onAction="#onActionCrearIngreso" text="Crear Ingreso" />
+                     </children></AnchorPane>
+            </content>
+          </Tab>
+            <Tab text="Egresos">
+               <content>
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <ComboBox layoutX="384.0" layoutY="72.0" prefHeight="26.0" prefWidth="188.0" />
+                        <Label layoutX="27.0" layoutY="76.0" text="Fecha" />
+                        <DatePicker layoutX="114.0" layoutY="72.0" />
+                        <Label layoutX="319.0" layoutY="76.0" text="Nombre" />
+                        <Label layoutX="27.0" layoutY="121.0" text="Descripcion" />
+                        <Label layoutX="27.0" layoutY="210.0" text="Cantidad" />
+                        <TextArea layoutX="115.0" layoutY="117.0" prefHeight="69.0" prefWidth="458.0" />
+                        <TextField layoutX="114.0" layoutY="206.0" prefHeight="26.0" prefWidth="459.0" />
+                        <Button layoutX="916.0" layoutY="310.0" mnemonicParsing="false" text="Button" AnchorPane.bottomAnchor="22.0" AnchorPane.rightAnchor="24.0" />
+                        <Label alignment="CENTER" contentDisplay="CENTER" layoutX="27.0" layoutY="22.0" prefHeight="18.0" prefWidth="964.0" text="Capurar Egreso" textAlignment="CENTER" />
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+        </tabs>
+      </TabPane>
+   </children>
+</AnchorPane>
