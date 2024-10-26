@@ -4,8 +4,9 @@
  */
 package controller;
 
+import api.ExpenseApi;
 import api.IncomeApi;
-import dto.IncomeNameDTO;
+import dto.ExpenseNameDTO;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
@@ -19,24 +20,14 @@ import javafx.stage.Stage;
  *
  * @author albert
  */
-public class CrearNombreIngresoController implements Initializable {
-    IncomeApi incomeApi = new IncomeApi();
-    IncomeNameDTO incomeNameDTO = new IncomeNameDTO();
-    public String nombre = "";
+public class CrearNombreEgresoController implements Initializable {
 
+    IncomeApi incomeApi = new IncomeApi();
+    ExpenseApi expenseApi = new ExpenseApi();
+    ExpenseNameDTO expenseNameDTO = new ExpenseNameDTO();
+    public String nombre = "";
     @FXML
     private TextField txtCrearNombre;
-
-    @FXML
-    void onActionCrearNombre(ActionEvent event) {
-
-        nombre = txtCrearNombre.getText().trim();
-        incomeNameDTO.setName(nombre);
-        incomeApi.crearNombreIngreso(incomeNameDTO);
-        Stage stage = (Stage) txtCrearNombre.getScene().getWindow();
-        stage.close();
-
-    }
 
     /**
      * Initializes the controller class.
@@ -44,6 +35,15 @@ public class CrearNombreIngresoController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
+    }
+
+    @FXML
+    void onActionCrearNombre(ActionEvent event) {
+        nombre = txtCrearNombre.getText().trim();
+        expenseNameDTO.setName(nombre);
+        expenseApi.crearNombreEgreso(expenseNameDTO);
+        Stage stage = (Stage) txtCrearNombre.getScene().getWindow();
+        stage.close();
     }
 
 }

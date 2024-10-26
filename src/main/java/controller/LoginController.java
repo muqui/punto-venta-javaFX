@@ -6,6 +6,7 @@ package controller;
 
 import com.albertocoronanavarro.puntoventafx.App;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dto.ApiResponseDTO;
 import dto.UserDTO;
 import java.io.IOException;
 import java.net.URL;
@@ -23,6 +24,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import javafx.scene.control.Label;
 
 /**
  * FXML Controller class
@@ -40,6 +42,9 @@ public class LoginController implements Initializable {
 
     @FXML
     private TextField txtUsuer;
+
+    @FXML
+    private Label txtError;
 
     @FXML
     void btnAceptarAction(ActionEvent event) throws IOException {
@@ -71,37 +76,16 @@ public class LoginController implements Initializable {
                 main.changeScene("/views/Principal.fxml", usuario, event);
                 System.out.println("Login exitoso");
             } else {
-                // Manejar error de autenticación
-                System.out.println("Login fallido");
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.initStyle(StageStyle.UTILITY);
-                alert.setTitle("Error");
-                alert.setHeaderText(null);
-                alert.setContentText("Error datos incorrectos intente nuevamente.");
-                alert.showAndWait();
+
+                ApiResponseDTO apiResponse = new ObjectMapper().readValue(response.body(), ApiResponseDTO.class);
+                txtError.setText("Error de conexión: " + apiResponse.getMessage());
             }
 
         } catch (Exception e) {
             System.out.println("error api " + e);
+            txtError.setText("ERROR: " + e);
         }
 
-//        if(getUsuario().getNombre().equalsIgnoreCase("Admin") && getUsuario().getPassword().equals("Corona")){
-//            
-//         App main = new App();
-//         main.setUsuario(this.usuario);
-//       
-//           
-//          
-//           //  main.changeScene("/views/Principal.fxml", getUsuario(), event);
-//        }
-//        else{
-//             Alert alert = new Alert(Alert.AlertType.ERROR);
-//                alert.initStyle(StageStyle.UTILITY);
-//                alert.setTitle("Error");
-//                alert.setHeaderText(null);
-//                alert.setContentText("Error datos incorrectos intente nuevamente.");
-//                alert.showAndWait();
-//        }
     }
 
     /**
@@ -109,9 +93,7 @@ public class LoginController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        //  this.usuario.setNombre("Corona");
-        //  this.usuario.setPassword("dsdss");
-        // TODO
+        txtError.setText("");
 
     }
 

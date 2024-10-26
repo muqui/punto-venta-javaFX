@@ -14,11 +14,16 @@ public class UserDTO {
      private String token;
      private String email;
      private String password;
+     private String address;
+      private String phone;
+      private String country;
+      private String  city;
+      private boolean isAdmin;
 
-    @Override
-    public String toString() {
-        return "UserDTO{" + "id=" + id + ", name=" + name + ", token=" + token + ", email=" + email + ", password=" + password + '}';
-    }
+//    @Override
+//    public String toString() {
+//        return "UserDTO{" + "id=" + id + ", name=" + name + ", token=" + token + ", email=" + email + ", password=" + password + '}';
+//    }
     
      
      public UserDTO(){
@@ -93,6 +98,76 @@ public class UserDTO {
      */
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    /**
+     * @return the address
+     */
+    public String getAddress() {
+        return address;
+    }
+
+    /**
+     * @param address the address to set
+     */
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    /**
+     * @return the phone
+     */
+    public String getPhone() {
+        return phone;
+    }
+
+    /**
+     * @param phone the phone to set
+     */
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    /**
+     * @return the country
+     */
+    public String getCountry() {
+        return country;
+    }
+
+    /**
+     * @param country the country to set
+     */
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    /**
+     * @return the city
+     */
+    public String getCity() {
+        return city;
+    }
+
+    /**
+     * @param city the city to set
+     */
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    /**
+     * @return the isAdmin
+     */
+    public boolean isIsAdmin() {
+        return isAdmin;
+    }
+
+    /**
+     * @param isAdmin the isAdmin to set
+     */
+    public void setIsAdmin(boolean isAdmin) {
+        this.isAdmin = isAdmin;
     }
      
 }

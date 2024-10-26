@@ -31,6 +31,7 @@ public class ProductDTO {
     private boolean stocktaking;
     private int minimumStock;
     private String supplier;
+     private CategoryDTO category;
     
     private double entriy;
     private double output;
@@ -299,6 +300,20 @@ public class ProductDTO {
      */
     public void setQuantity(double quantity) {
         this.quantity = quantity;
+    }
+
+    /**
+     * @return the category
+     */
+    public CategoryDTO getCategory() {
+        return category;
+    }
+
+    /**
+     * @param category the category to set
+     */
+    public void setCategory(CategoryDTO category) {
+        this.category = category;
     }
 
    

@@ -4,26 +4,26 @@
  */
 package dto;
 
-
-
+import java.math.BigDecimal;
 import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class OrderDTO {
+
+    
     private int id;
     private String date;
     private List<OrderDetailDTO> orderDetails;
     private UserDTO user;
 
-    
-    public OrderDTO(){
-        
+    public OrderDTO() {
+
     }
     // Getters y Setters
     // Constructor
-    
-        public ObservableList<OrderDetailDTO> getOrderDetails() {
+
+    public ObservableList<OrderDetailDTO> getOrderDetails() {
         // Convert List to ObservableList when called
         return FXCollections.observableArrayList(orderDetails);
     }
@@ -59,8 +59,6 @@ public class OrderDTO {
     /**
      * @return the orderDetails
      */
-  
-
     /**
      * @param orderDetails the orderDetails to set
      */
@@ -81,4 +79,7 @@ public class OrderDTO {
     public void setUser(UserDTO user) {
         this.user = user;
     }
+    
+   
+
 }

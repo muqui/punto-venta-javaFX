@@ -19,17 +19,17 @@
             <content>
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <ComboBox layoutX="384.0" layoutY="72.0" prefHeight="26.0" prefWidth="188.0" />
-                        <Label layoutX="27.0" layoutY="76.0" text="Fecha" />
-                        <DatePicker layoutX="114.0" layoutY="72.0" />
-                        <Label layoutX="318.0" layoutY="76.0" text="Nombre" />
-                        <Label layoutX="27.0" layoutY="121.0" text="Descripcion" />
-                        <Label layoutX="27.0" layoutY="210.0" text="Cantidad" />
-                        <TextArea layoutX="115.0" layoutY="117.0" prefHeight="69.0" prefWidth="458.0" />
-                        <TextField layoutX="114.0" layoutY="206.0" prefHeight="26.0" prefWidth="459.0" />
-                        <Button layoutX="916.0" layoutY="310.0" mnemonicParsing="false" text="Button" AnchorPane.bottomAnchor="22.0" AnchorPane.rightAnchor="24.0" />
-                        <Label alignment="CENTER" contentDisplay="CENTER" layoutX="27.0" layoutY="22.0" prefHeight="18.0" prefWidth="543.0" text="Capurar Ingreso" textAlignment="CENTER" />
-                        <Button layoutX="27.0" layoutY="255.0" mnemonicParsing="false" onAction="#onActionCrearIngreso" text="Crear Ingreso" />
+                        <ComboBox fx:id="comboNombreIngreso" layoutX="371.0" layoutY="107.0" prefHeight="26.0" prefWidth="188.0" />
+                        <Label layoutX="14.0" layoutY="111.0" text="Fecha" />
+                        <DatePicker fx:id="choosedateIncome" layoutX="101.0" layoutY="107.0" />
+                        <Label layoutX="306.0" layoutY="111.0" text="Nombre" />
+                        <Label layoutX="14.0" layoutY="156.0" text="Descripcion" />
+                        <Label layoutX="14.0" layoutY="245.0" text="Cantidad" />
+                        <TextArea fx:id="txtDescription" layoutX="102.0" layoutY="152.0" prefHeight="69.0" prefWidth="458.0" />
+                        <TextField fx:id="txtAmount" layoutX="101.0" layoutY="241.0" prefHeight="26.0" prefWidth="459.0" />
+                        <Button layoutX="916.0" layoutY="310.0" mnemonicParsing="false" onAction="#onActionSaveIncome" text="Alta" AnchorPane.bottomAnchor="5.0" AnchorPane.rightAnchor="5.0" />
+                        <Label alignment="CENTER" contentDisplay="CENTER" layoutX="14.0" layoutY="57.0" prefHeight="18.0" prefWidth="543.0" text="Capurar Ingreso" textAlignment="CENTER" />
+                        <Button layoutX="31.0" layoutY="18.0" mnemonicParsing="false" onAction="#onActionCrearIngreso" text="Crear Ingreso" />
                      </children></AnchorPane>
             </content>
           </Tab>
@@ -37,16 +37,17 @@
                <content>
                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <ComboBox layoutX="384.0" layoutY="72.0" prefHeight="26.0" prefWidth="188.0" />
-                        <Label layoutX="27.0" layoutY="76.0" text="Fecha" />
-                        <DatePicker layoutX="114.0" layoutY="72.0" />
-                        <Label layoutX="319.0" layoutY="76.0" text="Nombre" />
-                        <Label layoutX="27.0" layoutY="121.0" text="Descripcion" />
-                        <Label layoutX="27.0" layoutY="210.0" text="Cantidad" />
-                        <TextArea layoutX="115.0" layoutY="117.0" prefHeight="69.0" prefWidth="458.0" />
-                        <TextField layoutX="114.0" layoutY="206.0" prefHeight="26.0" prefWidth="459.0" />
-                        <Button layoutX="916.0" layoutY="310.0" mnemonicParsing="false" text="Button" AnchorPane.bottomAnchor="22.0" AnchorPane.rightAnchor="24.0" />
-                        <Label alignment="CENTER" contentDisplay="CENTER" layoutX="27.0" layoutY="22.0" prefHeight="18.0" prefWidth="964.0" text="Capurar Egreso" textAlignment="CENTER" />
+                        <ComboBox fx:id="comboNombreEgreso" layoutX="377.0" layoutY="113.0" prefHeight="26.0" prefWidth="188.0" />
+                        <Label layoutX="20.0" layoutY="117.0" text="Fecha" />
+                        <DatePicker fx:id="datePickerEgreso" layoutX="107.0" layoutY="113.0" />
+                        <Label layoutX="312.0" layoutY="117.0" text="Nombre" />
+                        <Label layoutX="20.0" layoutY="162.0" text="Descripcion" />
+                        <Label layoutX="20.0" layoutY="251.0" text="Cantidad" />
+                        <TextArea fx:id="txtExpenseDescription" layoutX="108.0" layoutY="158.0" prefHeight="69.0" prefWidth="458.0" />
+                        <TextField fx:id="txtAmountExpense" layoutX="107.0" layoutY="247.0" prefHeight="26.0" prefWidth="459.0" />
+                        <Button layoutX="916.0" layoutY="310.0" mnemonicParsing="false" onAction="#onActionAltaEgreso" text="Alta" AnchorPane.bottomAnchor="5.0" AnchorPane.rightAnchor="5.0" />
+                        <Label alignment="CENTER" contentDisplay="CENTER" layoutX="20.0" layoutY="63.0" prefHeight="18.0" prefWidth="545.0" text="Capurar Egreso" textAlignment="CENTER" />
+                        <Button layoutX="31.0" layoutY="18.0" mnemonicParsing="false" onAction="#onActionCrearEgreso" text="Crear Egreso" />
                      </children>
                   </AnchorPane>
                </content>
