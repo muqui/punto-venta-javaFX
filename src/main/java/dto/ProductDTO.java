@@ -22,7 +22,7 @@ public class ProductDTO {
     private String description;
     private String barcode;
     private BigDecimal price;
-    private int stock;
+    private double stock;
     private String imgUrl;
     private int categoryId;
     private String  howToSell;
@@ -31,6 +31,7 @@ public class ProductDTO {
     private boolean stocktaking;
     private int minimumStock;
     private String supplier;
+    private boolean isActive;
      private CategoryDTO category;
     
     private double entriy;
@@ -120,19 +121,7 @@ public class ProductDTO {
         this.price = price;
     }
 
-    /**
-     * @return the stock
-     */
-    public int getStock() {
-        return stock;
-    }
-
-    /**
-     * @param stock the stock to set
-     */
-    public void setStock(int stock) {
-        this.stock = stock;
-    }
+   
 
     /**
      * @return the imgUrl
@@ -315,6 +304,35 @@ public class ProductDTO {
     public void setCategory(CategoryDTO category) {
         this.category = category;
     }
+
+    /**
+     * @return the isActive
+     */
+    public boolean isIsActive() {
+        return isActive;
+    }
+
+    /**
+     * @param isActive the isActive to set
+     */
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    /**
+     * @return the stock
+     */
+    public double getStock() {
+        return stock;
+    }
+
+    /**
+     * @param stock the stock to set
+     */
+    public void setStock(double stock) {
+        this.stock = stock;
+    }
+
 
    
 }

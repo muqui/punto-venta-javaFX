@@ -92,7 +92,7 @@ public class InventoryController implements Initializable {
         productDto.setPurchasePrice(Double.parseDouble(txtAddInventorypurchasePrice.getText()));
         productDto.setPrice(new BigDecimal(txtAddInventoryPrice.getText()));
         productDto.setSupplier(txtAddInventorySupplier.getText());
-        productApi.updateProduct(productDto);
+        productApi.addINvetory(productDto);
        
 
     }

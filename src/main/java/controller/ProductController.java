@@ -4,6 +4,7 @@
  */
 package controller;
 
+import api.ProductApi;
 import config.ConfigLoader;
 import beans.PackageContent;
 import beans.Product;
@@ -32,6 +33,7 @@ import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -48,7 +50,10 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -62,12 +67,19 @@ import org.json.JSONObject;
  */
 public class ProductController implements Initializable {
 
+    ProductApi productApi = new ProductApi();
+    ProductDTO productoToUpdate = new ProductDTO();
+
     ObservableList<Product> data;
 
     ArrayList<Product> productList = new ArrayList<Product>();
 
     @FXML
     private Button btnSaveProduct;
+    @FXML
+    private AnchorPane anchorPanePackage;
+    @FXML
+    private AnchorPane anchorPaneStock;
 
     @FXML
     private ChoiceBox<String> comboSaveGanancia;
@@ -77,6 +89,15 @@ public class ProductController implements Initializable {
 
     @FXML
     private ChoiceBox<DepartmentDTO> comboSaveDepart;
+
+    @FXML
+    private ChoiceBox<DepartmentDTO> comboUpdateDepart;
+
+    @FXML
+    private ChoiceBox<String> comboUpdateGanancia;
+
+    @FXML
+    private ChoiceBox<String> comboUpdateHowTosell;
 
     @FXML
     private CheckBox isstocktaking;
@@ -113,33 +134,74 @@ public class ProductController implements Initializable {
 
     @FXML
     private TextField txtCrearDepartamento;
-    
-       @FXML
+
+    @FXML
     private TabPane tabPaneAddProduct;
+
+    @FXML
+    private TextField txtUpdateBarcode;
+    @FXML
+    private TextField txtUpdateAmount;
+
+    @FXML
+    private TextField txtUpdateDescription;
+
+    @FXML
+    private TextField txtUpdateName;
+
+    @FXML
+    private TextField txtUpdatePrice;
+
+    @FXML
+    private TextField txtUpdateSupplier;
+
+    @FXML
+    private TextField txtUpdateminimumStock;
+
+    @FXML
+    private TextField txtUpdatepurchasePrice;
+
+    @FXML
+    private TextField txtUpdatewholesalePrice;
     
+    
+    @FXML
+    void btnUpdateAction(ActionEvent event) {
+          //ACTUALIZAR PRODUCTO
+         
+        productoToUpdate.setName(txtUpdateName.getText());
+        productoToUpdate.setDescription(txtUpdateDescription.getText());
+        
+         System.out.println("Producto actualizado=  " + productoToUpdate.toString());
+         productoToUpdate.setSupplier("sin informacion");
+         
+           productApi.updateProduct(productoToUpdate);
+
+    }
+
     @FXML
     void tabPaneAddProductMouseCliked(MouseEvent event) {
         int tabSeleccionado = tabPaneAddProduct.getSelectionModel().getSelectedIndex();
         System.out.println("presionaste crear producto" + tabSeleccionado);
-        
-        if(tabSeleccionado == 0){
+
+        if (tabSeleccionado == 0) {
             fillChoiceBoxDepartament();
         }
-          
+
     }
 
     @FXML
     void OnActionBtnCrearDepartamento(ActionEvent event) {
         System.out.println("A QUI SE VE A CREAR UN NUEVO DEPARTAMENTO" + txtCrearDepartamento.getText());
         ConfigLoader configLoader = new ConfigLoader();
-        String apiUrl = configLoader.getProperty("api.base.url")  + configLoader.getProperty("api.endpoint.categories");
+        String apiUrl = configLoader.getProperty("api.base.url") + configLoader.getProperty("api.endpoint.categories");
 
         System.out.println("Llamando a la API: " + apiUrl);
 
-          try {
+        try {
             // Convertir ProductDTO a JSON
             ObjectMapper objectMapper = new ObjectMapper();
-            DepartmentDTO departamentDto =new DepartmentDTO();
+            DepartmentDTO departamentDto = new DepartmentDTO();
             departamentDto.setName(txtCrearDepartamento.getText().trim());
             String jsonProduct = objectMapper.writeValueAsString(departamentDto);
 
@@ -164,10 +226,9 @@ public class ProductController implements Initializable {
                 // Access the "message" field
                 String message = jsonResponse.getString("message");
                 System.out.println("Message = " + message);
-                
+
                 showAlert("Error", "Error al crear departmamento:  " + message);
 
-            
             }
 
         } catch (Exception e) {
@@ -175,7 +236,15 @@ public class ProductController implements Initializable {
             showAlert("Error", "Error al conectarse con la API.");
         }
 
-       
+    }
+
+    @FXML
+    void OnKeyComboHowToSell(KeyEvent event) {
+
+    }
+
+    @FXML
+    void OnMouseClickedComboHowTosell(MouseEvent event) {
 
     }
 
@@ -225,7 +294,7 @@ public class ProductController implements Initializable {
                         content.setProductId(data.get(i).getId());
                         content.setQuantity(data.get(i).getAmount());
                         product.getPackageContents().add(content);
-                       
+
                     }
                     save = true;
                 }
@@ -243,20 +312,65 @@ public class ProductController implements Initializable {
 
     }
 
+    @FXML
+    void OnActionFindProductToUpdateProduct(ActionEvent event) {
+
+    }
+
+  
+
+    @FXML
+    void btnFindProductUpdateAnction(ActionEvent event) {
+
+    }
+
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
+        //anchorPanePackage.setVisible(false);
+        //anchorPanePackage.setManaged(false);
+        fillChoiceBoxUpdateDepartament();
         fillChoiceBoxGanancias();
         fillChoiceBoxDepartament();
         fillChoiceBoxHowToSell();
         initializeTableColumns();
+
+        txtUpdateBarcode.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent ke) {
+                if (ke.getCode().equals(KeyCode.ENTER)) {
+
+                    System.out.println("BUSCAR PRODUCTO ACTUALIZAR");
+
+                    updateProduct();
+
+                }
+            }
+
+        });
         txtSavepurchasePrice.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue) {
                 // El TextField ha perdido el foco
                 handleTextFieldFocusLost();
+            }
+        });
+        // Listener para detectar cambios en el ComboBox
+        comboSaveHowTosell.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println("COMO SE VENDE COMBO: " + newValue);
+            if ("Paquete".equalsIgnoreCase(newValue)) {
+                // anchorPanePackage.setVisible(true);
+                // anchorPanePackage.setManaged(true);
+
+                //  anchorPaneStock.setVisible(false);
+                //  anchorPaneStock.setManaged(false);
+            } else {
+                //  anchorPanePackage.setVisible(false);
+                //  anchorPanePackage.setManaged(false);
+
+                //  anchorPaneStock.setVisible(true);
+                //  anchorPaneStock.setManaged(true);
             }
         });
     }
@@ -290,8 +404,10 @@ public class ProductController implements Initializable {
             gananciaOptions.add(String.valueOf(i));
         }
         comboSaveGanancia.setItems(gananciaOptions);
+        comboUpdateGanancia.setItems(gananciaOptions);
         // Establecer valor por defecto
         comboSaveGanancia.setValue("43");
+        comboUpdateGanancia.setValue("43");
     }
 
     private void fillChoiceBoxHowToSell() {
@@ -299,59 +415,67 @@ public class ProductController implements Initializable {
         howToSell.add("Unidad");
         howToSell.add("Granel");
         howToSell.add("Paquete");
+        comboUpdateHowTosell.setItems(howToSell);
         comboSaveHowTosell.setItems(howToSell);
+
         // Establecer valor por defecto
         comboSaveHowTosell.setValue("Unidad");
-
+comboUpdateHowTosell.setValue("Unidad");
     }
 
     private void fillChoiceBoxDepartament() {
-        try {
-            String urlString = "http://localhost:3000/categories"; // Cambia esto por la URL correcta de tu API
-            URL url = new URL(urlString);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.connect();
 
-            int responseCode = conn.getResponseCode();
-            if (responseCode != 200) {
-                throw new RuntimeException("HttpResponseCode: " + responseCode);
-            } else {
-                Scanner scanner = new Scanner(url.openStream());
-                StringBuilder inline = new StringBuilder();
-                while (scanner.hasNext()) {
-                    inline.append(scanner.nextLine());
-                }
-                scanner.close();
+        ObjectMapper mapper = new ObjectMapper();
+        List<DepartmentDTO> departments = productApi.DepartamenNametList();
 
-                ObjectMapper mapper = new ObjectMapper();
-                List<DepartmentDTO> departments = mapper.readValue(inline.toString(), new TypeReference<List<DepartmentDTO>>() {
-                });
+        ObservableList<DepartmentDTO> departamentList = FXCollections.observableArrayList(departments);
+        comboSaveDepart.setItems(departamentList);
 
-                ObservableList<DepartmentDTO> departamentList = FXCollections.observableArrayList(departments);
-                comboSaveDepart.setItems(departamentList);
-
-                // Configurar el StringConverter para mostrar solo el nombre
-                comboSaveDepart.setConverter(new StringConverter<DepartmentDTO>() {
-                    @Override
-                    public String toString(DepartmentDTO department) {
-                        return department.getName();
-                    }
-
-                    @Override
-                    public DepartmentDTO fromString(String string) {
-                        return departamentList.stream().filter(department -> department.getName().equals(string)).findFirst().orElse(null);
-                    }
-                });
-
-                // Establecer valor por defecto si es necesario
-                if (!departamentList.isEmpty()) {
-                    comboSaveDepart.setValue(departamentList.get(0));
-                }
+        // Configurar el StringConverter para mostrar solo el nombre
+        comboSaveDepart.setConverter(new StringConverter<DepartmentDTO>() {
+            @Override
+            public String toString(DepartmentDTO department) {
+                return department.getName();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+
+            @Override
+            public DepartmentDTO fromString(String string) {
+                return departamentList.stream().filter(department -> department.getName().equals(string)).findFirst().orElse(null);
+            }
+        });
+
+        // Establecer valor por defecto si es necesario
+        if (!departamentList.isEmpty()) {
+            comboSaveDepart.setValue(departamentList.get(0));
         }
+
+    }
+        private void fillChoiceBoxUpdateDepartament() {
+
+        ObjectMapper mapper = new ObjectMapper();
+        List<DepartmentDTO> departments = productApi.DepartamenNametList();
+
+        ObservableList<DepartmentDTO> departamentList = FXCollections.observableArrayList(departments);
+        comboUpdateDepart.setItems(departamentList);
+
+        // Configurar el StringConverter para mostrar solo el nombre
+        comboUpdateDepart.setConverter(new StringConverter<DepartmentDTO>() {
+            @Override
+            public String toString(DepartmentDTO department) {
+                return department.getName();
+            }
+
+            @Override
+            public DepartmentDTO fromString(String string) {
+                return departamentList.stream().filter(department -> department.getName().equals(string)).findFirst().orElse(null);
+            }
+        });
+
+        // Establecer valor por defecto si es necesario
+        if (!departamentList.isEmpty()) {
+            comboUpdateDepart.setValue(departamentList.get(0));
+        }
+
     }
 
     public static BigDecimal calculateSellingPrice(BigDecimal cost, BigDecimal profitMargin) {
@@ -363,6 +487,7 @@ public class ProductController implements Initializable {
     }
 
     private void sendProductToApi(ProductDTO product) throws Exception {
+        System.out.println("PRODUCTO ENVIADO A LA API= " + product.toString());
         try {
             // Convertir ProductDTO a JSON
             ObjectMapper objectMapper = new ObjectMapper();
@@ -518,7 +643,7 @@ public class ProductController implements Initializable {
     }
 
     private void initializeTableColumns() {
-        
+
         System.out.println("se lanzo");
         tableViewPackage.getColumns().clear(); // Limpiar las columnas de la tabla antes de agregar nuevas
 
@@ -654,5 +779,24 @@ public class ProductController implements Initializable {
             System.out.println("cancel presionado");
             // Aquí puedes agregar el código para manejar la opción "OK"
         }
+    }
+
+    private void updateProduct() {
+
+         productoToUpdate = productApi.getProductByBarcode(txtUpdateBarcode.getText());
+        System.out.println("Producto " + productoToUpdate.toString());
+
+        txtUpdateName.setText((productoToUpdate.getName()));
+        txtUpdateDescription.setText(productoToUpdate.getDescription());
+        txtUpdatepurchasePrice.setText(String.valueOf(productoToUpdate.getPurchasePrice()));
+        txtUpdatePrice.setText(String.valueOf(productoToUpdate.getPrice()));
+        txtUpdatewholesalePrice.setText(String.valueOf(productoToUpdate.getWholesalePrice()));
+        txtUpdateAmount.setText("" + productoToUpdate.getStock());
+        txtUpdateminimumStock.setText("" + productoToUpdate.getMinimumStock());
+        comboUpdateHowTosell.setValue("" + productoToUpdate.getHowToSell());
+        comboUpdateGanancia.setValue("43");
+        
+       
+      
     }
 }

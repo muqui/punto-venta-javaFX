@@ -8,6 +8,7 @@ import api.CategoriesApi;
 import api.ExpenseApi;
 import api.IncomeApi;
 import api.OrderApi;
+import api.ReportApi;
 import api.UserApi;
 import beans.OrderDetail;
 import beans.VentaDetalle;
@@ -24,6 +25,9 @@ import dto.IncomesResponseDTO;
 import dto.OrderDTO;
 import dto.OrderDetailDTO;
 import dto.OrderDetailsResponseDTO;
+import dto.ReportCompleteDTO;
+import dto.TransaccionDTO;
+import dto.TransaccionDTO;
 import dto.UserDTO;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -32,6 +36,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Scanner;
@@ -66,6 +71,12 @@ public class ReportesController implements Initializable {
     OrderApi orderApi = new OrderApi();
     IncomeApi incomeApi = new IncomeApi();
     ExpenseApi expenseApi = new ExpenseApi();
+    ReportApi reportApi = new ReportApi();
+
+  
+
+    @FXML
+    private Label labelProfitCompleReport;
 
     private ObservableList<OrderDetail> orderDetailsList = FXCollections.observableArrayList();
     @FXML
@@ -127,6 +138,15 @@ public class ReportesController implements Initializable {
     private Label txtTotalIncome;
 
     @FXML
+    private TableView<TransaccionDTO> tableAllReport;
+
+    @FXML
+    private DatePicker datePickerCompleteEnd;
+
+    @FXML
+    private DatePicker datePickerCompleteStart;
+
+    @FXML
     void onActionVentasUpdate(ActionEvent event) {
         updateTableSells();
     }
@@ -167,6 +187,11 @@ public class ReportesController implements Initializable {
 
     }
 
+    @FXML
+    void onActionUpdateTableReports(ActionEvent event) {
+        updateTableReports();
+    }
+
     /**
      * Initializes the controller class.
      */
@@ -178,9 +203,12 @@ public class ReportesController implements Initializable {
         datePickerINcomeEndDay.setValue(LocalDate.now());
         datePickerExpenseEndDay.setValue(LocalDate.now());
         datePickerExpenseStartDay.setValue(LocalDate.now());
+        datePickerCompleteStart.setValue(LocalDate.now());
+        datePickerCompleteEnd.setValue(LocalDate.now());
         tableVievIncome();
         tableViexExpense();
         fillComboBoxExpenseName();
+        fillTableAllReports();
         try {
 
             TableColumn<OrderDetailDTO, String> columnDate = new TableColumn<>("Order Date");
@@ -241,7 +269,6 @@ public class ReportesController implements Initializable {
         fillChoiceBoxDepartament();
         fillChoiceBoxUser();
         fillComboBoxIncomeName();
-        
 
     }
 
@@ -501,7 +528,7 @@ public class ReportesController implements Initializable {
 
     private void updateTableExpenses() {
         System.out.println("ACTUALIZAR TABLA EGRESOS");
-        ExpenseNameDTO  expenseNameDTO = comboExpenseName.getValue();
+        ExpenseNameDTO expenseNameDTO = comboExpenseName.getValue();
         ExpenseResponseDTO expenseResponseDTO = expenseApi.expenseResponseDTO(datePickerExpenseStartDay.getValue().toString(), datePickerExpenseEndDay.getValue().toString(), expenseNameDTO.getName());
         List<ExpenseDTO> incomes = expenseResponseDTO.getExpenses();
         ObservableList<ExpenseDTO> expenseList = FXCollections.observableArrayList(incomes);
@@ -510,4 +537,53 @@ public class ReportesController implements Initializable {
         txtTotalExpense.setText(expenseResponseDTO.getTotalAmount());
     }
 
+    //REPORTE COMPLETO
+    public void fillTableAllReports() {
+
+        //Nombre
+        TableColumn<TransaccionDTO, Double> name = new TableColumn<>("Nombre");  //precio venta
+        name.setCellValueFactory(new PropertyValueFactory<>("name"));
+        name.setResizable(true);
+        //Ingreso
+        TableColumn<TransaccionDTO, Double> ingreso = new TableColumn<>("Ingreso");  //precio venta
+        ingreso.setCellValueFactory(new PropertyValueFactory<>("income"));
+        ingreso.setResizable(true);
+        //EGRESO
+        TableColumn<TransaccionDTO, Double> egreso = new TableColumn<>("Egreso");  //precio venta
+        egreso.setCellValueFactory(new PropertyValueFactory<>("expense"));
+        egreso.setResizable(true);
+        //total
+        TableColumn<TransaccionDTO, Double> total = new TableColumn<>("Total");  //precio venta
+        total.setCellValueFactory(new PropertyValueFactory<>("total"));
+        total.setResizable(true);
+
+        tableAllReport.getColumns().addAll(name, ingreso, egreso, total);
+
+        // Ajustar el ancho de las columnas
+        tableAllReport.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        ReportCompleteDTO reportCompleteDTO = reportApi.RepoertCompleResponseDTO(datePickerCompleteStart.getValue().toString(), datePickerCompleteEnd.getValue().toString());
+        ObservableList<TransaccionDTO> expenseList = FXCollections.observableArrayList(reportCompleteDTO.getReports());
+        tableAllReport.setItems(expenseList);
+      
+         labelProfitCompleReport.setText("INGRESO: "+reportCompleteDTO.getExpense() +"   EGRESO: "+reportCompleteDTO.getIncome() +"  GANANCIA: "+reportCompleteDTO.getProfit());
+
+
+    }
+
+    private void updateTableReports() {
+
+        System.out.println("ACTUALIZAR TABLA reporte completo");
+
+        //ExpenseResponseDTO expenseResponseDTO = expenseApi.expenseResponseDTO(datePickerExpenseStartDay.getValue().toString(), datePickerExpenseEndDay.getValue().toString(), expenseNameDTO.getName());
+        ReportCompleteDTO reportCompleteDTO = reportApi.RepoertCompleResponseDTO(datePickerCompleteStart.getValue().toString(), datePickerCompleteEnd.getValue().toString());
+
+        List<TransaccionDTO> reports = reportCompleteDTO.getReports();
+        ObservableList<TransaccionDTO> reportList = FXCollections.observableArrayList(reports);
+
+        tableAllReport.setItems(reportList);
+     
+        labelProfitCompleReport.setText("INGRESO: "+reportCompleteDTO.getExpense() +"   EGRESO: "+reportCompleteDTO.getIncome() +"  GANANCIA: "+reportCompleteDTO.getProfit());
+
+    }
 }

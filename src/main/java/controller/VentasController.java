@@ -5,6 +5,7 @@
  */
 package controller;
 
+import api.ProductApi;
 import beans.Order;
 import beans.OrderDetail;
 import beans.Product;
@@ -13,6 +14,7 @@ import beans.User;
 import com.albertocoronanavarro.puntoventafx.App;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Cell;
@@ -23,6 +25,7 @@ import com.itextpdf.layout.properties.UnitValue;
 
 import dto.UserDTO;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
 import javafx.print.PageLayout;
@@ -32,6 +35,7 @@ import javafx.print.PrinterJob;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URI;
@@ -42,11 +46,15 @@ import java.net.http.HttpResponse;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -58,6 +66,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -72,6 +81,15 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javax.print.Doc;
+import javax.print.DocFlavor;
+import javax.print.DocPrintJob;
+import javax.print.PrintService;
+import javax.print.PrintServiceLookup;
+import javax.print.SimpleDoc;
+import javax.print.attribute.HashPrintRequestAttributeSet;
+import javax.print.attribute.PrintRequestAttributeSet;
+import javax.print.attribute.standard.MediaSizeName;
 
 import org.json.JSONObject;
 
@@ -81,6 +99,8 @@ import org.json.JSONObject;
  * @author mq12
  */
 public class VentasController implements Initializable {
+
+    ProductApi productApi = new ProductApi();
 
     private UserDTO user;
     private boolean mayoreo = false;
@@ -121,9 +141,6 @@ public class VentasController implements Initializable {
 
     @FXML
     private TextField txtDiscount;
-    
-    
-   
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -144,14 +161,16 @@ public class VentasController implements Initializable {
             public void handle(KeyEvent ke) {
                 if (ke.getCode().equals(KeyCode.ENTER)) {
 
-                    Product product = insertToTicket(txtCodigoBarras.getText()); // recibe el producto desde la rest api
+                    Product product = productApi.ProductoToTicket(txtCodigoBarras.getText());       //insertToTicket(txtCodigoBarras.getText()); // recibe el producto desde la rest api
 
+                    //   System.out.println("producto qu no regresa como se vende= " + product.toString());
                     BigDecimal cantidad = new BigDecimal("1");
+                    // product.setHowToSell("Unidad");
 
                     if (product.getHowToSell().equalsIgnoreCase("Granel")) {
 
                         cantidad = dialogAmount();
-
+                        System.out.println("condicion para cambiar la cantiadad granel 1");
                     }
 
                     //hacer descuento
@@ -159,18 +178,16 @@ public class VentasController implements Initializable {
                         BigDecimal discountPercentage = new BigDecimal(txtDiscount.getText());
                         discountPercentage = discountPercentage.setScale(2, RoundingMode.HALF_UP);
 
-                        System.out.println("DESCUENTO TEXT =" + discountPercentage);
+                        //   System.out.println("DESCUENTO TEXT =" + discountPercentage);
                         if (discountPercentage.compareTo(BigDecimal.ZERO) > 0) {
 
                             BigDecimal discountedPrice = calculateDiscountedPrice(product.getPrice(), discountPercentage);
 
-                            System.out.println("precio regresado con descuento= " + discountedPrice);
-
-                            System.out.println("precio de venta Normal= " + product.getPrice());
-
+                            //   System.out.println("precio regresado con descuento= " + discountedPrice);
+                            //   System.out.println("precio de venta Normal= " + product.getPrice());
                             product.setPrice(discountedPrice);
                             product.setTotal(discountedPrice);
-                            System.out.println("precio de venta Con descuento= " + discountedPrice);
+                            //    System.out.println("precio de venta Con descuento= " + discountedPrice);
 
                         }
 
@@ -235,6 +252,7 @@ public class VentasController implements Initializable {
      */
     @FXML
     void actionbtnInsertarMasDe1(ActionEvent event) {
+        System.out.println("INSERTAR MAS DE 1 ****************************************");
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/masDeUnProducto.fxml"));
             Parent root = fxmlLoader.load();
@@ -251,24 +269,22 @@ public class VentasController implements Initializable {
             // double cantidad = Double.parseDouble(masdeuno.getCantidad());
             BigDecimal cantidad = new BigDecimal(masdeuno.getCantidad());
 
-            Product product = insertToTicket(codigo); // recibe el producto desde la rest api  
+            Product product = productApi.ProductoToTicket(codigo);//insertToTicket(codigo); // recibe el producto desde la rest api  
             //hacer descuento
             if (!txtDiscount.getText().trim().equalsIgnoreCase("")) {
                 BigDecimal discountPercentage = new BigDecimal(txtDiscount.getText());
                 discountPercentage = discountPercentage.setScale(2, RoundingMode.HALF_UP);
 
-                System.out.println("DESCUENTO TEXT =" + discountPercentage);
+                //  System.out.println("DESCUENTO TEXT =" + discountPercentage);
                 if (discountPercentage.compareTo(BigDecimal.ZERO) > 0) {
 
                     BigDecimal discountedPrice = calculateDiscountedPrice(product.getPrice(), discountPercentage);
 
-                    System.out.println("precio regresado con descuento= " + discountedPrice);
-
-                    System.out.println("precio de venta Normal= " + product.getPrice());
-
+                    //    System.out.println("precio regresado con descuento= " + discountedPrice);
+                    //   System.out.println("precio de venta Normal= " + product.getPrice());
                     product.setPrice(discountedPrice);
                     product.setTotal(discountedPrice);
-                    System.out.println("precio de venta Con descuento= " + discountedPrice);
+                    //    System.out.println("precio de venta Con descuento= " + discountedPrice);
 
                 }
 
@@ -276,6 +292,7 @@ public class VentasController implements Initializable {
 
             if (product.getBarcode() != null) {  // si el producto existe se carga al ticket
                 //product.setTotal(product.getPrice() * cantidad);  // Calcula el total.
+               
                 product.setTotal(product.getPrice().multiply(cantidad));
 
                 insertarProductoTicket(product, cantidad); // Envia el producto al ticket (tableView)
@@ -410,14 +427,14 @@ public class VentasController implements Initializable {
         boolean existe = false;
         for (int i = 0; i < listaProductoArrayList.get(tabSeleccionado).size(); i++) {
             Product p = listaProductoArrayList.get(tabSeleccionado).get(i);
-            System.out.println("PRODUCTO YA ESTA EN EL TICKET" + p.toString());
+            //  System.out.println("PRODUCTO YA ESTA EN EL TICKET" + p.toString());
             if (p.getBarcode().equalsIgnoreCase(codigoBarras)) {
 
                 //double cantidadTotal = p.getAmount() + cantidad;
                 BigDecimal cantidadTotal = p.getAmount().add(cantidad);
                 //double total = cantidadTotal * p.getPrice();
                 BigDecimal total = cantidadTotal.multiply(p.getPrice());
-                System.out.println("TOTAL NUEVO " + total);
+                //  System.out.println("TOTAL NUEVO " + total);
 
                 p.setAmount(cantidadTotal);
                 p.setTotal(total);
@@ -469,7 +486,7 @@ public class VentasController implements Initializable {
     private void eventoTabla(ActionEvent event) {
 
         int tabSeleccionado = tabPaneTicket.getSelectionModel().getSelectedIndex();
-        System.out.println("BOTON PRESIONADO = " + tabSeleccionado);
+        // System.out.println("BOTON PRESIONADO = " + tabSeleccionado);
         ObservableList<Product> data = observableListArrayList.get(tabSeleccionado);
         Node selectedContent = tabArrayList.get(tabSeleccionado).getContent();
 
@@ -497,7 +514,7 @@ public class VentasController implements Initializable {
                 if (p.getAmount().compareTo(BigDecimal.ONE) > 0) {
                     p.setAmount(p.getAmount().subtract(BigDecimal.ONE));
                     p.setTotal(p.getAmount().multiply(p.getPrice()));
-                    System.out.println("cantidad " + p.getAmount());
+                    //  System.out.println("cantidad " + p.getAmount());
                 }
 
 //                if (p.getAmount() > 1) {
@@ -544,15 +561,18 @@ public class VentasController implements Initializable {
 
             String codigo = buscarController.getCodigo();
 
-            System.out.println("OBTENER CODIGO PARA BUSCAR E INSERTAR: " + codigo);
-
+            // System.out.println("OBTENER CODIGO PARA BUSCAR E INSERTAR: " + codigo);
             // Aquí puedes utilizar el código obtenido para realizar otras acciones
             if (!codigo.isEmpty()) {
-                Product product = insertToTicket(codigo); // recibe el producto desde la rest api  
+                Product product = productApi.ProductoToTicket(codigo);   //insertToTicket(codigo); // recibe el producto desde la rest api  
+                //  System.out.println("COMO SME VENDE= " + product.getHowToSell());
                 BigDecimal cantidad = new BigDecimal("1");
+                //  product.setHowToSell("Unidad");
                 if (product.getHowToSell().equalsIgnoreCase("Granel")) {
 
                     cantidad = dialogAmount();
+
+                    System.out.println("condicion para cambiar la cantiadad granel 0");
                 }
 
                 //hacer descuento
@@ -560,18 +580,16 @@ public class VentasController implements Initializable {
                     BigDecimal discountPercentage = new BigDecimal(txtDiscount.getText());
                     discountPercentage = discountPercentage.setScale(2, RoundingMode.HALF_UP);
 
-                    System.out.println("DESCUENTO TEXT =" + discountPercentage);
+                    //   System.out.println("DESCUENTO TEXT =" + discountPercentage);
                     if (discountPercentage.compareTo(BigDecimal.ZERO) > 0) {
 
                         BigDecimal discountedPrice = calculateDiscountedPrice(product.getPrice(), discountPercentage);
 
-                        System.out.println("precio regresado con descuento= " + discountedPrice);
-
-                        System.out.println("precio de venta Normal= " + product.getPrice());
-
+                        //   System.out.println("precio regresado con descuento= " + discountedPrice);
+                        //    System.out.println("precio de venta Normal= " + product.getPrice());
                         product.setPrice(discountedPrice);
                         product.setTotal(discountedPrice);
-                        System.out.println("precio de venta Con descuento= " + discountedPrice);
+                        //  System.out.println("precio de venta Con descuento= " + discountedPrice);
 
                     }
 
@@ -593,15 +611,14 @@ public class VentasController implements Initializable {
     private void mayoreo() {
         mayoreo = !mayoreo;
         txtVentasMayoreo.setVisible(mayoreo);
-        System.out.println("Mayoreo " + mayoreo);
+        //   System.out.println("Mayoreo " + mayoreo);
 
     }
 
     private void precobrar() throws IOException {
         int tabSeleccionado = tabPaneTicket.getSelectionModel().getSelectedIndex(); // Selecciona el tab Seleccionado.    
 
-        System.out.println("cobrar......" + totalTicket(tabSeleccionado));
-
+        //    System.out.println("cobrar......" + totalTicket(tabSeleccionado));
         //creamos la orden de venta
         Order order = new Order();
         User user = new User();
@@ -644,7 +661,9 @@ public class VentasController implements Initializable {
             stage.showAndWait();
 
         } catch (IOException ex) {
+            System.out.println("error al imprimir pdf " + ex);
             Logger.getLogger(VentasController.class.getName()).log(Level.SEVERE, null, ex);
+
         }
         // clear ticket
         Node selectedContent = tabArrayList.get(tabSeleccionado).getContent();
@@ -666,13 +685,21 @@ public class VentasController implements Initializable {
     }
 
     public void insertarProductoTicket(Product product, BigDecimal cantidad) {
+        
+        
 
         product.setAmount(cantidad);
+        
+         System.out.println("TOTAL cantidad " +product.getAmount() + " total = " + product.getTotal());
+
+       // product.setTotal(product.getAmount().multiply(product.getTotal()));
+       product.setTotal(cantidad.multiply(product.getPrice()));
+       //product.setTotal(new BigDecimal("0.00"));
 
         int tabSeleccionado = tabPaneTicket.getSelectionModel().getSelectedIndex(); // Selecciona el tab Seleccionado.    
 
         boolean existe = existeProductoEnticket(tabSeleccionado, product.getBarcode(), cantidad);  //comentario temporal
-        System.out.println("existe= " + existe);
+        //  System.out.println("existe= " + existe);
         // boolean existe = false;
         Node selectedContent = tabArrayList.get(tabSeleccionado).getContent();
 
@@ -711,62 +738,6 @@ public class VentasController implements Initializable {
 
     }
 
-    /*
-    Regresa el producto desde la rest api.
-     */
-    public Product insertToTicket(String barcode) {
-        Product product = new Product();
-
-        try {
-
-            // Crear un cliente HTTP
-            HttpClient client = HttpClient.newHttpClient();
-
-            // Construir la solicitud GET
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:3000/products/" + barcode))
-                    .header("Content-Type", "application/json")
-                    .GET()
-                    .build();
-
-            // Enviar la solicitud y recibir la respuesta
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            // Manejar la respuesta
-            if (response.statusCode() == 200) {
-
-                // Parsear la respuesta JSON
-                JSONObject jsonResponse = new JSONObject(response.body());
-                // Crear una instancia de Product y asignar valores
-
-                product.setId(jsonResponse.getInt("id"));
-                product.setName(jsonResponse.getString("name"));
-                product.setDescription(jsonResponse.getString("description"));
-                product.setBarcode(jsonResponse.getString("barcode"));
-                // product.setPrice(jsonResponse.getDouble("price"));
-                product.setPrice(jsonResponse.getBigDecimal("price"));
-                product.setStock(jsonResponse.getInt("stock"));
-                product.setImgUrl(jsonResponse.getString("imgUrl"));
-                product.setCategoryId(jsonResponse.getInt("categoryId"));
-                product.setTotal(jsonResponse.getBigDecimal("price"));
-                product.setPurchasePrice(jsonResponse.getBigDecimal("purchasePrice"));
-                product.setHowToSell(jsonResponse.getString("howToSell"));
-
-            } else {
-                System.out.println("Error en la solicitud: " + response.statusCode());
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.initStyle(StageStyle.UTILITY);
-                alert.setTitle("Error");
-                alert.setHeaderText(null);
-                alert.setContentText("Producto no encontrado.");
-                alert.showAndWait();
-            }
-
-        } catch (Exception e) {
-        }
-        return product;
-    }
-
     /**
      * Actualiza el costo total al cambiar en ticket
      */
@@ -779,13 +750,13 @@ public class VentasController implements Initializable {
     }
 
     private BigDecimal dialogAmount() {
-        BigDecimal cantidad = new BigDecimal("1");
+        BigDecimal cantidad = new BigDecimal("0");
         try {
 
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/ventaGranel.fxml"));
             Parent root;
             root = fxmlLoader.load();
-            System.out.println("ES VENTA A GRANEL");
+            System.out.println("ABRE DIALOGO PARA LA CANTIDAD DE VENTA A GRANEL");
             VentaGranelController ventaGranelController = fxmlLoader.getController();
             Scene scene = new Scene(root);
             Stage stage = new Stage();
@@ -875,6 +846,7 @@ public class VentasController implements Initializable {
     }
 
     public void printProductsToPdf1(ObservableList<Product> products, String dest, BigDecimal totalTicket) throws IOException {
+        System.out.println("SE ENVIA A PDF PARA IMPRIMIR");
         PdfWriter writer = null;
         PdfDocument pdfDoc = null;
         Document document = null;
@@ -929,7 +901,12 @@ public class VentasController implements Initializable {
                     .setTextAlignment(TextAlignment.RIGHT); // Alineación a la derecha
             document.add(totalParagraph);
 
+            // Enviar el PDF creado a la impresora seleccionada por el usuario
+           // printPdf(dest);
+            printPdfWithPrinterSelection(dest);
+
         } catch (IOException e) {
+            System.out.println("error desde metod imprimir" + e);
             e.printStackTrace();
         } finally {
             // Cerrar el documento y el escritor
@@ -956,4 +933,112 @@ public class VentasController implements Initializable {
         discountedPrice = discountedPrice.setScale(2, RoundingMode.HALF_UP);
         return discountedPrice;
     }
+
+    private void printPdf(String pdfFilePath) {
+        try (InputStream pdfInputStream = new FileInputStream(pdfFilePath)) {
+            // Crear un documento imprimible a partir del PDF
+            Doc pdfDoc = new SimpleDoc(pdfInputStream, DocFlavor.INPUT_STREAM.PDF, null);
+
+            // Configurar atributos de impresión
+            PrintRequestAttributeSet printAttributes = new HashPrintRequestAttributeSet();
+            printAttributes.add(MediaSizeName.ISO_A4);
+
+            // Obtener todas las impresoras disponibles
+            PrintService[] printServices = PrintServiceLookup.lookupPrintServices(null, null);
+            if (printServices.length == 0) {
+                System.out.println("No se encontraron impresoras.");
+                return;
+            }
+
+            // Mostrar opciones de impresora y permitir selección
+            PrintService selectedService = (PrintService) javax.swing.JOptionPane.showInputDialog(
+                    null,
+                    "Seleccione una impresora:",
+                    "Seleccionar impresora",
+                    javax.swing.JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    printServices,
+                    printServices[0]
+            );
+
+            if (selectedService != null) {
+                // Enviar el PDF a la impresora seleccionada
+                DocPrintJob printJob = selectedService.createPrintJob();
+                printJob.print(pdfDoc, printAttributes);
+                System.out.println("Documento enviado a la impresora: " + selectedService.getName());
+            } else {
+                System.out.println("Impresión cancelada por el usuario.");
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error al enviar el PDF a la impresora: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    public void printPdfWithPrinterSelection(String pdfFilePath) {
+    Platform.runLater(() -> {
+        // Crear lista de impresoras disponibles
+         ObservableSet<Printer> printers = Printer.getAllPrinters();
+        List<String> printerNames = printers.stream().map(Printer::getName).collect(Collectors.toList());
+
+
+        // Mostrar un diálogo de selección de impresora
+        ChoiceDialog<String> dialog = new ChoiceDialog<>(printerNames.get(0), printerNames);
+        dialog.setTitle("Seleccionar Impresora");
+        dialog.setHeaderText("Elige la impresora a la que quieres enviar el PDF:");
+        Optional<String> selectedPrinterName = dialog.showAndWait();
+
+        if (selectedPrinterName.isPresent()) {
+            // Obtener la impresora seleccionada por el nombre
+            Printer selectedPrinter = printers.stream()
+                    .filter(printer -> printer.getName().equals(selectedPrinterName.get()))
+                    .findFirst()
+                    .orElse(Printer.getDefaultPrinter());
+
+            System.out.println("Impresora seleccionada: " + selectedPrinter.getName());
+
+            // Configurar el trabajo de impresión con la impresora seleccionada
+            PrinterJob job = PrinterJob.createPrinterJob(selectedPrinter);
+            if (job == null) {
+                //showAlert("Error", "No se pudo crear el trabajo de impresión.");
+                return;
+            }
+
+            try {
+                // Cargar el archivo PDF
+                File pdfFile = new File(pdfFilePath);
+                PdfReader reader = new PdfReader(pdfFile);
+                PdfDocument pdfDoc = new PdfDocument(reader);
+
+                // Configurar tamaño de página
+                PageSize pageSize = pdfDoc.getDefaultPageSize();
+                Document document = new Document(pdfDoc, pageSize);
+
+                // Ejecutar el trabajo de impresión
+                Stage stage = new Stage();
+                StackPane root = new StackPane();
+                Scene scene = new Scene(root, 200, 200); // Escena de trabajo temporal
+                stage.setScene(scene);
+
+                if (job.printPage(root)) {
+                    job.endJob();
+                 //   showAlert("Éxito", "El PDF se ha enviado a la impresora seleccionada.");
+                } else {
+                 //   showAlert("Error", "No se pudo completar la impresión.");
+                }
+
+                // Cerrar el documento PDF
+                document.close();
+                pdfDoc.close();
+
+            } catch (Exception e) {
+              //  showAlert("Error", "Error al enviar el PDF a la impresora: " + e.getMessage());
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("Impresión cancelada por el usuario.");
+        }
+    });
+}
+
 }

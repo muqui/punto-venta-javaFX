@@ -11,6 +11,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 
 public class Product {
 
@@ -19,7 +21,7 @@ public class Product {
     private final StringProperty description;
     private final StringProperty barcode;
     private BigDecimal price;
-    private final IntegerProperty stock;
+    private final DoubleProperty stock;
     private final StringProperty imgUrl;
     private final IntegerProperty categoryId;
     private BigDecimal amount;  // cantidad de productos
@@ -28,6 +30,7 @@ public class Product {
     private Button botonBorrar;
     private Button botonEliminar;
 
+    //private  StringProperty howToSell 
     private final StringProperty howToSell;
     private BigDecimal purchasePrice;
     private BigDecimal wholesalePrice;
@@ -57,7 +60,7 @@ public class Product {
         this.description = new SimpleStringProperty();
         this.barcode = new SimpleStringProperty();
         this.price = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
-        this.stock = new SimpleIntegerProperty();
+        this.stock = new SimpleDoubleProperty();
         this.imgUrl = new SimpleStringProperty();
         this.categoryId = new SimpleIntegerProperty();
         this.amount = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
@@ -123,17 +126,15 @@ public class Product {
         this.price = price.setScale(2, RoundingMode.HALF_UP);
     }
 
-    public int getStock() {
+    public Double getStock() {
         return stock.get();
     }
 
-    public void setStock(int stock) {
+    public void setStock(double stock) {
         this.stock.set(stock);
     }
 
-    public IntegerProperty stockProperty() {
-        return stock;
-    }
+   
 
     public String getImgUrl() {
         return imgUrl.get();
@@ -240,16 +241,14 @@ public class Product {
     }
 
     public String getHowToSell() {
-        return howToSell.get();
+        return this.howToSell.get();
     }
 
     public void setHowToSell(String howToSell) {
         this.howToSell.set(howToSell);
     }
 
-    public StringProperty howToSellProperty() {
-        return howToSell;
-    }
+  
 
     /**
      * @return the packageContents
