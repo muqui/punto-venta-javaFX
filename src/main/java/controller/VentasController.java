@@ -774,76 +774,76 @@ public class VentasController implements Initializable {
         return cantidad;
     }
 
-    public void printProductsToPdf(ObservableList<Product> products, String dest) {
-        try {
-            File file = new File(dest);
-            file.getParentFile().mkdirs();
+//    public void printProductsToPdf(ObservableList<Product> products, String dest) {
+//        try {
+//            File file = new File(dest);
+//            file.getParentFile().mkdirs();
+//
+//            // Initialize PDF writer
+//            PdfWriter writer = new PdfWriter(new FileOutputStream(file));
+//
+//            // Initialize PDF document
+//            PdfDocument pdf = new PdfDocument(writer);
+//
+//            // Initialize document
+//            Document document = new Document(pdf);
+//
+//            // Add content
+//            for (Product product : products) {
+//                document.add(new Paragraph(product.getName())); // Ajusta esto para mostrar la información deseada del producto
+//            }
+//
+//            // Close document
+//            document.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
-            // Initialize PDF writer
-            PdfWriter writer = new PdfWriter(new FileOutputStream(file));
-
-            // Initialize PDF document
-            PdfDocument pdf = new PdfDocument(writer);
-
-            // Initialize document
-            Document document = new Document(pdf);
-
-            // Add content
-            for (Product product : products) {
-                document.add(new Paragraph(product.getName())); // Ajusta esto para mostrar la información deseada del producto
-            }
-
-            // Close document
-            document.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void printProducts(ObservableList<Product> products) {
-        // Mostrar diálogo de selección de impresora
-        PrinterJob job = PrinterJob.createPrinterJob();
-        if (job == null || !job.showPrintDialog(null)) {
-            System.out.println("No printer selected or print dialog was cancelled.");
-            return;
-        }
-
-        Printer printer = job.getPrinter();
-
-        if (printer == null) {
-            System.out.println("No default printer available.");
-            return;
-        }
-
-        // Definir un tamaño de papel personalizado (80 mm de ancho, longitud ajustable)
-        double width = 80 * 2.83465; // Ancho en puntos
-        double height = 297 * 2.83465; // Altura en puntos (puedes ajustar según sea necesario)
-
-        Paper customPaper = Paper.A4; // Inicializa con A4, ya que no podemos crear un nuevo objeto Paper directamente
-
-        // Crear un PageLayout con las dimensiones personalizadas
-        PageLayout pageLayout = printer.createPageLayout(customPaper, PageOrientation.PORTRAIT, Printer.MarginType.HARDWARE_MINIMUM);
-
-        VBox vbox = new VBox();
-        for (Product product : products) {
-            Label label = new Label(product.toString()); // Ajusta esto para mostrar la información deseada del producto
-            vbox.getChildren().add(label);
-        }
-
-        Scene scene = new Scene(vbox);
-        Stage stage = new Stage();
-        stage.setScene(scene);
-        stage.show();
-
-        boolean success = job.printPage(pageLayout, vbox);
-        if (success) {
-            job.endJob();
-        } else {
-            System.out.println("Print job failed");
-        }
-
-        stage.close();
-    }
+//    public void printProducts(ObservableList<Product> products) {
+//        // Mostrar diálogo de selección de impresora
+//        PrinterJob job = PrinterJob.createPrinterJob();
+//        if (job == null || !job.showPrintDialog(null)) {
+//            System.out.println("No printer selected or print dialog was cancelled.");
+//            return;
+//        }
+//
+//        Printer printer = job.getPrinter();
+//
+//        if (printer == null) {
+//            System.out.println("No default printer available.");
+//            return;
+//        }
+//
+//        // Definir un tamaño de papel personalizado (80 mm de ancho, longitud ajustable)
+//        double width = 80 * 2.83465; // Ancho en puntos
+//        double height = 297 * 2.83465; // Altura en puntos (puedes ajustar según sea necesario)
+//
+//        Paper customPaper = Paper.A4; // Inicializa con A4, ya que no podemos crear un nuevo objeto Paper directamente
+//
+//        // Crear un PageLayout con las dimensiones personalizadas
+//        PageLayout pageLayout = printer.createPageLayout(customPaper, PageOrientation.PORTRAIT, Printer.MarginType.HARDWARE_MINIMUM);
+//
+//        VBox vbox = new VBox();
+//        for (Product product : products) {
+//            Label label = new Label(product.toString()); // Ajusta esto para mostrar la información deseada del producto
+//            vbox.getChildren().add(label);
+//        }
+//
+//        Scene scene = new Scene(vbox);
+//        Stage stage = new Stage();
+//        stage.setScene(scene);
+//        stage.show();
+//
+//        boolean success = job.printPage(pageLayout, vbox);
+//        if (success) {
+//            job.endJob();
+//        } else {
+//            System.out.println("Print job failed");
+//        }
+//
+//        stage.close();
+//    }
 
     public void printProductsToPdf1(ObservableList<Product> products, String dest, BigDecimal totalTicket) throws IOException {
         System.out.println("SE ENVIA A PDF PARA IMPRIMIR");
@@ -903,7 +903,7 @@ public class VentasController implements Initializable {
 
             // Enviar el PDF creado a la impresora seleccionada por el usuario
            // printPdf(dest);
-            printPdfWithPrinterSelection(dest);
+           
 
         } catch (IOException e) {
             System.out.println("error desde metod imprimir" + e);
@@ -921,6 +921,7 @@ public class VentasController implements Initializable {
             }
 
         }
+         printPdf(dest);
     }
 
     public static BigDecimal calculateDiscountedPrice(BigDecimal originalPrice, BigDecimal discountPercentage) {
@@ -975,70 +976,70 @@ public class VentasController implements Initializable {
             e.printStackTrace();
         }
     }
-    public void printPdfWithPrinterSelection(String pdfFilePath) {
-    Platform.runLater(() -> {
-        // Crear lista de impresoras disponibles
-         ObservableSet<Printer> printers = Printer.getAllPrinters();
-        List<String> printerNames = printers.stream().map(Printer::getName).collect(Collectors.toList());
-
-
-        // Mostrar un diálogo de selección de impresora
-        ChoiceDialog<String> dialog = new ChoiceDialog<>(printerNames.get(0), printerNames);
-        dialog.setTitle("Seleccionar Impresora");
-        dialog.setHeaderText("Elige la impresora a la que quieres enviar el PDF:");
-        Optional<String> selectedPrinterName = dialog.showAndWait();
-
-        if (selectedPrinterName.isPresent()) {
-            // Obtener la impresora seleccionada por el nombre
-            Printer selectedPrinter = printers.stream()
-                    .filter(printer -> printer.getName().equals(selectedPrinterName.get()))
-                    .findFirst()
-                    .orElse(Printer.getDefaultPrinter());
-
-            System.out.println("Impresora seleccionada: " + selectedPrinter.getName());
-
-            // Configurar el trabajo de impresión con la impresora seleccionada
-            PrinterJob job = PrinterJob.createPrinterJob(selectedPrinter);
-            if (job == null) {
-                //showAlert("Error", "No se pudo crear el trabajo de impresión.");
-                return;
-            }
-
-            try {
-                // Cargar el archivo PDF
-                File pdfFile = new File(pdfFilePath);
-                PdfReader reader = new PdfReader(pdfFile);
-                PdfDocument pdfDoc = new PdfDocument(reader);
-
-                // Configurar tamaño de página
-                PageSize pageSize = pdfDoc.getDefaultPageSize();
-                Document document = new Document(pdfDoc, pageSize);
-
-                // Ejecutar el trabajo de impresión
-                Stage stage = new Stage();
-                StackPane root = new StackPane();
-                Scene scene = new Scene(root, 200, 200); // Escena de trabajo temporal
-                stage.setScene(scene);
-
-                if (job.printPage(root)) {
-                    job.endJob();
-                 //   showAlert("Éxito", "El PDF se ha enviado a la impresora seleccionada.");
-                } else {
-                 //   showAlert("Error", "No se pudo completar la impresión.");
-                }
-
-                // Cerrar el documento PDF
-                document.close();
-                pdfDoc.close();
-
-            } catch (Exception e) {
-              //  showAlert("Error", "Error al enviar el PDF a la impresora: " + e.getMessage());
-                e.printStackTrace();
-            }
-        } else {
-            System.out.println("Impresión cancelada por el usuario.");
-        }
-    });
-}
-
+//    public void printPdfWithPrinterSelection(String pdfFilePath) {
+//    Platform.runLater(() -> {
+//        // Crear lista de impresoras disponibles
+//         ObservableSet<Printer> printers = Printer.getAllPrinters();
+//        List<String> printerNames = printers.stream().map(Printer::getName).collect(Collectors.toList());
+//
+//
+//        // Mostrar un diálogo de selección de impresora
+//        ChoiceDialog<String> dialog = new ChoiceDialog<>(printerNames.get(0), printerNames);
+//        dialog.setTitle("Seleccionar Impresora");
+//        dialog.setHeaderText("Elige la impresora a la que quieres enviar el PDF:");
+//        Optional<String> selectedPrinterName = dialog.showAndWait();
+//
+//        if (selectedPrinterName.isPresent()) {
+//            // Obtener la impresora seleccionada por el nombre
+//            Printer selectedPrinter = printers.stream()
+//                    .filter(printer -> printer.getName().equals(selectedPrinterName.get()))
+//                    .findFirst()
+//                    .orElse(Printer.getDefaultPrinter());
+//
+//            System.out.println("Impresora seleccionada: " + selectedPrinter.getName());
+//
+//            // Configurar el trabajo de impresión con la impresora seleccionada
+//            PrinterJob job = PrinterJob.createPrinterJob(selectedPrinter);
+//            if (job == null) {
+//                //showAlert("Error", "No se pudo crear el trabajo de impresión.");
+//                return;
+//            }
+//
+//            try {
+//                // Cargar el archivo PDF
+//                File pdfFile = new File(pdfFilePath);
+//                PdfReader reader = new PdfReader(pdfFile);
+//                PdfDocument pdfDoc = new PdfDocument(reader);
+//
+//                // Configurar tamaño de página
+//                PageSize pageSize = pdfDoc.getDefaultPageSize();
+//                Document document = new Document(pdfDoc, pageSize);
+//
+//                // Ejecutar el trabajo de impresión
+//                Stage stage = new Stage();
+//                StackPane root = new StackPane();
+//                Scene scene = new Scene(root, 200, 200); // Escena de trabajo temporal
+//                stage.setScene(scene);
+//
+//                if (job.printPage(root)) {
+//                    job.endJob();
+//                 //   showAlert("Éxito", "El PDF se ha enviado a la impresora seleccionada.");
+//                } else {
+//                 //   showAlert("Error", "No se pudo completar la impresión.");
+//                }
+//
+//                // Cerrar el documento PDF
+//                document.close();
+//                pdfDoc.close();
+//
+//            } catch (Exception e) {
+//              //  showAlert("Error", "Error al enviar el PDF a la impresora: " + e.getMessage());
+//                e.printStackTrace();
+//            }
+//        } else {
+//            System.out.println("Impresión cancelada por el usuario.");
+//        }
+//    });
+//}
+//
 }

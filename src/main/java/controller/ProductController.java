@@ -171,6 +171,12 @@ public class ProductController implements Initializable {
          
         productoToUpdate.setName(txtUpdateName.getText());
         productoToUpdate.setDescription(txtUpdateDescription.getText());
+        productoToUpdate.setPurchasePrice(Double.parseDouble(txtUpdatepurchasePrice.getText()));
+        productoToUpdate.setPrice(new BigDecimal(txtUpdatePrice.getText()));
+        productoToUpdate.setWholesalePrice(Double.parseDouble(txtUpdatewholesalePrice.getText()));
+        productoToUpdate.setStock(Double.parseDouble(txtUpdateAmount.getText()));
+        productoToUpdate.setMinimumStock(Integer.parseInt(txtUpdateminimumStock.getText()));
+        
         
          System.out.println("Producto actualizado=  " + productoToUpdate.toString());
          productoToUpdate.setSupplier("sin informacion");
