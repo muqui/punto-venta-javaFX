@@ -162,6 +162,7 @@ public class VentasController implements Initializable {
                 if (ke.getCode().equals(KeyCode.ENTER)) {
 
                     Product product = productApi.ProductoToTicket(txtCodigoBarras.getText());       //insertToTicket(txtCodigoBarras.getText()); // recibe el producto desde la rest api
+                    System.out.println("" + product.getStock());
 
                     //   System.out.println("producto qu no regresa como se vende= " + product.toString());
                     BigDecimal cantidad = new BigDecimal("1");
@@ -292,7 +293,7 @@ public class VentasController implements Initializable {
 
             if (product.getBarcode() != null) {  // si el producto existe se carga al ticket
                 //product.setTotal(product.getPrice() * cantidad);  // Calcula el total.
-               
+
                 product.setTotal(product.getPrice().multiply(cantidad));
 
                 insertarProductoTicket(product, cantidad); // Envia el producto al ticket (tableView)
@@ -429,6 +430,14 @@ public class VentasController implements Initializable {
             Product p = listaProductoArrayList.get(tabSeleccionado).get(i);
             //  System.out.println("PRODUCTO YA ESTA EN EL TICKET" + p.toString());
             if (p.getBarcode().equalsIgnoreCase(codigoBarras)) {
+
+                System.out.println("CANTIDAD DE UNO POR UNO = " + p.getAmount() + " stock= " + p.getStock());
+                if (p.getAmount().compareTo(BigDecimal.valueOf(p.getStock())) >= 0) {
+                    System.out.println("Solo hay " + p.getStock());
+                    showAlert(Alert.AlertType.ERROR, "Error", "No hay mas productos en stock. \n Solo  hay " + p.getStock() + " productos");
+                      existe = true;
+                    break;
+                }
 
                 //double cantidadTotal = p.getAmount() + cantidad;
                 BigDecimal cantidadTotal = p.getAmount().add(cantidad);
@@ -645,6 +654,11 @@ public class VentasController implements Initializable {
             //  order.setOrderDeta
 
         }
+        System.out.println("cantida de productos a vender = " + order.getOrderDetails().size());
+        if(order.getOrderDetails().size() < 1){
+            showAlert(Alert.AlertType.WARNING, "Advertencia", "Ingrese productos al ticket.");
+            return;
+        }
         printProductsToPdf1(products, "/home/albert/Documents/miArchivo.pdf", totalTicket(tabSeleccionado));
 
         //Carga el modal de cobrar.
@@ -659,42 +673,51 @@ public class VentasController implements Initializable {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setScene(scene);
             stage.showAndWait();
+            System.out.println("mensaje status se guardo= " + cobrarController.isStatusSell());
+            if (cobrarController.isStatusSell() == true) {
+                // clear ticket
+                Node selectedContent = tabArrayList.get(tabSeleccionado).getContent();
+                TableView tableView = (TableView) selectedContent.lookup("#miTabla");
+
+                for (int i = products.size() - 1; i >= 0; i--) {
+                    Product p = products.get(i);
+                    //delete item from ticket
+                    products.remove(p);
+                }
+                tableView.setItems(products);
+                tableView.refresh();
+
+                labelTotal.setText("$ 0");
+
+                labelTotalProductos.setText("0" + leyendaCantidadTotal);
+
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Error", "No hay productos suficientes.");
+            }
 
         } catch (IOException ex) {
             System.out.println("error al imprimir pdf " + ex);
             Logger.getLogger(VentasController.class.getName()).log(Level.SEVERE, null, ex);
 
         }
-        // clear ticket
-        Node selectedContent = tabArrayList.get(tabSeleccionado).getContent();
-        TableView tableView = (TableView) selectedContent.lookup("#miTabla");
-
-        for (int i = products.size() - 1; i >= 0; i--) {
-            Product p = products.get(i);
-            //delete item from ticket
-            products.remove(p);
-        }
-        tableView.setItems(products);
-        tableView.refresh();
-
-        labelTotal.setText("$ 0");
-
-        labelTotalProductos.setText("0" + leyendaCantidadTotal);
 
         // printProducts(products);
     }
 
     public void insertarProductoTicket(Product product, BigDecimal cantidad) {
-        
-        
+        BigDecimal stock = new BigDecimal(product.getStock());
+
+        if (stock.compareTo(cantidad) < 0) {
+            showAlert(Alert.AlertType.ERROR, "Error", "No hay productos suficientes.");
+            System.out.println("La cantidad solicitada excede la cantidad disponible en inventario.");
+            return; // Interrumpe la ejecución del método
+        }
 
         product.setAmount(cantidad);
-        
-         System.out.println("TOTAL cantidad " +product.getAmount() + " total = " + product.getTotal());
-
-       // product.setTotal(product.getAmount().multiply(product.getTotal()));
-       product.setTotal(cantidad.multiply(product.getPrice()));
-       //product.setTotal(new BigDecimal("0.00"));
+        System.out.println("TOTAL cantidad xxxxxxxxxx" + product.getAmount() + " total = " + product.getTotal());
+        // product.setTotal(product.getAmount().multiply(product.getTotal()));
+        product.setTotal(cantidad.multiply(product.getPrice()));
+        //product.setTotal(new BigDecimal("0.00"));
 
         int tabSeleccionado = tabPaneTicket.getSelectionModel().getSelectedIndex(); // Selecciona el tab Seleccionado.    
 
@@ -799,7 +822,6 @@ public class VentasController implements Initializable {
 //            e.printStackTrace();
 //        }
 //    }
-
 //    public void printProducts(ObservableList<Product> products) {
 //        // Mostrar diálogo de selección de impresora
 //        PrinterJob job = PrinterJob.createPrinterJob();
@@ -844,7 +866,6 @@ public class VentasController implements Initializable {
 //
 //        stage.close();
 //    }
-
     public void printProductsToPdf1(ObservableList<Product> products, String dest, BigDecimal totalTicket) throws IOException {
         System.out.println("SE ENVIA A PDF PARA IMPRIMIR");
         PdfWriter writer = null;
@@ -902,9 +923,7 @@ public class VentasController implements Initializable {
             document.add(totalParagraph);
 
             // Enviar el PDF creado a la impresora seleccionada por el usuario
-           // printPdf(dest);
-           
-
+            // printPdf(dest);
         } catch (IOException e) {
             System.out.println("error desde metod imprimir" + e);
             e.printStackTrace();
@@ -921,7 +940,7 @@ public class VentasController implements Initializable {
             }
 
         }
-         printPdf(dest);
+        printPdf(dest);
     }
 
     public static BigDecimal calculateDiscountedPrice(BigDecimal originalPrice, BigDecimal discountPercentage) {
@@ -1042,4 +1061,19 @@ public class VentasController implements Initializable {
 //    });
 //}
 //
+
+//    private void showAlert(String title, String message) {
+//        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+//        alert.setTitle(title);
+//        alert.setHeaderText(null);
+//        alert.setContentText(message);
+//        alert.showAndWait();
+//    }
+    private void showAlert(Alert.AlertType alertType, String title, String message) {
+    Alert alert = new Alert(alertType);  // Usar el tipo de alerta proporcionado como parámetro
+    alert.setTitle(title);
+    alert.setHeaderText(null);
+    alert.setContentText(message);
+    alert.showAndWait();
+}
 }

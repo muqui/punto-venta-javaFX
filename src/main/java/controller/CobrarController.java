@@ -28,6 +28,7 @@ import org.json.JSONObject;
 public class CobrarController implements Initializable {
 
     private Order order;
+    private boolean statusSell = true;
     /**
      * Initializes the controller class.
      */
@@ -39,7 +40,7 @@ public class CobrarController implements Initializable {
         @FXML
     void btnCobrarAction(ActionEvent event) {
             System.out.println("COBRAR");
-            saveOrder(order);
+            saveOrder(getOrder());
              closeWindow(event);
 
     }
@@ -98,6 +99,7 @@ public class CobrarController implements Initializable {
             if (response.statusCode() == 200 || response.statusCode() == 201) {
                 System.out.println("Orden insertada con éxito: " + response.body());
             } else {
+                this.setStatusSell(false);
                 System.out.println("Error al insertar la orden: " + response.statusCode() + " " + response.body());
             }
         } catch (Exception e) {
@@ -110,6 +112,27 @@ public class CobrarController implements Initializable {
         // Obtener el Stage actual y cerrarlo
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         stage.close();
+    }
+
+    /**
+     * @return the order
+     */
+    public Order getOrder() {
+        return order;
+    }
+
+    /**
+     * @return the statusSell
+     */
+    public boolean isStatusSell() {
+        return statusSell;
+    }
+
+    /**
+     * @param statusSell the statusSell to set
+     */
+    public void setStatusSell(boolean statusSell) {
+        this.statusSell = statusSell;
     }
     
 }
