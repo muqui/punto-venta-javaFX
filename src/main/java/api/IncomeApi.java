@@ -6,13 +6,10 @@ package api;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dto.DepartmentDTO;
 import dto.ExpenseDTO;
-import dto.ExpenseNameDTO;
 import dto.IncomeDTO;
 import dto.IncomeNameDTO;
 import dto.IncomesResponseDTO;
-import dto.OrderDetailsResponseDTO;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -26,7 +23,6 @@ import java.util.List;
 import java.util.Scanner;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.util.StringConverter;
 import org.json.JSONObject;
 
 /**

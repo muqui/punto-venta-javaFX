@@ -73,8 +73,6 @@ public class ReportesController implements Initializable {
     ExpenseApi expenseApi = new ExpenseApi();
     ReportApi reportApi = new ReportApi();
 
-  
-
     @FXML
     private Label labelProfitCompleReport;
 
@@ -565,9 +563,8 @@ public class ReportesController implements Initializable {
         ReportCompleteDTO reportCompleteDTO = reportApi.RepoertCompleResponseDTO(datePickerCompleteStart.getValue().toString(), datePickerCompleteEnd.getValue().toString());
         ObservableList<TransaccionDTO> expenseList = FXCollections.observableArrayList(reportCompleteDTO.getReports());
         tableAllReport.setItems(expenseList);
-      
-         labelProfitCompleReport.setText("INGRESO: "+reportCompleteDTO.getExpense() +"   EGRESO: "+reportCompleteDTO.getIncome() +"  GANANCIA: "+reportCompleteDTO.getProfit());
 
+        labelProfitCompleReport.setText("INGRESO : " + reportCompleteDTO.getIncome() + "   EGRESO: " + reportCompleteDTO.getExpense() + "  GANANCIA: " + reportCompleteDTO.getProfit());
 
     }
 
@@ -582,8 +579,8 @@ public class ReportesController implements Initializable {
         ObservableList<TransaccionDTO> reportList = FXCollections.observableArrayList(reports);
 
         tableAllReport.setItems(reportList);
-     
-        labelProfitCompleReport.setText("INGRESO: "+reportCompleteDTO.getExpense() +"   EGRESO: "+reportCompleteDTO.getIncome() +"  GANANCIA: "+reportCompleteDTO.getProfit());
+
+        labelProfitCompleReport.setText("INGRESO : " + reportCompleteDTO.getIncome() + "   EGRESO: " + reportCompleteDTO.getExpense() + "  GANANCIA: " + reportCompleteDTO.getProfit());
 
     }
 }

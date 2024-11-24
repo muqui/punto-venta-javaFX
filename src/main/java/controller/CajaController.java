@@ -12,10 +12,6 @@ import dto.IncomeDTO;
 import dto.IncomeNameDTO;
 import java.math.BigDecimal;
 import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.time.ZoneId;
-
-import java.util.Date;
 import java.util.ResourceBundle;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -31,8 +27,6 @@ import javafx.scene.control.TextField;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 /**
  * FXML Controller class

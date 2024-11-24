@@ -8,17 +8,12 @@ import api.ProductApi;
 import config.ConfigLoader;
 import beans.PackageContent;
 import beans.Product;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.source.tree.BreakTree;
 import dto.DepartmentDTO;
 import dto.ProductDTO;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.math.RoundingMode;
-import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.net.http.HttpClient;
@@ -27,7 +22,6 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.collections.FXCollections;
@@ -163,12 +157,11 @@ public class ProductController implements Initializable {
 
     @FXML
     private TextField txtUpdatewholesalePrice;
-    
-    
+
     @FXML
     void btnUpdateAction(ActionEvent event) {
-          //ACTUALIZAR PRODUCTO
-         
+        //ACTUALIZAR PRODUCTO
+
         productoToUpdate.setName(txtUpdateName.getText());
         productoToUpdate.setDescription(txtUpdateDescription.getText());
         productoToUpdate.setPurchasePrice(Double.parseDouble(txtUpdatepurchasePrice.getText()));
@@ -176,12 +169,21 @@ public class ProductController implements Initializable {
         productoToUpdate.setWholesalePrice(Double.parseDouble(txtUpdatewholesalePrice.getText()));
         productoToUpdate.setStock(Double.parseDouble(txtUpdateAmount.getText()));
         productoToUpdate.setMinimumStock(Integer.parseInt(txtUpdateminimumStock.getText()));
-        
-        
-         System.out.println("Producto actualizado=  " + productoToUpdate.toString());
-         productoToUpdate.setSupplier("sin informacion");
-         
-           productApi.updateProduct(productoToUpdate);
+        productoToUpdate.setHowToSell(comboUpdateHowTosell.getValue());
+      
+
+        System.out.println("Producto actualizado=  " + productoToUpdate.toString());
+        productoToUpdate.setSupplier("sin informacion");
+
+        productApi.updateProduct(productoToUpdate);
+        txtUpdateName.setText("");
+        txtUpdateDescription.setText("");
+        txtUpdatepurchasePrice.setText("");
+        txtUpdatePrice.setText("");
+        txtUpdatewholesalePrice.setText("");
+        txtUpdateAmount.setText("");
+        txtUpdateminimumStock.setText("");
+        txtUpdateBarcode.setText("");
 
     }
 
@@ -310,6 +312,16 @@ public class ProductController implements Initializable {
             System.out.println(product.toString());
             if (save) {
                 sendProductToApi(product);
+                txtSaveBarcode.setText("");
+                txtSaveName.setText("");
+                txtSaveDescription.setText("");
+                txtSavePrice.setText("");
+                txtSavepurchasePrice.setText("");
+                txtSavewholesalePrice.setText("");
+                txtSaveAmount.setText("");
+                txtSaveminimumStock.setText("");
+                txtSupplier.setText("");
+                
             }
 
         } catch (Exception e) {
@@ -322,8 +334,6 @@ public class ProductController implements Initializable {
     void OnActionFindProductToUpdateProduct(ActionEvent event) {
 
     }
-
-  
 
     @FXML
     void btnFindProductUpdateAnction(ActionEvent event) {
@@ -426,7 +436,7 @@ public class ProductController implements Initializable {
 
         // Establecer valor por defecto
         comboSaveHowTosell.setValue("Unidad");
-comboUpdateHowTosell.setValue("Unidad");
+        comboUpdateHowTosell.setValue("Unidad");
     }
 
     private void fillChoiceBoxDepartament() {
@@ -456,7 +466,8 @@ comboUpdateHowTosell.setValue("Unidad");
         }
 
     }
-        private void fillChoiceBoxUpdateDepartament() {
+
+    private void fillChoiceBoxUpdateDepartament() {
 
         ObjectMapper mapper = new ObjectMapper();
         List<DepartmentDTO> departments = productApi.DepartamenNametList();
@@ -789,7 +800,7 @@ comboUpdateHowTosell.setValue("Unidad");
 
     private void updateProduct() {
 
-         productoToUpdate = productApi.getProductByBarcode(txtUpdateBarcode.getText());
+        productoToUpdate = productApi.getProductByBarcode(txtUpdateBarcode.getText());
         System.out.println("Producto " + productoToUpdate.toString());
 
         txtUpdateName.setText((productoToUpdate.getName()));
@@ -801,8 +812,6 @@ comboUpdateHowTosell.setValue("Unidad");
         txtUpdateminimumStock.setText("" + productoToUpdate.getMinimumStock());
         comboUpdateHowTosell.setValue("" + productoToUpdate.getHowToSell());
         comboUpdateGanancia.setValue("43");
-        
-       
-      
+
     }
 }
