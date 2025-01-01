@@ -4,6 +4,7 @@
  */
 package controller;
 
+import api.ProductApi;
 import beans.Product;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,7 +43,8 @@ import javafx.stage.WindowEvent;
  * @author albert
  */
 public class BuscarController implements Initializable {
-//    DaoProducto daoProducto = new DaoProducto();
+
+    ProductApi productApi = new ProductApi();
 
     private String codigo = "";
     ObservableList<Product> data;
@@ -63,7 +65,6 @@ public class BuscarController implements Initializable {
             @Override
             public void handle(KeyEvent ke) {
 
- 
                 try {
                     initializeTableColumns();
 
@@ -91,44 +92,23 @@ public class BuscarController implements Initializable {
         this.codigo = codigo;
     }
 
-   
     private ObservableList<ProductFindDTO> fetchProducts(String value) throws IOException {
-        String urlString = "http://localhost:3000/products/search?name=" + value;
-        URL url = new URL(urlString);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("GET");
-        conn.connect();
 
-        int responseCode = conn.getResponseCode();
-        if (responseCode != 200) {
-            throw new RuntimeException("HttpResponseCode: " + responseCode);
-        } else {
-            Scanner scanner = new Scanner(url.openStream());
-            StringBuilder inline = new StringBuilder();
-            while (scanner.hasNext()) {
-                inline.append(scanner.nextLine());
-            }
-            scanner.close();
-            System.out.println("Busqueda cadena= " + inline);
-            ObjectMapper mapper = new ObjectMapper();
-            List<ProductFindDTO> products = mapper.readValue(inline.toString(), new TypeReference<List<ProductFindDTO>>() {
-            });
+        List<ProductFindDTO> products = productApi.fetchProducts(value);
 
-            // Añadir botón a cada producto después de deserializar
-            // Añadir botón a cada producto después de deserializar
-            products.forEach(product -> {
-                Button button = new Button("Agregar");
-                button.setOnAction(event -> {
-                    System.out.println("Código de barras: " + product.getBarcode());
-                    setCodigo(product.getBarcode());
-                    // Cerrar la ventana después de seleccionar el código
-                    Stage stage = (Stage) button.getScene().getWindow();
-                    stage.close();
-                });
-                product.setButton(button);
+        products.forEach(product -> {
+            Button button = new Button("Agregar");
+            button.setOnAction(event -> {
+                System.out.println("Código de barras: " + product.getBarcode());
+                setCodigo(product.getBarcode());
+
+                Stage stage = (Stage) button.getScene().getWindow();
+                stage.close();
             });
-            return FXCollections.observableArrayList(products);
-        }
+            product.setButton(button);
+        });
+        return FXCollections.observableArrayList(products);
+
     }
 
     private void initializeTableColumns() {
@@ -158,7 +138,7 @@ public class BuscarController implements Initializable {
             columnName.setPrefWidth(tableWidth * 0.25); // 15% width
             columnPrice.setPrefWidth(tableWidth * 0.20); // 15% width
             columnStock.setPrefWidth(tableWidth * 0.20); // 15% width
-            columnButton.setPrefWidth( tableWidth * 0.10);
+            columnButton.setPrefWidth(tableWidth * 0.10);
         });
     }
 

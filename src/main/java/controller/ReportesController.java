@@ -429,7 +429,6 @@ public class ReportesController implements Initializable {
     public void fillComboBoxIncomeName() {
 
         ObservableList<IncomeNameDTO> departamentObservableList = incomeApi.ComboIncomeName();
-        System.out.println("DAtos combo = " + departamentObservableList.get(0).getName());
 
         // Verificación de que los datos se carguen correctamente
         if (!departamentObservableList.isEmpty()) {
@@ -492,7 +491,6 @@ public class ReportesController implements Initializable {
     public void fillComboBoxExpenseName() {
 
         ObservableList<ExpenseNameDTO> departamentObservableList = expenseApi.ComboExpenseName();
-        System.out.println("DAtos combo = " + departamentObservableList.get(0).getName());
 
         // Verificación de que los datos se carguen correctamente
         if (!departamentObservableList.isEmpty()) {

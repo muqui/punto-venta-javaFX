@@ -4,8 +4,10 @@
  */
 package controller;
 
+import api.LoginApi;
 import com.albertocoronanavarro.puntoventafx.App;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import config.ConfigManager;
 import dto.ApiResponseDTO;
 import dto.UserDTO;
 import java.io.IOException;
@@ -32,8 +34,10 @@ import javafx.scene.control.Label;
  * @author albert
  */
 public class LoginController implements Initializable {
+   
 
     private UserDTO usuario = new UserDTO();
+    
     @FXML
     private Button btnAceptar;
 
@@ -45,29 +49,23 @@ public class LoginController implements Initializable {
 
     @FXML
     private Label txtError;
+    
+    LoginApi loginApi = new LoginApi();
 
     @FXML
     void btnAceptarAction(ActionEvent event) throws IOException {
         usuario.setEmail(txtUsuer.getText().toString());
         usuario.setPassword(txtPassword.getText().toString());
         usuario.setName(txtUsuer.getText().toString());
-
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:3000/auth/signin"))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString("{\"email\":\"" + usuario.getEmail() + "\", \"password\":\"" + usuario.getPassword() + "\"}"))
-                    .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            System.out.println("resultado =" + response.statusCode());
+        HttpResponse<String> response =loginApi.login(usuario);
+          System.out.println("resultado 11q =" + response.body());
 
             if (response.statusCode() == 201) {
                 // Deserializar el JSON en un objeto UsuarioDTO
                 ObjectMapper objectMapper = new ObjectMapper();
                 UserDTO authenticatedUser = objectMapper.readValue(response.body(), UserDTO.class);
                 System.out.println("OBJETO RECIBIDO DESDE LOGIN: " + authenticatedUser.toString());
+                 System.out.println("TOKEN: " + authenticatedUser.getToken());
 
                 // Manejar autenticación exitosa
                 App main = new App();
@@ -81,10 +79,6 @@ public class LoginController implements Initializable {
                 txtError.setText("Error de conexión: " + apiResponse.getMessage());
             }
 
-        } catch (Exception e) {
-            System.out.println("error api " + e);
-            txtError.setText("ERROR: " + e);
-        }
 
     }
 
@@ -94,7 +88,8 @@ public class LoginController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         txtError.setText("");
-
+       
+      
     }
     
     

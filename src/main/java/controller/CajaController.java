@@ -113,9 +113,12 @@ public class CajaController implements Initializable {
         incomeDTO.setAmount(new BigDecimal(txtAmount.getText()));
         incomeDTO.setDescription(txtDescription.getText());
         incomeDTO.setIncomeNamesId(getIdComboBoxIncomeName());
+        
+       
 
         incomeApi.crearIngreso(incomeDTO);
-
+        txtDescription.setText("");
+        txtAmount.setText("");
     }
     @FXML
     void onActionAltaEgreso(ActionEvent event) {
@@ -127,6 +130,8 @@ public class CajaController implements Initializable {
         expenseDTO.setExpenseNamesId(getIdComboBoxExpenseName());
         System.out.println(expenseDTO.toString());
          incomeApi.crearEgreso(expenseDTO);
+         txtExpenseDescription.setText("");
+         txtAmountExpense.setText("");
        
     }
 
@@ -142,7 +147,6 @@ public class CajaController implements Initializable {
     
         public void fillComboBoxIncomeName() {
         ObservableList<IncomeNameDTO> departamentObservableList = incomeApi.ComboIncomeName();
-        System.out.println("DAtos combo = " + departamentObservableList.get(0).getName());
 
         // Verificación de que los datos se carguen correctamente
         if (!departamentObservableList.isEmpty()) {
@@ -176,7 +180,6 @@ public class CajaController implements Initializable {
 
     public void fillComboBoxExpenseName() {
         ObservableList<ExpenseNameDTO> departamentObservableList = expenseApi.ComboExpenseName();
-        System.out.println("DAtos combo egreso = " + departamentObservableList.get(0).getName());
 
         // Verificación de que los datos se carguen correctamente
         if (!departamentObservableList.isEmpty()) {

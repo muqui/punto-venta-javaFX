@@ -7,10 +7,13 @@ package controller;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
 /**
@@ -63,7 +66,7 @@ public class MasDeUnProductoController implements Initializable {
     }
     private String codigo;
     private String cantidad;
-    
+
     @FXML
     private Button btnAceptar;
 
@@ -75,11 +78,14 @@ public class MasDeUnProductoController implements Initializable {
 
     @FXML
     private TextField txtCodigo;
-    
-      @FXML
+
+    @FXML
     void actionbtnGuardar(ActionEvent event) {
-        setCodigo(this.getTxtCodigo().getText());
-        setCantidad(this.txtCantidad.getText());
+        insertToTicket();
+    }
+
+    @FXML
+    void onActionBtnCancel(ActionEvent event) {
         Stage stage = (Stage) this.btnAceptar.getScene().getWindow();
         stage.close();
     }
@@ -90,6 +96,31 @@ public class MasDeUnProductoController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
-    }    
-    
+        txtCodigo.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent ke) {
+                if (ke.getCode().equals(KeyCode.ENTER)) {
+                    insertToTicket();
+                }
+            }
+
+        });
+        txtCantidad.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent ke) {
+                if (ke.getCode().equals(KeyCode.ENTER)) {
+                    insertToTicket();
+                }
+            }
+
+        });
+    }
+
+    public void insertToTicket() {
+        setCodigo(this.getTxtCodigo().getText());
+        setCantidad(this.txtCantidad.getText());
+        Stage stage = (Stage) this.btnAceptar.getScene().getWindow();
+        stage.close();
+    }
+
 }

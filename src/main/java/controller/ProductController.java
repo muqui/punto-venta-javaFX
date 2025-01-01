@@ -4,8 +4,9 @@
  */
 package controller;
 
+import api.CategoriesApi;
 import api.ProductApi;
-import config.ConfigLoader;
+
 import beans.PackageContent;
 import beans.Product;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -63,6 +64,7 @@ public class ProductController implements Initializable {
 
     ProductApi productApi = new ProductApi();
     ProductDTO productoToUpdate = new ProductDTO();
+    CategoriesApi CategoriesApi = new CategoriesApi();
 
     ObservableList<Product> data;
 
@@ -169,8 +171,11 @@ public class ProductController implements Initializable {
         productoToUpdate.setWholesalePrice(Double.parseDouble(txtUpdatewholesalePrice.getText()));
         productoToUpdate.setStock(Double.parseDouble(txtUpdateAmount.getText()));
         productoToUpdate.setMinimumStock(Integer.parseInt(txtUpdateminimumStock.getText()));
+        System.out.println("ACTUALIZAR COMO SE VENDEN= " + comboUpdateDepart.getValue());
         productoToUpdate.setHowToSell(comboUpdateHowTosell.getValue());
-      
+        DepartmentDTO selectedDepartment = comboUpdateDepart.getValue();
+        int selectedId = selectedDepartment.getId();
+        productoToUpdate.setCategoryId(selectedId);
 
         System.out.println("Producto actualizado=  " + productoToUpdate.toString());
         productoToUpdate.setSupplier("sin informacion");
@@ -200,49 +205,9 @@ public class ProductController implements Initializable {
 
     @FXML
     void OnActionBtnCrearDepartamento(ActionEvent event) {
-        System.out.println("A QUI SE VE A CREAR UN NUEVO DEPARTAMENTO" + txtCrearDepartamento.getText());
-        ConfigLoader configLoader = new ConfigLoader();
-        String apiUrl = configLoader.getProperty("api.base.url") + configLoader.getProperty("api.endpoint.categories");
-
-        System.out.println("Llamando a la API: " + apiUrl);
-
-        try {
-            // Convertir ProductDTO a JSON
-            ObjectMapper objectMapper = new ObjectMapper();
-            DepartmentDTO departamentDto = new DepartmentDTO();
-            departamentDto.setName(txtCrearDepartamento.getText().trim());
-            String jsonProduct = objectMapper.writeValueAsString(departamentDto);
-
-            // Crear cliente HTTP
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI(apiUrl))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(jsonProduct))
-                    .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == 201) {
-                showAlert("Éxito", "Departamento creado exitosamente.");
-            } else {
-                String responseBody = response.body();
-                System.out.println("Resultado =" + response.body());
-
-                // Parse the response body as JSON
-                JSONObject jsonResponse = new JSONObject(responseBody);
-                // Access the "message" field
-                String message = jsonResponse.getString("message");
-                System.out.println("Message = " + message);
-
-                showAlert("Error", "Error al crear departmamento:  " + message);
-
-            }
-
-        } catch (Exception e) {
-            System.out.println("Error API " + e);
-            showAlert("Error", "Error al conectarse con la API.");
-        }
+        DepartmentDTO departamentDto = new DepartmentDTO();
+        departamentDto.setName(txtCrearDepartamento.getText().trim());
+        CategoriesApi.createDepartment(departamentDto);
 
     }
 
@@ -311,7 +276,8 @@ public class ProductController implements Initializable {
 
             System.out.println(product.toString());
             if (save) {
-                sendProductToApi(product);
+                productApi.sendProductToApi(product);
+                //sendProductToApi(product);
                 txtSaveBarcode.setText("");
                 txtSaveName.setText("");
                 txtSaveDescription.setText("");
@@ -321,7 +287,7 @@ public class ProductController implements Initializable {
                 txtSaveAmount.setText("");
                 txtSaveminimumStock.setText("");
                 txtSupplier.setText("");
-                
+
             }
 
         } catch (Exception e) {
@@ -332,7 +298,7 @@ public class ProductController implements Initializable {
 
     @FXML
     void OnActionFindProductToUpdateProduct(ActionEvent event) {
-
+        updateProduct();
     }
 
     @FXML
@@ -503,51 +469,51 @@ public class ProductController implements Initializable {
         return sellingPrice;
     }
 
-    private void sendProductToApi(ProductDTO product) throws Exception {
-        System.out.println("PRODUCTO ENVIADO A LA API= " + product.toString());
-        try {
-            // Convertir ProductDTO a JSON
-            ObjectMapper objectMapper = new ObjectMapper();
-            String jsonProduct = objectMapper.writeValueAsString(product);
-
-            // Crear cliente HTTP
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:3000/products"))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(jsonProduct))
-                    .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == 201) {
-                showAlert("Éxito", "Producto guardado exitosamente.");
-            } else {
-                String responseBody = response.body();
-                System.out.println("Resultado =" + response.body());
-
-                // Parse the response body as JSON
-                JSONObject jsonResponse = new JSONObject(responseBody);
-                // Access the "message" field
-                String message = jsonResponse.getString("message");
-                System.out.println("Message = " + message);
-
-                // Manejar error de autenticación
-                if (message.equalsIgnoreCase("product exists")) {
-                    //showAlert("Info", "El producto ya existe, puede actualizarlo " );
-                    showAlertUpdateProduct("Info", "El producto existe, Desea actualizarlo?");
-
-                } else {
-                    showAlert("Error", "Error al guardar el producto. Código de estado: " + response.statusCode());
-                }
-            }
-
-        } catch (Exception e) {
-            System.out.println("Error API " + e);
-            showAlert("Error", "Error al conectarse con la API.");
-        }
-
-    }
+//    private void sendProductToApi(ProductDTO product) throws Exception {
+//        System.out.println("PRODUCTO ENVIADO A LA API= " + product.toString());
+//        try {
+//            // Convertir ProductDTO a JSON
+//            ObjectMapper objectMapper = new ObjectMapper();
+//            String jsonProduct = objectMapper.writeValueAsString(product);
+//
+//            // Crear cliente HTTP
+//            HttpClient client = HttpClient.newHttpClient();
+//            HttpRequest request = HttpRequest.newBuilder()
+//                    .uri(new URI("http://localhost:3000/products"))
+//                    .header("Content-Type", "application/json")
+//                    .POST(HttpRequest.BodyPublishers.ofString(jsonProduct))
+//                    .build();
+//
+//            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+//
+//            if (response.statusCode() == 201) {
+//                showAlert("Éxito", "Producto guardado exitosamente.");
+//            } else {
+//                String responseBody = response.body();
+//                System.out.println("Resultado =" + response.body());
+//
+//                // Parse the response body as JSON
+//                JSONObject jsonResponse = new JSONObject(responseBody);
+//                // Access the "message" field
+//                String message = jsonResponse.getString("message");
+//                System.out.println("Message = " + message);
+//
+//                // Manejar error de autenticación
+//                if (message.equalsIgnoreCase("product exists")) {
+//                    //showAlert("Info", "El producto ya existe, puede actualizarlo " );
+//                    showAlertUpdateProduct("Info", "El producto existe, Desea actualizarlo?");
+//
+//                } else {
+//                    showAlert("Error", "Error al guardar el producto. Código de estado: " + response.statusCode());
+//                }
+//            }
+//
+//        } catch (Exception e) {
+//            System.out.println("Error API " + e);
+//            showAlert("Error", "Error al conectarse con la API.");
+//        }
+//
+//    }
 
     private Product buscarProducto() {
         Product product = null;
@@ -565,7 +531,8 @@ public class ProductController implements Initializable {
             String codigo = buscarController.getCodigo();
 
             if (!codigo.isEmpty()) {
-                product = getProductByBarcode(codigo);
+               // product = getProductByBarcode(codigo);
+               product= productApi.getProductByBarcode1(codigo);
                 product.setAmount(new BigDecimal("1"));
                 product.setTotal(product.getPurchasePrice());
 
@@ -606,58 +573,58 @@ public class ProductController implements Initializable {
     /*
     Regresa el producto desde la rest api.
      */
-    public Product getProductByBarcode(String barcode) {
-        Product product = new Product();
-
-        try {
-
-            // Crear un cliente HTTP
-            HttpClient client = HttpClient.newHttpClient();
-
-            // Construir la solicitud GET
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:3000/products/" + barcode))
-                    .header("Content-Type", "application/json")
-                    .GET()
-                    .build();
-
-            // Enviar la solicitud y recibir la respuesta
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            // Manejar la respuesta
-            if (response.statusCode() == 200) {
-
-                // Parsear la respuesta JSON
-                JSONObject jsonResponse = new JSONObject(response.body());
-                // Crear una instancia de Product y asignar valores
-
-                product.setId(jsonResponse.getInt("id"));
-                product.setName(jsonResponse.getString("name"));
-                product.setDescription(jsonResponse.getString("description"));
-                product.setBarcode(jsonResponse.getString("barcode"));
-                // product.setPrice(jsonResponse.getDouble("price"));
-                product.setPrice(jsonResponse.getBigDecimal("price"));
-                product.setStock(jsonResponse.getInt("stock"));
-                product.setImgUrl(jsonResponse.getString("imgUrl"));
-                product.setCategoryId(jsonResponse.getInt("categoryId"));
-                product.setTotal(jsonResponse.getBigDecimal("price"));
-                product.setPurchasePrice(jsonResponse.getBigDecimal("purchasePrice"));
-                product.setHowToSell(jsonResponse.getString("howToSell"));
-
-            } else {
-                System.out.println("Error en la solicitud: " + response.statusCode());
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.initStyle(StageStyle.UTILITY);
-                alert.setTitle("Error");
-                alert.setHeaderText(null);
-                alert.setContentText("Producto no encontrado.");
-                alert.showAndWait();
-            }
-
-        } catch (Exception e) {
-        }
-        return product;
-    }
+//    public Product getProductByBarcode(String barcode) {
+//        Product product = new Product();
+//
+//        try {
+//
+//            // Crear un cliente HTTP
+//            HttpClient client = HttpClient.newHttpClient();
+//
+//            // Construir la solicitud GET
+//            HttpRequest request = HttpRequest.newBuilder()
+//                    .uri(new URI("http://localhost:3000/products/" + barcode))
+//                    .header("Content-Type", "application/json")
+//                    .GET()
+//                    .build();
+//
+//            // Enviar la solicitud y recibir la respuesta
+//            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+//
+//            // Manejar la respuesta
+//            if (response.statusCode() == 200) {
+//
+//                // Parsear la respuesta JSON
+//                JSONObject jsonResponse = new JSONObject(response.body());
+//                // Crear una instancia de Product y asignar valores
+//
+//                product.setId(jsonResponse.getInt("id"));
+//                product.setName(jsonResponse.getString("name"));
+//                product.setDescription(jsonResponse.getString("description"));
+//                product.setBarcode(jsonResponse.getString("barcode"));
+//                // product.setPrice(jsonResponse.getDouble("price"));
+//                product.setPrice(jsonResponse.getBigDecimal("price"));
+//                product.setStock(jsonResponse.getInt("stock"));
+//                product.setImgUrl(jsonResponse.getString("imgUrl"));
+//                product.setCategoryId(jsonResponse.getInt("categoryId"));
+//                product.setTotal(jsonResponse.getBigDecimal("price"));
+//                product.setPurchasePrice(jsonResponse.getBigDecimal("purchasePrice"));
+//                product.setHowToSell(jsonResponse.getString("howToSell"));
+//
+//            } else {
+//                System.out.println("Error en la solicitud: " + response.statusCode());
+//                Alert alert = new Alert(Alert.AlertType.ERROR);
+//                alert.initStyle(StageStyle.UTILITY);
+//                alert.setTitle("Error");
+//                alert.setHeaderText(null);
+//                alert.setContentText("Producto no encontrado.");
+//                alert.showAndWait();
+//            }
+//
+//        } catch (Exception e) {
+//        }
+//        return product;
+//    }
 
     private void initializeTableColumns() {
 

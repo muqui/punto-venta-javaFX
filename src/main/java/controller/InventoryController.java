@@ -4,15 +4,22 @@
  */
 package controller;
 
+import api.EntryApi;
+import api.OrderApi;
 import api.ProductApi;
+import beans.Product;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import static controller.VentasController.calculateDiscountedPrice;
+import dto.DepartmentDTO;
 import dto.EntryDTO;
+import dto.InventoryResponseDTO;
 import dto.OrderDTO;
 import dto.OrderDetailDTO;
 import dto.ProductDTO;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -28,14 +35,21 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.util.StringConverter;
 
 /**
  * FXML Controller class
@@ -43,9 +57,10 @@ import javafx.scene.input.MouseEvent;
  * @author albert
  */
 public class InventoryController implements Initializable {
-    
-     ProductApi productApi = new ProductApi();
-    
+
+    ProductApi productApi = new ProductApi();
+    EntryApi entryApi = new EntryApi();
+    OrderApi orderApia = new OrderApi();
 
     @FXML
     private TableView<ProductDTO> tableProducts;
@@ -56,8 +71,10 @@ public class InventoryController implements Initializable {
 
     @FXML
     private TabPane tabPaneInventory;
-    
-    
+
+    @FXML
+    private ComboBox<DepartmentDTO> comboCategoryProducts;
+
     @FXML
     private TextField txtAddInventoryAdd;
 
@@ -78,10 +95,13 @@ public class InventoryController implements Initializable {
 
     @FXML
     private TextField txtAddInventorypurchasePrice;
-    
+
     @FXML
     private ComboBox<?> ComboAddInventoryProfit;
-    
+
+    @FXML
+    private Label labelTotalInventory;
+
     @FXML
     void onActionBtnUpdateProduct(ActionEvent event) {
         String barcode = txtAddInventoryBarcode.getText();
@@ -93,10 +113,14 @@ public class InventoryController implements Initializable {
         productDto.setPrice(new BigDecimal(txtAddInventoryPrice.getText()));
         productDto.setSupplier(txtAddInventorySupplier.getText());
         productApi.addINvetory(productDto);
-       
 
     }
 
+    @FXML
+    void OnActionFindProduct(ActionEvent event) {
+        System.out.println("BUSCAR PRODUCTO PARA ATUALIZAR.................");
+        buscarProducto();
+    }
 
     @FXML
     void mouseClickTabPaneInventory(MouseEvent event) {
@@ -119,19 +143,45 @@ public class InventoryController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
 
+        // TODO
+        // Añadir listener para manejar la selección
+        comboCategoryProducts.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                // Acción al seleccionar un elemento
+                System.out.println("Seleccionado: " + newValue.getName());
+                //realizarAccion(newValue);
+
+                try {
+                    InventoryResponseDTO inventoryResponseDTO;
+                    if ("TODOS LOS DEPARTAMENTOS".equals(newValue.getName())) {
+                        inventoryResponseDTO = productApi.fetchProductsInventary("");
+                    } else {
+                        inventoryResponseDTO = productApi.fetchProductsInventary(newValue.getName());
+                    }
+                    List<ProductDTO> products = inventoryResponseDTO.getProducts();
+                    labelTotalInventory.setText("Total: " + inventoryResponseDTO.getTotalInventoryCost());
+                    ObservableList<ProductDTO> observableListProducts = FXCollections.observableArrayList(products);
+                    tableProducts.setItems(observableListProducts);
+                } catch (IOException ex) {
+                    Logger.getLogger(InventoryController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+            }
+        });
         try {
             entries();  //carga los datos de lasa entradas al inventario
             outputs(); //carga los datos de las salidas al inventario
             fetchDataInventorie(); // carga las informacion del inventario.
+            fillChoiceBoxDepartament(); // carga los departamentos  en a vista de productos
 
         } catch (Exception e) {
         }
     }
-    public void fetchDataInventorie(){
+
+    public void fetchDataInventorie() {
         try {
-                        TableColumn<ProductDTO, Integer> columnbarcode = new TableColumn<>("Codigo");
+            TableColumn<ProductDTO, Integer> columnbarcode = new TableColumn<>("Codigo");
             columnbarcode.setCellValueFactory(new PropertyValueFactory<>("barcode"));
             columnbarcode.setPrefWidth(150); // Set specific width for barcode column
 
@@ -167,8 +217,14 @@ public class InventoryController implements Initializable {
             });
 
             tableProducts.getColumns().addAll(columnbarcode, columnDescription, columnPurchasePrice, columnEntry, columnOutput, columnStock, columnTotalStockValue);
-            tableProducts.setItems(fetchProducts());
-
+            // tableProducts.setItems(productApi.fetchProductsInventary("10"));
+            InventoryResponseDTO inventoryResponseDTO = productApi.fetchProductsInventary("");
+            System.out.println("resultado inventario =" + inventoryResponseDTO);
+            System.out.println("RESPONSE INVENTARIO = " + inventoryResponseDTO);
+            List<ProductDTO> products = inventoryResponseDTO.getProducts();
+            labelTotalInventory.setText("Total: " + inventoryResponseDTO.getTotalInventoryCost());
+            ObservableList<ProductDTO> observableListProducts = FXCollections.observableArrayList(products);
+            tableProducts.setItems(observableListProducts);
             // Set table width listener to adjust column widths in percentages
             tableProducts.widthProperty().addListener((obs, oldVal, newVal) -> {
                 double tableWidth = newVal.doubleValue();
@@ -181,33 +237,6 @@ public class InventoryController implements Initializable {
                 columnTotalStockValue.setPrefWidth(tableWidth * 0.10);
             });
         } catch (Exception e) {
-        }
-    }
-    private ObservableList<ProductDTO> fetchProducts() throws IOException {
-        URL url = new URL("http://localhost:3000/products/");
-
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("GET");
-        conn.connect();
-
-        int responseCode = conn.getResponseCode();
-        if (responseCode != 200) {
-            throw new RuntimeException("HttpResponseCode: " + responseCode);
-        } else {
-            Scanner scanner = new Scanner(url.openStream());
-            StringBuilder inline = new StringBuilder();
-            while (scanner.hasNext()) {
-                inline.append(scanner.nextLine());
-            }
-            scanner.close();
-
-            ObjectMapper mapper = new ObjectMapper();
-            List<ProductDTO> products = mapper.readValue(inline.toString(), new TypeReference<List<ProductDTO>>() {
-            });
-
-            // Convertir la lista a ObservableList
-            ObservableList<ProductDTO> productList = FXCollections.observableArrayList(products);
-            return productList;
         }
     }
 
@@ -252,7 +281,7 @@ public class InventoryController implements Initializable {
             // Agregar las columnas a la tabla
             tableViewEntries.getColumns().addAll(columnDate, columnProductBarcode, columnProductName, columnAmount, columnPrice, columnTotalPrice);
 
-            tableViewEntries.setItems(fetchEntries());
+            tableViewEntries.setItems(entryApi.fetchEntries());
             tableViewEntries.widthProperty().addListener((obs, oldVal, newVal) -> {
                 double tableWidth = newVal.doubleValue();
                 columnDate.setPrefWidth(tableWidth * 0.20); // 30% width
@@ -265,54 +294,6 @@ public class InventoryController implements Initializable {
 
         } catch (Exception e) {
         }
-    }
-
-    private ObservableList<EntryDTO> fetchEntries() {
-        ObservableList<EntryDTO> entryList = null;
-        try {
-            URL url = new URL("http://localhost:3000/products/entries");
-
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.connect();
-
-            int responseCode = conn.getResponseCode();
-            System.out.println("Response Code: " + responseCode);
-
-            if (responseCode != 200) {
-                throw new RuntimeException("HttpResponseCode: " + responseCode);
-            } else {
-                Scanner scanner = new Scanner(url.openStream());
-                StringBuilder inline = new StringBuilder();
-                while (scanner.hasNext()) {
-                    inline.append(scanner.nextLine());
-                }
-                scanner.close();
-
-                // System.out.println("JSON Response: " + inline.toString()); // Verifica el contenido de la respuesta JSON
-                ObjectMapper mapper = new ObjectMapper();
-                List<EntryDTO> entries = mapper.readValue(inline.toString(), new TypeReference<List<EntryDTO>>() {
-                });
-
-                System.out.println("Entries List: " + entries); // Verifica que la lista de entradas se ha deserializado correctamente
-
-                // Imprime la lista de EntryDTO en la consola
-                entries.forEach(entry -> System.out.println(entry.toString()));
-
-                // Convertir la lista a ObservableList
-                entryList = FXCollections.observableArrayList(entries);
-                System.out.println("obserbable list" + entries);
-
-            }
-        } catch (MalformedURLException ex) {
-            Logger.getLogger(InventoryController.class.getName()).log(Level.SEVERE, null, ex);
-            System.out.println("ex0 = " + ex);
-        } catch (IOException ex) {
-            Logger.getLogger(InventoryController.class.getName()).log(Level.SEVERE, null, ex);
-            System.out.println("ex1 = " + ex);
-        }
-
-        return entryList;
     }
 
     public void outputs() {
@@ -343,7 +324,7 @@ public class InventoryController implements Initializable {
             columnNameProduct.setResizable(true);
 
             tableViewOutputs.getColumns().addAll(columnDate, columnBarcode, columnNameProduct, columnAmount, columnPrice, columnTotalPrice);
-            tableViewOutputs.setItems(fetchOrderDetails());
+            tableViewOutputs.setItems(orderApia.fetchOrderDetails());
             tableViewOutputs.widthProperty().addListener((obs, oldVal, newVal) -> {
                 double tableWidth = newVal.doubleValue();
                 columnDate.setPrefWidth(tableWidth * 0.20); // 30% width
@@ -361,38 +342,100 @@ public class InventoryController implements Initializable {
 
     }
 
-    // Método para obtener la lista de pedidos como ObservableList
-    private ObservableList<OrderDetailDTO> fetchOrderDetails() throws IOException {
-        URL url = new URL("http://localhost:3000/orders");
+    private void buscarProducto() {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/buscar.fxml"));
+            Parent root = fxmlLoader.load();
+            BuscarController buscarController = fxmlLoader.getController();
+            Scene scene = new Scene(root);
+            Stage stage = new Stage();
+            //stage.setResizable(false);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(scene);
+            stage.showAndWait();
 
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("GET");
-        conn.connect();
+            String codigo = buscarController.getCodigo();
 
-        int responseCode = conn.getResponseCode();
-        if (responseCode != 200) {
-            throw new RuntimeException("HttpResponseCode: " + responseCode);
-        } else {
-            Scanner scanner = new Scanner(url.openStream());
-            StringBuilder inline = new StringBuilder();
-            while (scanner.hasNext()) {
-                inline.append(scanner.nextLine());
+            System.out.println("CODIGO = " + codigo);
+            txtAddInventoryBarcode.setText(codigo);
+
+            // System.out.println("OBTENER CODIGO PARA BUSCAR E INSERTAR: " + codigo);
+            // Aquí puedes utilizar el código obtenido para realizar otras acciones
+            if (!codigo.isEmpty()) {
+                Product product = productApi.ProductoToTicket(codigo);   //insertToTicket(codigo); // recibe el producto desde la rest api  
+                txtAddInventoryName.setText(product.getName());
+                txtAddInventorypurchasePrice.setText("" + product.getPurchasePrice());
+                txtAddInventoryPrice.setText("" + product.getPrice());
+                txtAddInventoryholesalePrice.setText("" + product.getWholesalePrice());
             }
-            scanner.close();
 
-            ObjectMapper mapper = new ObjectMapper();
-            List<OrderDTO> orders = mapper.readValue(inline.toString(), new TypeReference<List<OrderDTO>>() {
-            });
-
-            // Flatten the structure
-            ObservableList<OrderDetailDTO> orderDetailsList = FXCollections.observableArrayList();
-            for (OrderDTO order : orders) {
-                for (OrderDetailDTO detail : order.getOrderDetails()) {
-                    detail.setOrder(order); // Set reference to the parent order
-                    orderDetailsList.add(detail);
-                }
-            }
-            return orderDetailsList;
+        } catch (IOException ex) {
+            Logger.getLogger(VentasController.class.getName()).log(Level.SEVERE, null, ex);
         }
+
     }
+
+    private void fillChoiceBoxDepartament() {
+        ObjectMapper mapper = new ObjectMapper();
+        List<DepartmentDTO> departments = productApi.DepartamenNametList();
+
+        // Crear una lista observable
+        ObservableList<DepartmentDTO> departamentList = FXCollections.observableArrayList();
+
+        // Agregar la opción "Todos los departamentos" al inicio
+        DepartmentDTO allDepartmentsOption = new DepartmentDTO();
+        allDepartmentsOption.setId(-1);
+        allDepartmentsOption.setName("TODOS LOS DEPARTAMENTOS");
+        departamentList.add(allDepartmentsOption);
+
+        // Agregar los departamentos reales
+        departamentList.addAll(departments);
+
+        // Configurar los elementos en el ComboBox
+        comboCategoryProducts.setItems(departamentList);
+
+        // Configurar el StringConverter para mostrar solo el nombre
+        comboCategoryProducts.setConverter(new StringConverter<DepartmentDTO>() {
+            @Override
+            public String toString(DepartmentDTO department) {
+                return department.getName();
+            }
+
+            @Override
+            public DepartmentDTO fromString(String string) {
+                return departamentList.stream().filter(department -> department.getName().equals(string)).findFirst().orElse(null);
+            }
+        });
+
+        // Establecer "Todos los departamentos" como valor por defecto
+        comboCategoryProducts.setValue(allDepartmentsOption);
+    }
+
+//    private void fillChoiceBoxDepartament() {
+//
+//        ObjectMapper mapper = new ObjectMapper();
+//        List<DepartmentDTO> departments = productApi.DepartamenNametList();
+//
+//        ObservableList<DepartmentDTO> departamentList = FXCollections.observableArrayList(departments);
+//        comboCategoryProducts.setItems(departamentList);
+//
+//        // Configurar el StringConverter para mostrar solo el nombre
+//        comboCategoryProducts.setConverter(new StringConverter<DepartmentDTO>() {
+//            @Override
+//            public String toString(DepartmentDTO department) {
+//                return department.getName();
+//            }
+//
+//            @Override
+//            public DepartmentDTO fromString(String string) {
+//                return departamentList.stream().filter(department -> department.getName().equals(string)).findFirst().orElse(null);
+//            }
+//        });
+//
+//        // Establecer valor por defecto si es necesario
+//        if (!departamentList.isEmpty()) {
+//            comboCategoryProducts.setValue(departamentList.get(0));
+//        }
+//
+//    }
 }

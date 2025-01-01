@@ -8,12 +8,12 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane id="AnchorPane" prefHeight="415.0" prefWidth="696.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.CobrarController">
+<AnchorPane id="AnchorPane" fx:id="anchorPaneCobrar" prefHeight="415.0" prefWidth="696.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.CobrarController">
     <stylesheets>
         <URL value="@/styles/cobrar.css" />
     </stylesheets>
    <children>
-      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="6.0" layoutY="14.0" prefHeight="17.0" prefWidth="677.0" text="Total" textAlignment="CENTER" AnchorPane.leftAnchor="6.0" AnchorPane.rightAnchor="13.0" />
+      <Label fx:id="labelTotal" alignment="CENTER" contentDisplay="CENTER" layoutX="6.0" layoutY="14.0" prefHeight="17.0" prefWidth="677.0" text="Total" textAlignment="CENTER" AnchorPane.leftAnchor="6.0" AnchorPane.rightAnchor="13.0" />
       <TabPane layoutX="14.0" layoutY="40.0" prefHeight="319.0" prefWidth="671.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="56.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="11.0" AnchorPane.topAnchor="40.0">
         <tabs>
           <Tab text="EFECTIVO">
@@ -21,9 +21,9 @@
               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
                         <Label layoutX="14.0" layoutY="26.0" text="Pago con" />
-                        <TextField layoutX="14.0" layoutY="51.0" prefHeight="26.0" prefWidth="628.0" />
+                        <TextField fx:id="txtAmount" layoutX="14.0" layoutY="51.0" prefHeight="26.0" prefWidth="628.0" />
                         <Label layoutX="14.0" layoutY="94.0" text="Cambio" />
-                        <TextField layoutX="14.0" layoutY="118.0" prefHeight="26.0" prefWidth="625.0" />
+                        <TextField fx:id="txtChange" layoutX="14.0" layoutY="118.0" prefHeight="26.0" prefWidth="625.0" />
                      </children>
                   </AnchorPane>
             </content>

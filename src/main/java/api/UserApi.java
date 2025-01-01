@@ -6,6 +6,7 @@ package api;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import config.ConfigManager;
 import dto.DepartmentDTO;
 import dto.UserDTO;
 import java.io.IOException;
@@ -21,11 +22,15 @@ import javafx.collections.ObservableList;
  * @author albert
  */
 public class UserApi {
-    
+    ConfigManager configManager = new ConfigManager(); //carga el archivo de config.properties
+    String baseUrl = configManager.getProperty("api.base.url");
+    String endpointUser = configManager.getProperty("api.endpoint.users");
+   
      public ObservableList<UserDTO> fillChoiceBoxUser() {
          ObservableList<UserDTO> userList = null ;
         try {
-            String urlString = "http://localhost:3000/users"; // Cambia esto por la URL correcta de tu API
+            String urlString = baseUrl + endpointUser; // Cambia esto por la URL correcta de tu API
+           // String urlString = "http://localhost:3000/users"; // Cambia esto por la URL correcta de tu API
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");

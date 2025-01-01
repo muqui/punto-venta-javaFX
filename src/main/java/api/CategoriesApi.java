@@ -6,26 +6,41 @@ package api;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import config.ConfigManager;
 import dto.DepartmentDTO;
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Scanner;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Alert;
 import javafx.util.StringConverter;
+import org.json.JSONObject;
 
 /**
  *
  * @author albert
  */
 public class CategoriesApi {
+      ConfigManager configManager = new ConfigManager(); //carga el archivo de config.properties
+        String baseUrl = configManager.getProperty("api.base.url");
+        String endpointCategories = configManager.getProperty("api.endpoint.categories");
+        //api.endpoint.categories=/categories
+        
+      // api.base.url=http://localhost:3000
 
     public ObservableList<DepartmentDTO> fillChoiceBoxDepartament() {
+          String baseUrl = configManager.getProperty("api.base.url");
+        String endpoint = configManager.getProperty("api.endpoint.categories");
          ObservableList<DepartmentDTO> departamentList = null ;
         try {
-            String urlString = "http://localhost:3000/categories"; // Cambia esto por la URL correcta de tu API
+            String urlString = baseUrl+endpoint;  // Cambia esto por la URL correcta de tu API
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
@@ -55,6 +70,62 @@ public class CategoriesApi {
             e.printStackTrace();
         }
           return departamentList;
+    }
+    
+    public void createDepartment(DepartmentDTO departamentDto){
+        //
+         String apiUrl = baseUrl + endpointCategories;     
+        
+       // String apiUrl = "http://localhost:3000/categories";
+        
+        System.out.println("Llamando a la API: " + apiUrl);
+        
+        try {
+            // Convertir ProductDTO a JSON
+            ObjectMapper objectMapper = new ObjectMapper();
+           
+           
+             String jsonProduct = objectMapper.writeValueAsString(departamentDto);
+
+            // Crear cliente HTTP
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI(apiUrl))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonProduct))
+                    .build();
+            
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            
+            if (response.statusCode() == 201) {
+                showAlert("Éxito", "Departamento creado exitosamente.");
+            } else {
+                String responseBody = response.body();
+                System.out.println("Resultado =" + response.body());
+
+                // Parse the response body as JSON
+                JSONObject jsonResponse = new JSONObject(responseBody);
+                // Access the "message" field
+                String message = jsonResponse.getString("message");
+                System.out.println("Message = " + message);
+                
+                showAlert("Error", "Error al crear departmamento:  " + message);
+                
+            }
+            
+        } catch (Exception e) {
+            System.out.println("Error API " + e);
+            showAlert("Error", "Error al conectarse con la API.");
+        }
+
+    }
+    
+       private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
 }

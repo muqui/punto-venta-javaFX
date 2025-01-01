@@ -160,47 +160,64 @@ public class VentasController implements Initializable {
             @Override
             public void handle(KeyEvent ke) {
                 if (ke.getCode().equals(KeyCode.ENTER)) {
-
-                    Product product = productApi.ProductoToTicket(txtCodigoBarras.getText());       //insertToTicket(txtCodigoBarras.getText()); // recibe el producto desde la rest api
-                    System.out.println("" + product.getStock());
-
-                    //   System.out.println("producto qu no regresa como se vende= " + product.toString());
-                    BigDecimal cantidad = new BigDecimal("1");
-                    // product.setHowToSell("Unidad");
-
-                    if (product.getHowToSell().equalsIgnoreCase("Granel")) {
-
-                        cantidad = dialogAmount();
-                        System.out.println("condicion para cambiar la cantiadad granel 1");
-                    }
-
-                    //hacer descuento
-                    if (!txtDiscount.getText().trim().equalsIgnoreCase("")) {
-                        BigDecimal discountPercentage = new BigDecimal(txtDiscount.getText());
-                        discountPercentage = discountPercentage.setScale(2, RoundingMode.HALF_UP);
-
-                        //   System.out.println("DESCUENTO TEXT =" + discountPercentage);
-                        if (discountPercentage.compareTo(BigDecimal.ZERO) > 0) {
-
-                            BigDecimal discountedPrice = calculateDiscountedPrice(product.getPrice(), discountPercentage);
-
-                            //   System.out.println("precio regresado con descuento= " + discountedPrice);
-                            //   System.out.println("precio de venta Normal= " + product.getPrice());
-                            product.setPrice(discountedPrice);
-                            product.setTotal(discountedPrice);
-                            //    System.out.println("precio de venta Con descuento= " + discountedPrice);
-
-                        }
-
-                    }
-
-                    if (product.getBarcode() != null) {
-                        insertarProductoTicket(product, cantidad); //inserta el producto al ticket
-                    }
-
+                    insertProduct();
                 }
             }
 
+        
+        });
+        // Asegura que el TextField siempre tenga el foco
+        txtCodigoBarras.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) { // Si pierde el foco
+                txtCodigoBarras.requestFocus(); // Recuperar el foco
+            }
+        });
+
+        // Solicitar foco al inicio
+        Platform.runLater(() -> txtCodigoBarras.requestFocus());
+
+        tabPaneTicket.sceneProperty().addListener((observable, oldScene, newScene) -> {
+            if (newScene != null) {
+                newScene.setOnKeyPressed(event -> {
+                    switch (event.getCode()) {
+                        case F1:
+                            // crearTicketNuevo();
+                            buscarProducto();
+                            break;
+                        case F2:
+                            // eliminarTicket();
+                            insertarMasdeUnProducto();
+                            break;
+                        case F5:
+                            // guardarTicket();
+                            int numTabs = tabPaneTicket.getTabs().size();
+
+                            if (numTabs < 10) {
+                                crearTicket("Ticket " + (numTabs + 1));
+                                // set total to zero
+                                labelTotal.setText("0");
+                            }
+                            break;
+                        case F6:
+                            cambiarTicket();
+                            break;
+                        case F7:
+                            eliminarTicket();
+                            break;
+                        case F12: {
+                            try {
+                                precobrar();
+                            } catch (IOException ex) {
+                                Logger.getLogger(VentasController.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                        break;
+
+                        default:
+                            System.out.println("Tecla no asignada: " + event.getCode());
+                    }
+                });
+            }
         });
 
     }
@@ -218,15 +235,7 @@ public class VentasController implements Initializable {
 
     @FXML // cambia el ticket seleccionado.
     void onActionBtnCambiarTicket(ActionEvent event) {
-        int tabSeleccionado = tabPaneTicket.getSelectionModel().getSelectedIndex();
-        int tabsTotal = tabPaneTicket.getTabs().size();
-
-        if (tabSeleccionado == tabsTotal - 1) {
-            tabPaneTicket.getSelectionModel().selectFirst();
-        }
-        tabPaneTicket.getSelectionModel().select(tabSeleccionado + 1);
-
-        updatePriceAfterChangeTicket();
+        cambiarTicket();
     }
 
     @FXML
@@ -253,57 +262,7 @@ public class VentasController implements Initializable {
      */
     @FXML
     void actionbtnInsertarMasDe1(ActionEvent event) {
-        System.out.println("INSERTAR MAS DE 1 ****************************************");
-        try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/masDeUnProducto.fxml"));
-            Parent root = fxmlLoader.load();
-            MasDeUnProductoController masdeuno = fxmlLoader.getController();
-            Scene scene = new Scene(root);
-            Stage stage = new Stage();
-            stage.setResizable(false);
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setScene(scene);
-            stage.showAndWait();
-
-            String codigo = masdeuno.getCodigo();
-
-            // double cantidad = Double.parseDouble(masdeuno.getCantidad());
-            BigDecimal cantidad = new BigDecimal(masdeuno.getCantidad());
-
-            Product product = productApi.ProductoToTicket(codigo);//insertToTicket(codigo); // recibe el producto desde la rest api  
-            //hacer descuento
-            if (!txtDiscount.getText().trim().equalsIgnoreCase("")) {
-                BigDecimal discountPercentage = new BigDecimal(txtDiscount.getText());
-                discountPercentage = discountPercentage.setScale(2, RoundingMode.HALF_UP);
-
-                //  System.out.println("DESCUENTO TEXT =" + discountPercentage);
-                if (discountPercentage.compareTo(BigDecimal.ZERO) > 0) {
-
-                    BigDecimal discountedPrice = calculateDiscountedPrice(product.getPrice(), discountPercentage);
-
-                    //    System.out.println("precio regresado con descuento= " + discountedPrice);
-                    //   System.out.println("precio de venta Normal= " + product.getPrice());
-                    product.setPrice(discountedPrice);
-                    product.setTotal(discountedPrice);
-                    //    System.out.println("precio de venta Con descuento= " + discountedPrice);
-
-                }
-
-            }
-
-            if (product.getBarcode() != null) {  // si el producto existe se carga al ticket
-                //product.setTotal(product.getPrice() * cantidad);  // Calcula el total.
-
-                product.setTotal(product.getPrice().multiply(cantidad));
-
-                insertarProductoTicket(product, cantidad); // Envia el producto al ticket (tableView)
-            }
-
-//
-        } catch (IOException ex) {
-            Logger.getLogger(VentasController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
+        insertarMasdeUnProducto();
     }
 
     @FXML
@@ -319,18 +278,13 @@ public class VentasController implements Initializable {
     @FXML
     void ActionBtnAgregarProducto(ActionEvent event) {
         // insertarProductoTicket(txtCodigoBarras.getText(), 1);
+        insertProduct();
     }
 
     @FXML //Elimina tickets menos el primero.
     void ActionBtnEliminarTicket(ActionEvent event) {
 
-        int numTabs = tabPaneTicket.getTabs().size() - 1;
-        if (numTabs > 0) // elimina todos los tickes exepto el primero
-        {
-            tabPaneTicket.getTabs().remove(numTabs);
-            tabArrayList.remove(numTabs);
-            listaProductoArrayList.remove(numTabs);
-        }
+        eliminarTicket();
 
     }
 
@@ -435,7 +389,7 @@ public class VentasController implements Initializable {
                 if (p.getAmount().compareTo(BigDecimal.valueOf(p.getStock())) >= 0) {
                     System.out.println("Solo hay " + p.getStock());
                     showAlert(Alert.AlertType.ERROR, "Error", "No hay mas productos en stock. \n Solo  hay " + p.getStock() + " productos");
-                      existe = true;
+                    existe = true;
                     break;
                 }
 
@@ -641,12 +595,15 @@ public class VentasController implements Initializable {
         products = FXCollections.observableList(listaProductoArrayList.get(tabSeleccionado));
 
         for (int i = 0; i < products.size(); i++) {
+          
 
             //  OrderDetail orderDetail = new OrderDetail(products.get(i).getTotal(), products.get(i).getAmount(), products.get(i).getId());
             OrderDetail orderDetail = new OrderDetail();
             orderDetail.setPrice(products.get(i).getTotal());
             orderDetail.setAmount(products.get(i).getAmount());
             orderDetail.getProduct().setId(products.get(i).getId());
+            orderDetail.getProduct().setName(products.get(i).getName());
+            orderDetail.getProduct().setBarcode(products.get(i).getBarcode());
             // orderDetail.setPurchasePrice(products.get(i).getPurchasePrice() * products.get(i).getAmount());
             orderDetail.setPurchasePrice(products.get(i).getPurchasePrice().multiply(products.get(i).getAmount()));
 
@@ -655,11 +612,12 @@ public class VentasController implements Initializable {
 
         }
         System.out.println("cantida de productos a vender = " + order.getOrderDetails().size());
-        if(order.getOrderDetails().size() < 1){
+        if (order.getOrderDetails().size() < 1) {
             showAlert(Alert.AlertType.WARNING, "Advertencia", "Ingrese productos al ticket.");
             return;
         }
-        printProductsToPdf1(products, "/home/albert/Documents/miArchivo.pdf", totalTicket(tabSeleccionado));
+        System.out.println("");
+      //  printProductsToPdf1(products, "/home/albert/Documents/miArchivo.pdf", totalTicket(tabSeleccionado));
 
         //Carga el modal de cobrar.
         try {
@@ -667,6 +625,8 @@ public class VentasController implements Initializable {
             Parent root = fxmlLoader.load();
             CobrarController cobrarController = fxmlLoader.getController();
             cobrarController.setOrder(order);
+            cobrarController.setTotal(totalTicket(tabSeleccionado));
+            
             Scene scene = new Scene(root);
             Stage stage = new Stage();
             stage.setResizable(false);
@@ -1070,10 +1030,128 @@ public class VentasController implements Initializable {
 //        alert.showAndWait();
 //    }
     private void showAlert(Alert.AlertType alertType, String title, String message) {
-    Alert alert = new Alert(alertType);  // Usar el tipo de alerta proporcionado como parámetro
-    alert.setTitle(title);
-    alert.setHeaderText(null);
-    alert.setContentText(message);
-    alert.showAndWait();
-}
+        Alert alert = new Alert(alertType);  // Usar el tipo de alerta proporcionado como parámetro
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void insertarMasdeUnProducto() {
+        System.out.println("INSERTAR MAS DE 1 ****************************************");
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/masDeUnProducto.fxml"));
+            Parent root = fxmlLoader.load();
+            MasDeUnProductoController masdeuno = fxmlLoader.getController();
+            Scene scene = new Scene(root);
+            Stage stage = new Stage();
+            stage.setResizable(false);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(scene);
+            stage.showAndWait();
+
+            String codigo = masdeuno.getCodigo();
+
+            // double cantidad = Double.parseDouble(masdeuno.getCantidad());
+            BigDecimal cantidad = new BigDecimal(masdeuno.getCantidad());
+
+            Product product = productApi.ProductoToTicket(codigo);//insertToTicket(codigo); // recibe el producto desde la rest api  
+            //hacer descuento
+            if (!txtDiscount.getText().trim().equalsIgnoreCase("")) {
+                BigDecimal discountPercentage = new BigDecimal(txtDiscount.getText());
+                discountPercentage = discountPercentage.setScale(2, RoundingMode.HALF_UP);
+
+                //  System.out.println("DESCUENTO TEXT =" + discountPercentage);
+                if (discountPercentage.compareTo(BigDecimal.ZERO) > 0) {
+
+                    BigDecimal discountedPrice = calculateDiscountedPrice(product.getPrice(), discountPercentage);
+
+                    //    System.out.println("precio regresado con descuento= " + discountedPrice);
+                    //   System.out.println("precio de venta Normal= " + product.getPrice());
+                    product.setPrice(discountedPrice);
+                    product.setTotal(discountedPrice);
+                    //    System.out.println("precio de venta Con descuento= " + discountedPrice);
+
+                }
+
+            }
+
+            if (product.getBarcode() != null) {  // si el producto existe se carga al ticket
+                //product.setTotal(product.getPrice() * cantidad);  // Calcula el total.
+
+                product.setTotal(product.getPrice().multiply(cantidad));
+
+                insertarProductoTicket(product, cantidad); // Envia el producto al ticket (tableView)
+            }
+
+//
+        } catch (IOException ex) {
+            Logger.getLogger(VentasController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
+    private void eliminarTicket() {
+        int numTabs = tabPaneTicket.getTabs().size() - 1;
+        if (numTabs > 0) // elimina todos los tickes exepto el primero
+        {
+            tabPaneTicket.getTabs().remove(numTabs);
+            tabArrayList.remove(numTabs);
+            listaProductoArrayList.remove(numTabs);
+        }
+    }
+
+    private void cambiarTicket() {
+        int tabSeleccionado = tabPaneTicket.getSelectionModel().getSelectedIndex();
+        int tabsTotal = tabPaneTicket.getTabs().size();
+
+        if (tabSeleccionado == tabsTotal - 1) {
+            tabPaneTicket.getSelectionModel().selectFirst();
+        }
+        tabPaneTicket.getSelectionModel().select(tabSeleccionado + 1);
+
+        updatePriceAfterChangeTicket();
+
+    }
+    
+        private void insertProduct() {
+                
+                    Product product = productApi.ProductoToTicket(txtCodigoBarras.getText());       //insertToTicket(txtCodigoBarras.getText()); // recibe el producto desde la rest api
+                    System.out.println("" + product.getStock());
+
+                    //   System.out.println("producto qu no regresa como se vende= " + product.toString());
+                    BigDecimal cantidad = new BigDecimal("1");
+                    // product.setHowToSell("Unidad");
+
+                    if (product.getHowToSell().equalsIgnoreCase("Granel")) {
+
+                        cantidad = dialogAmount();
+                        System.out.println("condicion para cambiar la cantiadad granel 1");
+                    }
+
+                    //hacer descuento
+                    if (!txtDiscount.getText().trim().equalsIgnoreCase("")) {
+                        BigDecimal discountPercentage = new BigDecimal(txtDiscount.getText());
+                        discountPercentage = discountPercentage.setScale(2, RoundingMode.HALF_UP);
+
+                        //   System.out.println("DESCUENTO TEXT =" + discountPercentage);
+                        if (discountPercentage.compareTo(BigDecimal.ZERO) > 0) {
+
+                            BigDecimal discountedPrice = calculateDiscountedPrice(product.getPrice(), discountPercentage);
+
+                            //   System.out.println("precio regresado con descuento= " + discountedPrice);
+                            //   System.out.println("precio de venta Normal= " + product.getPrice());
+                            product.setPrice(discountedPrice);
+                            product.setTotal(discountedPrice);
+                            //    System.out.println("precio de venta Con descuento= " + discountedPrice);
+
+                        }
+
+                    }
+
+                    if (product.getBarcode() != null) {
+                        insertarProductoTicket(product, cantidad); //inserta el producto al ticket
+                    }
+            }
+
 }
