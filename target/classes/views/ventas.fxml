@@ -8,17 +8,17 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="457.0" prefWidth="850.0" AnchorPane.bottomAnchor="2.0" AnchorPane.leftAnchor="2.0" AnchorPane.rightAnchor="2.0" AnchorPane.topAnchor="2.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.VentasController">
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="457.0" prefWidth="850.0" AnchorPane.bottomAnchor="2.0" AnchorPane.leftAnchor="2.0" AnchorPane.rightAnchor="2.0" AnchorPane.topAnchor="2.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.VentasController">
    
     <children>
       <Label layoutX="14.0" layoutY="17.0" text="Codigo de barras" />
       <TextField fx:id="txtCodigoBarras" layoutX="133.0" layoutY="13.0" prefHeight="25.0" prefWidth="185.0" />
       <Button fx:id="btnAgregarProducto" layoutX="332.0" layoutY="13.0" mnemonicParsing="false" onAction="#ActionBtnAgregarProducto" prefHeight="25.0" prefWidth="183.0" text="Enter -  Agregar producto" />
-      <Button fx:id="btnBuscar" layoutX="14.0" layoutY="79.0" mnemonicParsing="false" onAction="#btnBuscarAction" text="F1 - Buscar" />
-      <Button fx:id="btnInsertarMasDe1" layoutX="117.0" layoutY="79.0" mnemonicParsing="false" onAction="#actionbtnInsertarMasDe1" text="F2 - Insertar mas de 1 producto" />
-      <Button fx:id="btnMayoreo" layoutX="325.0" layoutY="79.0" mnemonicParsing="false" onAction="#btnMayoreoAction" text="F3 - Mayoreo" />
-      <Button fx:id="btnVerificar" layoutX="424.0" layoutY="79.0" mnemonicParsing="false" text="F4 - Verificar" />
-      <Button fx:id="btnSuprimir" layoutX="515.0" layoutY="79.0" mnemonicParsing="false" text="Suprimir - Borrar" />
+      <Button fx:id="btnBuscar" layoutX="12.0" layoutY="79.0" mnemonicParsing="false" onAction="#btnBuscarAction" text="F1 - Buscar" />
+      <Button fx:id="btnInsertarMasDe1" layoutX="106.0" layoutY="79.0" mnemonicParsing="false" onAction="#actionbtnInsertarMasDe1" text="F2 - Insertar mas de 1 producto" />
+      <Button fx:id="btnDescuento" layoutX="325.0" layoutY="79.0" mnemonicParsing="false" onAction="#btnMayoreoAction" text="F3 - Descuento" />
+      <Button fx:id="btnVerificar" layoutX="448.0" layoutY="79.0" mnemonicParsing="false" text="F4 - Verificar" />
+      <Button fx:id="btnSuprimir" layoutX="556.0" layoutY="79.0" mnemonicParsing="false" text="Suprimir - Borrar" />
       <TabPane fx:id="tabPaneTicket" layoutX="15.0" layoutY="113.0" onMouseClicked="#tabSelected" prefHeight="236.0" prefWidth="831.0" style="-fx-background-color: white;" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="84.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="4.0" AnchorPane.topAnchor="113.0" />
       <Button fx:id="btnCrearTicket" layoutX="10.0" layoutY="492.0" mnemonicParsing="false" onAction="#ActionBtnCrearTicket" text="F5 - Crear ticket" AnchorPane.bottomAnchor="45.0" />
       <Button fx:id="btnCambiarTicket" layoutX="143.0" layoutY="362.0" mnemonicParsing="false" onAction="#onActionBtnCambiarTicket" text="F6 - Cambiar ticket" AnchorPane.bottomAnchor="45.0" />
@@ -40,7 +40,5 @@
       </Label>
       <Button fx:id="btnCobrar" layoutX="609.0" layoutY="522.0" mnemonicParsing="false" onAction="#btnCobrarAction" prefHeight="26.0" prefWidth="168.0" text="F12 - Cobrar" AnchorPane.bottomAnchor="15.0" AnchorPane.rightAnchor="14.0" />
       <Accordion />
-      <Label layoutX="645.0" layoutY="83.0" text="Descuento %" />
-      <TextField fx:id="txtDiscount" layoutX="732.0" layoutY="79.0" prefHeight="26.0" prefWidth="114.0" />
    </children>
 </AnchorPane>

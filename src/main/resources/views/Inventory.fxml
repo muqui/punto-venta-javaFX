@@ -3,6 +3,7 @@
 <?import java.net.URL?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -11,7 +12,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 
-<AnchorPane id="AnchorPane" prefHeight="516.0" prefWidth="628.0" styleClass="mainFxmlClass" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.InventoryController">
+<AnchorPane id="AnchorPane" prefHeight="516.0" prefWidth="997.0" styleClass="mainFxmlClass" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.InventoryController">
    <children>
       <BorderPane prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <center>
@@ -31,11 +32,16 @@
                   </Tab>
                 <Tab text="Entrada">
                      <content>
-                        <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                        <AnchorPane prefHeight="485.0" prefWidth="694.0">
                            <children>
-                              <Label layoutX="22.0" layoutY="14.0" text="Label" />
-                              <ComboBox layoutX="66.0" layoutY="10.0" prefWidth="150.0" />
+                              <Label layoutX="501.0" layoutY="23.0" text="Departamento" />
+                              <ComboBox fx:id="comboBoxDepartament" layoutX="597.0" layoutY="19.0" prefHeight="26.0" prefWidth="252.0" />
                               <TableView fx:id="tableViewEntries" layoutX="14.0" layoutY="51.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="51.0" />
+                              <Label layoutX="10.0" layoutY="23.0" text="Desde" />
+                              <DatePicker fx:id="datePickerEntriesSartDate" layoutX="54.0" layoutY="19.0" />
+                              <Label layoutX="250.0" layoutY="23.0" text="Hasta" />
+                              <DatePicker fx:id="datePickerEntriesEndDate" layoutX="290.0" layoutY="19.0" />
+                              <Button fx:id="btnEntriesUpdate" layoutX="860.0" layoutY="19.0" mnemonicParsing="false" onAction="#onActionEntriesUpdate" text="Actualizar" />
                            </children>
                         </AnchorPane>
                      </content></Tab>

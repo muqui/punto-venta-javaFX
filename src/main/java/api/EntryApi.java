@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
@@ -26,17 +28,20 @@ import javafx.collections.ObservableList;
  */
 public class EntryApi {
 
-    public  ObservableList<EntryDTO> fetchEntries() {
+    public ObservableList<EntryDTO> fetchEntries(String startDate, String endDate, String departament) {
         ConfigManager configManager = new ConfigManager(); //carga el archivo de config.properties
         String baseUrl = configManager.getProperty("api.base.url");
         String endpointProductsEntries = configManager.getProperty("api.products.entries");
         //api.products.entries =/products/entries
-        
+
         ObservableList<EntryDTO> entryList = null;
         try {
-             URL url = new URL(baseUrl+endpointProductsEntries);
-            //URL url = new URL("http://localhost:3000/products/entries");
-
+            // Codificar el department para que no tenga espacios
+            String encodedDepartmentName = URLEncoder.encode(departament, StandardCharsets.UTF_8);
+             URL url = new URL(baseUrl + endpointProductsEntries + "?startDate="+ startDate+"&endDate=" + endDate + "&departmentName=" + encodedDepartmentName);
+            // URL url = new URL(baseUrl+endpointProductsEntries);
+            //http://localhost:3000/products/entries?startDate=2025-01-01&endDate=2025-01-01&departmentName=papeleria
+           
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.connect();

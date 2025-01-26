@@ -194,6 +194,7 @@ public class ProductApi {
                 product.setImgUrl(jsonResponse.getString("imgUrl"));
                 product.setCategoryId(jsonResponse.getInt("categoryId"));
                 product.setTotal(jsonResponse.getBigDecimal("price"));
+                product.setWholesalePrice(jsonResponse.getBigDecimal("wholesalePrice"));
                 product.setPurchasePrice(jsonResponse.getBigDecimal("purchasePrice"));
                 product.setHowToSell(jsonResponse.getString("howToSell")); //howToSell
 
