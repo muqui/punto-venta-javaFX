@@ -1,39 +1,13 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-	<title></title>
-	<meta name="generator" content="LibreOffice 24.8.4.2 (Linux)"/>
-	<meta name="created" content="2025-02-16T08:25:37.093739215"/>
-	<meta name="changed" content="2025-02-16T08:39:11.816636714"/>
-	<style type="text/css">
-		@page { size: 21.59cm 27.94cm; margin: 2cm }
-		p { line-height: 115%; margin-bottom: 0.25cm; background: transparent }
-	</style>
-</head>
-<body lang="es-MX" link="#000080" vlink="#800000" dir="ltr"><p style="line-height: 100%; margin-bottom: 0cm">
-Punto de venta para tienda de abarrotes o similares</p>
-<p style="line-height: 100%; margin-bottom: 0cm"><br/>
+<h1>Punto de venta para tienda de abarrotes o similares</h1>
 
-</p>
-<p style="line-height: 100%; margin-bottom: 0cm">Esta es la parte del
-fronted la cual esta desarrollada con JavaFx, la contraparte el back
-esta desarrollado con nest.js y como base de datos con postgresql.</p>
-<p style="line-height: 100%; margin-bottom: 0cm"><br/>
+<P>Este es la parte del front end, desarrollada con Java FX </p>
+<p>La parte del backed esta desarrolla con nestJS utilizando postgresql como base de datos </p>
+<p>version jdk: 17 </p>
+<h3> Login</h3>
 
-</p>
-<p style="line-height: 100%; margin-bottom: 0cm">Jdk  configuracion:</p>
-<p style="line-height: 100%; margin-bottom: 0cm"><br/>
+![Texto alternativo](./img/login.png)
 
-</p>
-<p style="line-height: 100%; margin-bottom: 0cm">JDK 17</p>
-<p style="line-height: 100%; margin-bottom: 0cm"><br/>
 
-</p>
-<p style="line-height: 100%; margin-bottom: 0cm">Login</p>
-<p style="line-height: 100%; margin-bottom: 0cm"><img src="readme_html_9c0e55a.png" name="Image1" align="left" width="462" height="375" border="0"/>
-<br/>
 
-</p>
-</body>
-</html>
+
+
