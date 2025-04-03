@@ -47,11 +47,11 @@ public class App extends Application {
          FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(primary));
             Parent root = fxmlLoader.load();
             PrimaryController primaryController = fxmlLoader.getController();
-//            primaryController.prueba(usuario);
+         //  primaryController.setUsuario(usuario);
             
             this.setUsuario(usuario);
-        
-        getStg().setTitle("" + usuario.getName());
+    
+        getStg().setTitle("" + usuario.getEmail());
          getStg().getScene().setRoot(root);
          getStg().setMaximized(true);
          

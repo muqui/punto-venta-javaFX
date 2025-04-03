@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane id="AnchorPane" prefHeight="572.0" prefWidth="813.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.UpdateOrderServiceController">
+    <stylesheets>
+        <URL value="@/styles/updateorderservice.css" />
+    </stylesheets>
+     <children>
+        <Label fx:id="labelTitle" alignment="CENTER" layoutX="22.0" layoutY="20.0" prefHeight="25.0" prefWidth="768.0" style="-fx-font-size: 18px; -fx-font-weight: bold;" text="Orden de Reparación" textAlignment="CENTER">
+         <font>
+            <Font name="System Bold" size="24.0" />
+         </font></Label>
+
+        <Button layoutX="721.0" layoutY="532.0" onAction="#onActionUpdate" text="Actualizar" />
+        
+        <Label layoutX="30.0" layoutY="60.0" text="Nombre:" />
+        <TextField fx:id="nameField" layoutX="91.0" layoutY="56.0" prefHeight="26.0" prefWidth="407.0" />
+        
+        <Label layoutX="509.0" layoutY="60.0" text="Teléfono:" />
+        <TextField fx:id="phoneField" layoutX="581.0" layoutY="56.0" prefHeight="26.0" prefWidth="210.0" />
+        
+        <Label layoutX="39.0" layoutY="96.0" text="Correo:" />
+        <TextField fx:id="emailField" layoutX="92.0" layoutY="92.0" prefHeight="26.0" prefWidth="407.0" />
+        
+        <Label layoutX="24.0" layoutY="162.0" text="Marca:" />
+        <TextField fx:id="brandField" layoutX="77.0" layoutY="158.0" prefHeight="26.0" prefWidth="201.0" />
+        
+        <Label layoutX="295.0" layoutY="162.0" text="Modelo:" />
+        <TextField fx:id="modelField" layoutX="353.0" layoutY="158.0" prefHeight="26.0" prefWidth="185.0" />
+        
+        <Label layoutX="553.0" layoutY="162.0" text="IMEI:" />
+        <TextField fx:id="imeiField" layoutX="596.0" layoutY="158.0" prefHeight="26.0" prefWidth="194.0" />
+        
+        <Label layoutX="23.0" layoutY="204.0" text="Presupuesto:" />
+        <TextField fx:id="budgetField" layoutX="110.0" layoutY="200.0" prefHeight="26.0" prefWidth="163.0" />
+        
+        <Label layoutX="298.0" layoutY="204.0" text="Abono:" />
+        <TextField fx:id="paidField" layoutX="350.0" layoutY="200.0" prefHeight="26.0" prefWidth="185.0" />
+        
+        <Label layoutX="539.0" layoutY="204.0" text="Restante:" />
+        <TextField fx:id="remainingField" layoutX="598.0" layoutY="200.0" prefHeight="26.0" prefWidth="194.0" />
+        
+        <Label layoutX="29.0" layoutY="273.0" text="Falla a Reparar:" />
+        <TextArea fx:id="issueField" layoutX="29.0" layoutY="300.0" prefHeight="58.0" prefWidth="368.0" />
+        
+        <Label layoutX="427.0" layoutY="273.0" text="Estado en que se recibe:" />
+        <TextArea fx:id="receivedConditionField" layoutX="422.0" layoutY="300.0" prefHeight="58.0" prefWidth="368.0" />
+        
+        <Label layoutX="24.0" layoutY="238.0" text="Contraseña:" />
+        <TextField fx:id="passwordField" layoutX="111.0" layoutY="234.0" prefHeight="26.0" prefWidth="163.0" />
+        
+        <Label layoutX="29.0" layoutY="362.0" text="Nota:" />
+        <TextArea fx:id="noteArea" layoutX="23.0" layoutY="393.0" prefHeight="80.0" prefWidth="768.0" />
+      <Label layoutX="35.0" layoutY="131.0" text="Datos del equipo" />
+      <Label layoutX="21.0" layoutY="493.0" text="Costo refacciones " />
+      <TextField fx:id="replacementCostField" layoutX="131.0" layoutY="489.0" prefHeight="26.0" prefWidth="130.0" />
+      <ComboBox fx:id="comboStatus" layoutX="413.0" layoutY="489.0" prefHeight="26.0" prefWidth="194.0" />
+      <Label layoutX="265.0" layoutY="493.0" text="Estado de la reparacion" />
+      <Label fx:id="labelprofit" layoutX="617.0" layoutY="493.0" text="Ganancia" textFill="#154abc">
+         <font>
+            <Font name="System Bold" size="16.0" />
+         </font>
+      </Label>
+    </children>
+</AnchorPane>

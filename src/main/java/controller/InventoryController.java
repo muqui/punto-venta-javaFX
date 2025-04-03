@@ -8,6 +8,7 @@ import api.EntryApi;
 import api.OrderApi;
 import api.ProductApi;
 import beans.Product;
+import com.albertocoronanavarro.puntoventafx.App;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import static controller.ProductController.calculateSellingPrice;
 import dto.DepartmentDTO;
@@ -60,7 +61,7 @@ import javafx.util.StringConverter;
  * @author albert
  */
 public class InventoryController implements Initializable {
-
+    private UserDTO user;
     ProductApi productApi = new ProductApi();
     EntryApi entryApi = new EntryApi();
     OrderApi orderApia = new OrderApi();
@@ -166,6 +167,7 @@ public class InventoryController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        this.user = App.getUsuario();
          fillChoiceBoxGanancias();
 
         txtAddInventoryBarcode.setOnKeyPressed(new EventHandler<KeyEvent>() {
@@ -433,7 +435,7 @@ public class InventoryController implements Initializable {
             // System.out.println("OBTENER CODIGO PARA BUSCAR E INSERTAR: " + codigo);
             // Aquí puedes utilizar el código obtenido para realizar otras acciones
             if (!codigo.isEmpty()) {
-                Product product = productApi.ProductoToTicket(codigo);   //insertToTicket(codigo); // recibe el producto desde la rest api  
+                Product product = productApi.ProductoToTicket(codigo, user.getToken());   //insertToTicket(codigo); // recibe el producto desde la rest api  
                 txtAddInventoryName.setText(product.getName());
                 txtAddInventorypurchasePrice.setText("" + product.getPurchasePrice());
                 txtAddInventoryPrice.setText("" + product.getPrice());
@@ -448,7 +450,7 @@ public class InventoryController implements Initializable {
 
     private void fillChoiceBoxDepartament() {
         ObjectMapper mapper = new ObjectMapper();
-        List<DepartmentDTO> departments = productApi.DepartamenNametList();
+        List<DepartmentDTO> departments = productApi.DepartamenNametList(user.getToken());
 
         // Crear una lista observable
         ObservableList<DepartmentDTO> departamentList = FXCollections.observableArrayList();
@@ -484,7 +486,7 @@ public class InventoryController implements Initializable {
 
     private void fillChoiceBoxDepartamentEntries() {
         ObjectMapper mapper = new ObjectMapper();
-        List<DepartmentDTO> departments = productApi.DepartamenNametList();
+        List<DepartmentDTO> departments = productApi.DepartamenNametList(user.getToken());
 
         // Crear una lista observable
         ObservableList<DepartmentDTO> departamentList = FXCollections.observableArrayList();

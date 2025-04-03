@@ -10,12 +10,16 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 
+
+//https://www.flaticon.es/
 public class PrimaryController implements Initializable {
 
-    UserDTO usuario = new UserDTO();
-    Node nodeVenta, nodeProducto, nodeReporte, nodeInventory, nodeCaja;
+   // private UserDTO usuario = new UserDTO();
+    Node nodeVenta, nodeProducto, nodeReporte, nodeInventory, nodeCaja, nodeReparaciones;
 
     @FXML
     private Button btnCaja;
@@ -25,6 +29,24 @@ public class PrimaryController implements Initializable {
 
     @FXML
     private Button btnVender;
+
+    @FXML
+    private Button btnClients;
+
+    @FXML
+    private Button btnConfig;
+
+    @FXML
+    private Button btnInventory;
+
+    @FXML
+    private Button btnProductos;
+
+    @FXML
+    private Button btnReparaciones;
+
+    @FXML
+    private Button btnReports;
 
     @FXML
     void actionBtnVender(ActionEvent event) {
@@ -48,6 +70,11 @@ public class PrimaryController implements Initializable {
 
     private void nodeVentas() {
         pantallaVentas();
+    }
+
+    @FXML
+    void onActionReparaciones(ActionEvent event) {
+        nodeReparaciones();
     }
 
     @FXML
@@ -94,6 +121,15 @@ public class PrimaryController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
 
         pantallaVentas();
+        
+        setImageToButton(btnVender, "ventas.png");
+        setImageToButton(btnProductos, "productos.png");
+        setImageToButton(btnInventory, "inventario.png");
+        setImageToButton(btnClients, "clientes.png");
+        setImageToButton(btnConfig, "config.png");
+        setImageToButton(btnReports, "reportes.png");
+        setImageToButton(btnCaja, "caja.png");
+        setImageToButton(btnReparaciones, "reparaciones.png");
 
     }
 
@@ -143,4 +179,31 @@ public class PrimaryController implements Initializable {
             ex.printStackTrace();
         }
     }
+
+    private void nodeReparaciones() {
+        System.out.println("Cargar Reparaciones");
+        try {
+            nodeReparaciones = (Node) FXMLLoader.load(getClass().getResource("/views/celulares.fxml"));
+            anchorPaneContenido.getChildren().setAll(nodeReparaciones);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    // Método para establecer la imagen en un botón
+    private void setImageToButton(Button button, String imageName) {
+        // Crear un ImageView con la imagen
+        String imagePath = getClass().getResource("/images/" + imageName).toExternalForm();
+        Image image = new Image(imagePath);
+        ImageView imageView = new ImageView(image);
+
+        // Ajustar el tamaño de la imagen (opcional)
+        imageView.setFitWidth(40);
+        imageView.setFitHeight(40);
+
+        // Asignar la imagen al botón
+        button.setGraphic(imageView);
+    }
+
+  
 }

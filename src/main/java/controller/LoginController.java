@@ -64,15 +64,15 @@ public class LoginController implements Initializable {
                 // Deserializar el JSON en un objeto UsuarioDTO
                 ObjectMapper objectMapper = new ObjectMapper();
                 UserDTO authenticatedUser = objectMapper.readValue(response.body(), UserDTO.class);
-                System.out.println("OBJETO RECIBIDO DESDE LOGIN: " + authenticatedUser.toString());
-                 System.out.println("TOKEN: " + authenticatedUser.getToken());
+             //   System.out.println("OBJETO RECIBIDO DESDE LOGIN: " + authenticatedUser.toString());
+               //  System.out.println("TOKEN: " + authenticatedUser.getToken());
 
                 // Manejar autenticación exitosa
                 App main = new App();
-
+                //System.out.println("token desde el usuario login " + authenticatedUser.getToken());
                 main.setUsuario(authenticatedUser);
-                main.changeScene("/views/Principal.fxml", usuario, event);
-                System.out.println("Login exitoso");
+                main.changeScene("/views/Principal.fxml", authenticatedUser, event);
+                //System.out.println("Login exitoso");
             } else {
 
                 ApiResponseDTO apiResponse = new ObjectMapper().readValue(response.body(), ApiResponseDTO.class);
