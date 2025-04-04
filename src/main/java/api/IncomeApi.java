@@ -4,6 +4,7 @@
  */
 package api;
 
+import com.albertocoronanavarro.puntoventafx.App;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import config.ConfigManager;
@@ -38,6 +39,7 @@ public class IncomeApi {
     String endpointIncomes = configManager.getProperty("api.endpoint.incomes");
     String endpointIncomesName = configManager.getProperty("api.endpoint.incomes.name");
     String endpointExpenses = configManager.getProperty("api.endpoint.expenses");
+      String token = App.getUsuario().getToken();
 
     public void crearIngreso(IncomeDTO incomeDto) {
         try {
@@ -51,6 +53,7 @@ public class IncomeApi {
                     .uri(new URI(baseUrl + endpointIncomes)) // Cambiar el endpoint a POST si es necesario
                     //.uri(new URI("http://localhost:3000/incomes")) // Cambiar el endpoint a POST si es necesario
                     .header("Content-Type", "application/json")
+                     .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
                     .POST(HttpRequest.BodyPublishers.ofString(jsonProduct)) // Cambiado a POST
                     .build();
 
@@ -94,6 +97,7 @@ public class IncomeApi {
                     .uri(new URI(baseUrl + endpointIncomesName))
                     //.uri(new URI("http://localhost:3000/incomes/name")) // Cambiar el endpoint a POST si es necesario
                     .header("Content-Type", "application/json")
+                     .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
                     .POST(HttpRequest.BodyPublishers.ofString(jsonProduct)) // Cambiado a POST
                     .build();
 
@@ -133,13 +137,16 @@ public class IncomeApi {
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
+             conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
+            conn.setRequestProperty("Content-Type", "application/json");
+
             conn.connect();
 
             int responseCode = conn.getResponseCode();
             if (responseCode != 200) {
                 throw new RuntimeException("HttpResponseCode: " + responseCode);
             } else {
-                Scanner scanner = new Scanner(url.openStream());
+                Scanner scanner = new Scanner(conn.getInputStream());
                 StringBuilder inline = new StringBuilder();
                 while (scanner.hasNext()) {
                     inline.append(scanner.nextLine());
@@ -173,6 +180,7 @@ public class IncomeApi {
                     .uri(new URI(baseUrl + endpointExpenses))
                     //.uri(new URI("http://localhost:3000/expenses")) // Cambiar el endpoint a POST si es necesario
                     .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
                     .POST(HttpRequest.BodyPublishers.ofString(jsonProduct)) // Cambiado a POST
                     .build();
 
@@ -219,13 +227,15 @@ public class IncomeApi {
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
+             conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
+            conn.setRequestProperty("Content-Type", "application/json");
             conn.connect();
 
             int responseCode = conn.getResponseCode();
             if (responseCode != 200) {
                 throw new RuntimeException("HttpResponseCode: " + responseCode);
             } else {
-                Scanner scanner = new Scanner(url.openStream());
+               Scanner scanner = new Scanner(conn.getInputStream());
                 StringBuilder inline = new StringBuilder();
                 while (scanner.hasNext()) {
                     inline.append(scanner.nextLine());

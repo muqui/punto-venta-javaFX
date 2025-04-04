@@ -4,6 +4,7 @@
  */
 package api;
 
+import com.albertocoronanavarro.puntoventafx.App;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import config.ConfigManager;
 import dto.IncomesResponseDTO;
@@ -20,6 +21,8 @@ import java.util.Scanner;
  * @author albert
  */
 public class ReportApi {
+    
+      String token = App.getUsuario().getToken();
 
     ConfigManager configManager = new ConfigManager(); //carga el archivo de config.properties
     String baseUrl = configManager.getProperty("api.base.url");
@@ -37,13 +40,15 @@ public class ReportApi {
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
+            conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
+            conn.setRequestProperty("Content-Type", "application/json");
             conn.connect();
 
             int responseCode = conn.getResponseCode();
             if (responseCode != 200) {
                 throw new RuntimeException("HttpResponseCode: " + responseCode);
             } else {
-                Scanner scanner = new Scanner(url.openStream());
+                Scanner scanner = new Scanner(conn.getInputStream());
                 StringBuilder inline = new StringBuilder();
                 while (scanner.hasNext()) {
                     inline.append(scanner.nextLine());

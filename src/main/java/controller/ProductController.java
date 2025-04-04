@@ -282,7 +282,7 @@ public class ProductController implements Initializable {
 
                 System.out.println(product.toString());
                 if (save) {
-                  String result =   productApi.sendProductToApi(product);
+                  String result =   productApi.sendProductToApi(product, user.getToken());
                   if(result.equalsIgnoreCase("200") || result.equalsIgnoreCase("201")){
                       //sendProductToApi(product);
                     txtSaveBarcode.setText("");
@@ -516,7 +516,7 @@ public class ProductController implements Initializable {
 
             if (!codigo.isEmpty()) {
                 // product = getProductByBarcode(codigo);
-                product = productApi.getProductByBarcode1(codigo);
+                product = productApi.getProductByBarcode1(codigo, user.getToken());
                 product.setAmount(new BigDecimal("1"));
                 product.setTotal(product.getPurchasePrice());
 
@@ -694,7 +694,7 @@ public class ProductController implements Initializable {
 
     private void updateProduct(String codigo) {
 
-        productoToUpdate = productApi.getProductByBarcode(codigo);
+        productoToUpdate = productApi.getProductByBarcode(codigo, user.getToken());
         System.out.println("Producto " + productoToUpdate.toString());
 
         txtUpdateName.setText((productoToUpdate.getName()));

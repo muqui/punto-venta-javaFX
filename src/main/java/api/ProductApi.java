@@ -5,6 +5,7 @@
 package api;
 
 import beans.Product;
+import com.albertocoronanavarro.puntoventafx.App;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import config.ConfigManager;
@@ -41,13 +42,15 @@ public class ProductApi {
     String endpointCategories = configManager.getProperty("api.endpoint.categories");
     String endpointProductsSearch = configManager.getProperty("api.products.search");
     String endpointProductsInventory = configManager.getProperty("api.products.inventory");
+   
 
     public void ProductApi() {
 
     }
 
-    public ProductDTO getProductByBarcode(String barcode) {
+    public ProductDTO getProductByBarcode(String barcode, String token) {
         ProductDTO product = new ProductDTO();
+       // System.out.println("prueba de token directo de App " + token11);
 
         try {
 
@@ -58,6 +61,7 @@ public class ProductApi {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(baseUrl + endpointProducts + barcode))
                     //.uri(new URI("http://localhost:3000/products/" + barcode))
+                    .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
                     .header("Content-Type", "application/json")
                     .GET()
                     .build();
@@ -104,7 +108,7 @@ public class ProductApi {
         return product;
     }
 
-    public void addINvetory(ProductDTO product) {
+    public void addINvetory(ProductDTO product, String token) {
         System.out.println("ENVIAR A ACTUALIZAR= " + product);
         try {
             // Convertir ProductDTO a JSON
@@ -119,6 +123,7 @@ public class ProductApi {
 
                     // .uri(new URI("http://localhost:3000/products/addInventory/" + product.getBarcode())) // Asegúrate de pasar el ID del producto
                     .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
                     .method("PATCH", HttpRequest.BodyPublishers.ofString(jsonProduct)) // Cambiar POST a PATCH
                     .build();
 
@@ -151,9 +156,6 @@ public class ProductApi {
 
     }
 
-    /*
-    Regresa el producto desde la rest api.
-     */
     public Product ProductoToTicket(String barcode, String token) {
         Product product = new Product();
 
@@ -233,7 +235,7 @@ public class ProductApi {
             if (responseCode != 200) {
                 throw new RuntimeException("HttpResponseCode: " + responseCode);
             } else {
-                Scanner scanner = new Scanner(url.openStream());
+                 Scanner scanner = new Scanner(conn.getInputStream());
                 StringBuilder inline = new StringBuilder();
                 while (scanner.hasNext()) {
                     inline.append(scanner.nextLine());
@@ -276,7 +278,7 @@ public class ProductApi {
 
                     //  .uri(new URI("http://localhost:3000/products/" + product.getBarcode())) // Asegúrate de pasar el ID del producto
                     .header("Content-Type", "application/json")
-                     .header("Authorization", "Bearer " + token)
+                    .header("Authorization", "Bearer " + token)
                     .method("PATCH", HttpRequest.BodyPublishers.ofString(jsonProduct)) // Cambiar POST a PATCH
                     .build();
 
@@ -309,22 +311,24 @@ public class ProductApi {
 
     }
 
-    public List<ProductFindDTO> fetchProducts(String nameProduct) throws IOException {
-
+    public List<ProductFindDTO> fetchProducts(String nameProduct, String token) throws IOException {
+        System.out.println("token en busqueda de producto 888888 " + token);
         List<ProductFindDTO> products = null;
         String urlString = baseUrl + endpointProductsSearch + "?name=" + nameProduct;
         // String urlString = "http://localhost:3000/products/search?name=" + value;
         URL url = new URL(urlString);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
+        conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
+        conn.setRequestProperty("Content-Type", "application/json");
         conn.connect();
 
         int responseCode = conn.getResponseCode();
         if (responseCode != 200) {
             throw new RuntimeException("HttpResponseCode: " + responseCode);
         } else {
-            Scanner scanner = new Scanner(url.openStream());
-            StringBuilder inline = new StringBuilder();
+            Scanner scanner = new Scanner(conn.getInputStream()); //Scanner scanner = new Scanner(url.openStream());
+            StringBuilder inline = new StringBuilder(); 
             while (scanner.hasNext()) {
                 inline.append(scanner.nextLine());
             }
@@ -338,7 +342,7 @@ public class ProductApi {
         }
     }
 
-    public String sendProductToApi(ProductDTO product) throws Exception {
+    public String sendProductToApi(ProductDTO product, String token) throws Exception {
         String result = "";
         System.out.println("PRODUCTO ENVIADO A LA API= " + product.toString());
         try {
@@ -352,6 +356,7 @@ public class ProductApi {
                     .uri(new URI(baseUrl + endpointProducts))
                     // .uri(new URI("http://localhost:3000/products"))
                     .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
                     .POST(HttpRequest.BodyPublishers.ofString(jsonProduct))
                     .build();
 
@@ -387,10 +392,7 @@ public class ProductApi {
         return result;
     }
 
-    /*
-    Regresa el producto desde la rest api.
-     */
-    public Product getProductByBarcode1(String barcode) {
+    public Product getProductByBarcode1(String barcode, String token) {
         Product product = new Product();
 
         try {
@@ -403,6 +405,7 @@ public class ProductApi {
                     .uri(new URI(baseUrl + endpointProducts + barcode))
                     //  .uri(new URI("http://localhost:3000/products/" + barcode))
                     .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
                     .GET()
                     .build();
 
@@ -445,20 +448,23 @@ public class ProductApi {
     }
 
     //Muestra el inventario 
-    public InventoryResponseDTO fetchProductsInventary(String departmentName) throws IOException {
+    public InventoryResponseDTO fetchProductsInventary(String departmentName, String token) throws IOException {
         InventoryResponseDTO response = null;
         URL url = new URL(baseUrl + endpointProductsInventory + "?name=" + departmentName);
         System.out.println("" + departmentName);
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
+
+        conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
+        conn.setRequestProperty("Content-Type", "application/json");
         conn.connect();
 
         int responseCode = conn.getResponseCode();
         if (responseCode != 200) {
             throw new RuntimeException("HttpResponseCode: " + responseCode);
         } else {
-            Scanner scanner = new Scanner(url.openStream());
+            Scanner scanner = new Scanner(conn.getInputStream());
             StringBuilder inline = new StringBuilder();
             while (scanner.hasNext()) {
                 inline.append(scanner.nextLine());

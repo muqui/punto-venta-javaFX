@@ -4,6 +4,7 @@
  */
 package api;
 
+import com.albertocoronanavarro.puntoventafx.App;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import config.ConfigManager;
@@ -28,29 +29,32 @@ import org.json.JSONObject;
  * @author albert
  */
 public class CategoriesApi {
-      ConfigManager configManager = new ConfigManager(); //carga el archivo de config.properties
-        String baseUrl = configManager.getProperty("api.base.url");
-        String endpointCategories = configManager.getProperty("api.endpoint.categories");
-        //api.endpoint.categories=/categories
-        
-      // api.base.url=http://localhost:3000
 
+    ConfigManager configManager = new ConfigManager(); //carga el archivo de config.properties
+    String baseUrl = configManager.getProperty("api.base.url");
+    String endpointCategories = configManager.getProperty("api.endpoint.categories");
+    //api.endpoint.categories=/categories
+     String token = App.getUsuario().getToken();
+    // api.base.url=http://localhost:3000
     public ObservableList<DepartmentDTO> fillChoiceBoxDepartament() {
-          String baseUrl = configManager.getProperty("api.base.url");
+        System.out.println("TOKEN DESDE CATEGORIESAPI = " + token);
+        String baseUrl = configManager.getProperty("api.base.url");
         String endpoint = configManager.getProperty("api.endpoint.categories");
-         ObservableList<DepartmentDTO> departamentList = null ;
+        ObservableList<DepartmentDTO> departamentList = null;
         try {
-            String urlString = baseUrl+endpoint;  // Cambia esto por la URL correcta de tu API
+            String urlString = baseUrl + endpoint;  // Cambia esto por la URL correcta de tu API
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
+            conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
+            conn.setRequestProperty("Content-Type", "application/json");
             conn.connect();
 
             int responseCode = conn.getResponseCode();
             if (responseCode != 200) {
                 throw new RuntimeException("HttpResponseCode: " + responseCode);
             } else {
-                Scanner scanner = new Scanner(url.openStream());
+               Scanner scanner = new Scanner(conn.getInputStream());
                 StringBuilder inline = new StringBuilder();
                 while (scanner.hasNext()) {
                     inline.append(scanner.nextLine());
@@ -62,41 +66,39 @@ public class CategoriesApi {
                 });
 
                 departamentList = FXCollections.observableArrayList(departments);
-                System.out.println("lista " +departments.get(0).getName());
-              
+                System.out.println("lista " + departments.get(0).getName());
 
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-          return departamentList;
+        return departamentList;
     }
-    
-    public void createDepartment(DepartmentDTO departamentDto){
+
+    public void createDepartment(DepartmentDTO departamentDto) {
         //
-         String apiUrl = baseUrl + endpointCategories;     
-        
-       // String apiUrl = "http://localhost:3000/categories";
-        
+        String apiUrl = baseUrl + endpointCategories;
+
+        // String apiUrl = "http://localhost:3000/categories";
         System.out.println("Llamando a la API: " + apiUrl);
-        
+
         try {
             // Convertir ProductDTO a JSON
             ObjectMapper objectMapper = new ObjectMapper();
-           
-           
-             String jsonProduct = objectMapper.writeValueAsString(departamentDto);
+
+            String jsonProduct = objectMapper.writeValueAsString(departamentDto);
 
             // Crear cliente HTTP
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(apiUrl))
                     .header("Content-Type", "application/json")
+                      .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
                     .POST(HttpRequest.BodyPublishers.ofString(jsonProduct))
                     .build();
-            
+
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            
+
             if (response.statusCode() == 201) {
                 showAlert("Éxito", "Departamento creado exitosamente.");
             } else {
@@ -108,19 +110,19 @@ public class CategoriesApi {
                 // Access the "message" field
                 String message = jsonResponse.getString("message");
                 System.out.println("Message = " + message);
-                
+
                 showAlert("Error", "Error al crear departmamento:  " + message);
-                
+
             }
-            
+
         } catch (Exception e) {
             System.out.println("Error API " + e);
             showAlert("Error", "Error al conectarse con la API.");
         }
 
     }
-    
-       private void showAlert(String title, String message) {
+
+    private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(null);

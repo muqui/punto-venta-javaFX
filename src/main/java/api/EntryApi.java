@@ -4,6 +4,7 @@
  */
 package api;
 
+import com.albertocoronanavarro.puntoventafx.App;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import config.ConfigManager;
@@ -27,6 +28,8 @@ import javafx.collections.ObservableList;
  * @author albert
  */
 public class EntryApi {
+    
+      String token = App.getUsuario().getToken();
 
     public ObservableList<EntryDTO> fetchEntries(String startDate, String endDate, String departament) {
         ConfigManager configManager = new ConfigManager(); //carga el archivo de config.properties
@@ -44,6 +47,8 @@ public class EntryApi {
            
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
+             conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
+            conn.setRequestProperty("Content-Type", "application/json");
             conn.connect();
 
             int responseCode = conn.getResponseCode();
@@ -52,7 +57,7 @@ public class EntryApi {
             if (responseCode != 200) {
                 throw new RuntimeException("HttpResponseCode: " + responseCode);
             } else {
-                Scanner scanner = new Scanner(url.openStream());
+                 Scanner scanner = new Scanner(conn.getInputStream());
                 StringBuilder inline = new StringBuilder();
                 while (scanner.hasNext()) {
                     inline.append(scanner.nextLine());

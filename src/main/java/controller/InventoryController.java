@@ -129,14 +129,14 @@ public class InventoryController implements Initializable {
     @FXML
     void onActionBtnUpdateProduct(ActionEvent event) {
         String barcode = txtAddInventoryBarcode.getText();
-        ProductDTO productDto = productApi.getProductByBarcode(barcode);
+        ProductDTO productDto = productApi.getProductByBarcode(barcode, user.getToken());
         int newStock = Integer.parseInt(txtAddInventoryAdd.getText());
         System.out.println("producto amodificar =    " + productDto.toString());
         productDto.setEntriy(newStock);
         productDto.setPurchasePrice(Double.parseDouble(txtAddInventorypurchasePrice.getText()));
         productDto.setPrice(new BigDecimal(txtAddInventoryPrice.getText()));
         productDto.setSupplier(txtAddInventorySupplier.getText());
-        productApi.addINvetory(productDto);
+        productApi.addINvetory(productDto, user.getToken());
 
     }
 
@@ -211,9 +211,9 @@ public class InventoryController implements Initializable {
                 try {
                     InventoryResponseDTO inventoryResponseDTO;
                     if ("TODOS LOS DEPARTAMENTOS".equals(newValue.getName())) {
-                        inventoryResponseDTO = productApi.fetchProductsInventary("");
+                        inventoryResponseDTO = productApi.fetchProductsInventary("", user.getToken());
                     } else {
-                        inventoryResponseDTO = productApi.fetchProductsInventary(newValue.getName());
+                        inventoryResponseDTO = productApi.fetchProductsInventary(newValue.getName(), user.getToken());
                     }
                     List<ProductDTO> products = inventoryResponseDTO.getProducts();
                     labelTotalInventory.setText("Total: " + inventoryResponseDTO.getTotalInventoryCost());
@@ -291,7 +291,7 @@ public class InventoryController implements Initializable {
 
             tableProducts.getColumns().addAll(columnbarcode, columnDescription, columnPurchasePrice, columnEntry, columnOutput, columnStock, columnTotalStockValue);
             // tableProducts.setItems(productApi.fetchProductsInventary("10"));
-            InventoryResponseDTO inventoryResponseDTO = productApi.fetchProductsInventary("");
+            InventoryResponseDTO inventoryResponseDTO = productApi.fetchProductsInventary("", user.getToken());
             System.out.println("resultado inventario =" + inventoryResponseDTO);
             System.out.println("RESPONSE INVENTARIO = " + inventoryResponseDTO);
             List<ProductDTO> products = inventoryResponseDTO.getProducts();
@@ -554,7 +554,7 @@ public class InventoryController implements Initializable {
     }
 
     private void updateProduct() {
-          ProductDTO product = productApi.getProductByBarcode(txtAddInventoryBarcode.getText());
+          ProductDTO product = productApi.getProductByBarcode(txtAddInventoryBarcode.getText(), user.getToken());
       
               
                 txtAddInventoryName.setText(product.getName());

@@ -6,10 +6,12 @@ package controller;
 
 import api.ProductApi;
 import beans.Product;
+import com.albertocoronanavarro.puntoventafx.App;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dto.ProductDTO;
 import dto.ProductFindDTO;
+import dto.UserDTO;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 
@@ -45,7 +47,7 @@ import javafx.stage.WindowEvent;
 public class BuscarController implements Initializable {
 
     ProductApi productApi = new ProductApi();
-
+    private UserDTO user;
     private String codigo = "";
     ObservableList<Product> data;
     @FXML
@@ -60,7 +62,7 @@ public class BuscarController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
-
+          this.user = App.getUsuario();
         txtBuscar.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent ke) {
@@ -94,7 +96,7 @@ public class BuscarController implements Initializable {
 
     private ObservableList<ProductFindDTO> fetchProducts(String value) throws IOException {
 
-        List<ProductFindDTO> products = productApi.fetchProducts(value);
+        List<ProductFindDTO> products = productApi.fetchProducts(value, user.getToken());
 
         products.forEach(product -> {
             Button button = new Button("Agregar");

@@ -6,6 +6,7 @@ package api;
 
 import beans.Order;
 import beans.OrderDetail;
+import com.albertocoronanavarro.puntoventafx.App;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import config.ConfigManager;
@@ -33,7 +34,8 @@ import org.json.JSONObject;
  * @author albert
  */
 public class OrderApi {
-
+      String token = App.getUsuario().getToken();
+      
     ConfigManager configManager = new ConfigManager(); //carga el archivo de config.properties
     String baseUrl = configManager.getProperty("api.base.url");
     String endpointOrdersSolds = configManager.getProperty("api.endpoint.orders.solds");
@@ -55,13 +57,15 @@ public class OrderApi {
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
+         conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
+            conn.setRequestProperty("Content-Type", "application/json");
         conn.connect();
 
         int responseCode = conn.getResponseCode();
         if (responseCode != 200) {
             throw new RuntimeException("HttpResponseCode: " + responseCode);
         } else {
-            Scanner scanner = new Scanner(url.openStream());
+             Scanner scanner = new Scanner(conn.getInputStream());
             StringBuilder inline = new StringBuilder();
             while (scanner.hasNext()) {
                 inline.append(scanner.nextLine());
@@ -83,13 +87,15 @@ public class OrderApi {
         URL url = new URL(baseUrl+endpointOrders);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
+        conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
+            conn.setRequestProperty("Content-Type", "application/json");
         conn.connect();
 
         int responseCode = conn.getResponseCode();
         if (responseCode != 200) {
             throw new RuntimeException("HttpResponseCode: " + responseCode);
         } else {
-            Scanner scanner = new Scanner(url.openStream());
+            Scanner scanner = new Scanner(conn.getInputStream());
             StringBuilder inline = new StringBuilder();
             while (scanner.hasNext()) {
                 inline.append(scanner.nextLine());
@@ -146,6 +152,7 @@ public class OrderApi {
                   //  .uri(new URI("http://localhost:3000/orders"))
                     .uri(new URI(baseUrl+endpointOrders))
                     .header("Content-Type", "application/json")
+                     .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
                     .POST(HttpRequest.BodyPublishers.ofString(jsonOrder.toString()))
                     .build();
 
