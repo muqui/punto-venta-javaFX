@@ -5,9 +5,15 @@ package controller;
  * Click nbfs://nbhost/SystemFileSystem/Templates/javafx/FXMLController.java to edit this template
  */
 import api.OrderRepairApi;
+import api.ProductApi;
+import beans.Product;
+import com.albertocoronanavarro.puntoventafx.App;
 import dto.OrderServiceDTO;
+import dto.UserDTO;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,12 +21,21 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 /**
  * FXML Controller class
@@ -28,7 +43,11 @@ import javafx.scene.control.TextField;
  * @author albert
  */
 public class UpdateOrderServiceController implements Initializable {
-
+       private UserDTO user;
+      ProductApi productApi = new ProductApi();
+      
+       ObservableList<Product> data;
+        ArrayList<Product> productList = new ArrayList<Product>();
     private OrderRepairApi orderRepairApi = new OrderRepairApi();
     private OrderServiceDTO orderServiceDTO;
     private String folio = "";
@@ -83,13 +102,25 @@ public class UpdateOrderServiceController implements Initializable {
     
     @FXML
     private Label labelprofit;   
+    
+     @FXML
+    private TableView<Product> tableProducts;
 
     /**
      * Initializes the controller class.
-     */
+     */ @FXML
+    void onActionAddProduct(ActionEvent event) {
+   buscarProducto();
+       
+    }
+    
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+        
+        initializeTableColumns();
+        
+        this.user = App.getUsuario();
          ObservableList<String> statusOptions = FXCollections.observableArrayList(
              "Pendiente",     
             "En revisión",
@@ -152,7 +183,7 @@ public class UpdateOrderServiceController implements Initializable {
 
                 //  OrderServiceDTO orderServiceDTO = new OrderServiceDTO(falla, nombre, telefono, presupuesto, abono, restante, nota, correo, marca, modelo, falla, estadoRecibido, password, imei);
                 // OrderServiceDTO orderServiceDTO = new OrderServiceDTO(nombre, telefono, correo, marca, modelo, imei, presupuesto, abono, restante, falla, estadoRecibido, contraseña, nota);
-                System.out.println("ENVIAR A ACTUALIZAR ..................estado = " + orderServiceDTO.getStatus());
+                System.out.println("ENVIAR A ACTUALIZAR ..................FECHA = " + orderServiceDTO.getDate());
                 orderRepairApi.updateOrderRepair(orderServiceDTO);
             } else {
                 showAlert("errores", erros);
@@ -322,5 +353,171 @@ public class UpdateOrderServiceController implements Initializable {
             errors.append("El campo '" + fieldName + "' debe ser un número válido.\n");
             return null;
         }
+    }
+    
+    
+        private void buscarProducto() {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/buscar.fxml"));
+            Parent root = fxmlLoader.load();
+            BuscarController buscarController = fxmlLoader.getController();
+            Scene scene = new Scene(root);
+            Stage stage = new Stage();
+            //stage.setResizable(false);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(scene);
+            stage.showAndWait();
+
+            String codigo = buscarController.getCodigo();
+
+            System.out.println("CODIGO = " + codigo);
+            
+             if (!codigo.isEmpty()) {
+                Product product = productApi.ProductoToTicket(codigo, user.getToken());   //insertToTicket(codigo); // recibe el producto desde la rest api  
+                 product.setAmount(new BigDecimal("1")); 
+                addTable(product); 
+                System.out.println("usuarPRODUCTO ZZZZ para insertar en la order de reparacion como refaccion " + product.getBarcode());
+             }
+           
+
+        } catch (IOException ex) {
+            Logger.getLogger(VentasController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+         private void initializeTableColumns() {
+
+        System.out.println("se lanzo");
+        tableProducts.getColumns().clear(); // Limpiar las columnas de la tabla antes de agregar nuevas
+
+        TableColumn<Product, String> columnBarcode = new TableColumn<>("Codigo");
+        columnBarcode.setCellValueFactory(new PropertyValueFactory<>("barcode"));
+
+        TableColumn<Product, String> columnAmount = new TableColumn<>("Cantidad");
+        columnAmount.setCellValueFactory(new PropertyValueFactory<>("amount"));
+
+        TableColumn<Product, String> columnName = new TableColumn<>("Nombre");
+        columnName.setCellValueFactory(new PropertyValueFactory<>("name"));
+
+        TableColumn<Product, Double> columnPrice = new TableColumn<>("Precio de compra");
+        columnPrice.setCellValueFactory(new PropertyValueFactory<>("purchasePrice"));
+
+        TableColumn<Product, Integer> columnStock = new TableColumn<>("total Precio de compra");
+        columnStock.setCellValueFactory(new PropertyValueFactory<>("total"));
+
+        TableColumn<Product, Button> columnButtonAdd = new TableColumn<>("Acción");
+        columnButtonAdd.setCellValueFactory(new PropertyValueFactory<>("botonAgregar"));
+
+        TableColumn<Product, Button> columnButtonDelete = new TableColumn<>("Acción");
+        columnButtonDelete.setCellValueFactory(new PropertyValueFactory<>("botonEliminar"));
+
+        TableColumn<Product, Button> columnButtonless = new TableColumn<>("Acción");
+        columnButtonless.setCellValueFactory(new PropertyValueFactory<>("botonBorrar"));
+
+        tableProducts.getColumns().addAll(columnBarcode, columnName, columnAmount, columnPrice, columnStock, columnButtonAdd, columnButtonless, columnButtonDelete);
+
+        // Set table width listener to adjust column widths in percentages
+        tableProducts.widthProperty().addListener((obs, oldVal, newVal) -> {
+            double tableWidth = newVal.doubleValue();
+            columnBarcode.setPrefWidth(tableWidth * 0.15); // 15% width
+            columnAmount.setPrefWidth(tableWidth * 0.10);
+            columnName.setPrefWidth(tableWidth * 0.15); // 15% width
+            columnPrice.setPrefWidth(tableWidth * 0.15); // 15% width
+            columnStock.setPrefWidth(tableWidth * 0.15); // 15% width
+            columnButtonAdd.setPrefWidth(tableWidth * 0.10);
+            columnButtonless.setPrefWidth(tableWidth * 0.10);
+            columnButtonDelete.setPrefWidth(tableWidth * 0.10);
+        });
+    }
+
+         public boolean existProdcutIntable(String codigoBarras, BigDecimal cantidad) {
+        boolean exists = false;
+        for (int i = 0; i < productList.size(); i++) {
+            Product p = productList.get(i);
+            System.out.println("PRODUCTO YA ESTA EN EL TICKET" + p.toString());
+            if (p.getBarcode().equalsIgnoreCase(codigoBarras)) {
+
+                //double cantidadTotal = p.getAmount() + cantidad;
+                BigDecimal cantidadTotal = p.getAmount().add(cantidad);
+                //double total = cantidadTotal * p.getPrice();
+                BigDecimal price = cantidadTotal.multiply(p.getPrice());
+                BigDecimal purchasePrice = cantidadTotal.multiply(p.getPurchasePrice());
+                System.out.println("TOTAL NUEVO " + price);
+
+                p.setAmount(cantidadTotal);
+                p.setPrice(price);
+                p.setTotal(purchasePrice);
+                exists = true;
+                break;
+            }
+        }
+
+        return exists;
+
+    }
+
+         private void addTable(Product product) {
+
+        boolean exists = existProdcutIntable(product.getBarcode(), new BigDecimal("1"));
+        if (exists == false) {  //si ek producto no esta en la tabla se agrega 1.
+            productList.add(product);
+        }
+
+        data = FXCollections.observableList(productList);
+        data.forEach((tab) -> {
+            tab.getBotonAgregar().setOnAction(this::eventoTabla);
+            tab.getBotonAgregar().setMaxWidth(Double.MAX_VALUE);
+            tab.getBotonAgregar().setMaxHeight(Double.MAX_VALUE);
+            tab.getBotonBorrar().setOnAction(this::eventoTabla);
+            tab.getBotonBorrar().setMaxWidth(Double.MAX_VALUE);
+            tab.getBotonBorrar().setMaxHeight(Double.MAX_VALUE);
+
+            tab.getBotonEliminar().setOnAction(this::eventoTabla);
+            tab.getBotonEliminar().setMaxWidth(Double.MAX_VALUE);
+            tab.getBotonEliminar().setMaxHeight(Double.MAX_VALUE);
+
+        });
+        tableProducts.setItems(data);
+        tableProducts.refresh();
+
+    }
+         
+           private void eventoTabla(ActionEvent event) {
+        for (int i = 0; data.size() > i; i++) {
+            Product p = data.get(i);
+            //delete item from ticket
+            if (event.getSource() == p.getBotonEliminar()) {
+
+                // delete by itself
+                data.remove(p);
+
+            }
+            if (event.getSource() == p.getBotonAgregar()) {
+
+                //  p.setAmount(p.getAmount() + 1);
+                p.setAmount(p.getAmount().add(BigDecimal.ONE));
+                //  p.setTotal(p.getAmount() * p.getPrice());
+                p.setTotal(p.getAmount().multiply(p.getPurchasePrice()));
+
+            }
+            if (event.getSource() == p.getBotonBorrar()) {
+
+                if (p.getAmount().compareTo(BigDecimal.ONE) > 0) {
+                    p.setAmount(p.getAmount().subtract(BigDecimal.ONE));
+                    p.setTotal(p.getAmount().multiply(p.getPurchasePrice()));
+                    System.out.println("cantidad " + p.getAmount());
+                }
+
+//                if (p.getAmount() > 1) {
+//                    p.setAmount(p.getAmount() - 1);
+//                    p.setTotal(p.getAmount() * p.getPrice());
+//                    System.out.println("cantidad " + p.getAmount());
+//                }
+            }
+        }
+
+        tableProducts.setItems(data);
+        tableProducts.refresh();
+
     }
 }
