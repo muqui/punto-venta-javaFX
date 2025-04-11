@@ -131,7 +131,8 @@ public class UpdateOrderServiceController implements Initializable {
                 "En revisión",
                 "En reparación",
                 "Reparado",
-                "Entregado"
+                "Entregado",
+                "Finalizada"
         );
 
         comboStatus.setItems(statusOptions);
@@ -156,14 +157,16 @@ public class UpdateOrderServiceController implements Initializable {
                 orderServiceDTO.setReceivedCondition(receivedConditionField.getText());
                 orderServiceDTO.setNote(noteArea.getText());
                 orderServiceDTO.setPasswordCellPhone(passwordField.getText());
-                orderServiceDTO.setReplacementCost(Double.parseDouble(replacementCostField.getText().trim()));
+                System.out.println("");
+               // orderServiceDTO.setReplacementCost(Double.parseDouble(replacementCostField.getText().trim()));
                 orderServiceDTO.setStatus(comboStatus.getValue());
               
                 if(sparePartList.size()> 0){
                     for (SparePartDTO part : data) {
                    
-                    System.out.println("ID 11:28 = " + part.getProduct().getId());
+                    System.out.println("ID 11:28 = " + part.getProduct().getId() + "Costo de compra " + part.getProduct().getPurchasePrice() );
                     part.setProductId(part.getProduct().getId());
+                    part.setPurchasePrice(BigDecimal.valueOf(part.getProduct().getPurchasePrice()));
                     // Agrega más campos si es necesario
                   
                 }
@@ -199,6 +202,8 @@ public class UpdateOrderServiceController implements Initializable {
                 // OrderServiceDTO orderServiceDTO = new OrderServiceDTO(nombre, telefono, correo, marca, modelo, imei, presupuesto, abono, restante, falla, estadoRecibido, contraseña, nota);
                 System.out.println("ENVIAR A ACTUALIZAR ..................FECHA = " + orderServiceDTO.getDate());
                 orderRepairApi.updateOrderRepair(orderServiceDTO);
+                  Stage stage = (Stage) nameField.getScene().getWindow();
+                stage.close();
             } else {
                 showAlert("errores", erros);
             }
@@ -406,7 +411,7 @@ public class UpdateOrderServiceController implements Initializable {
         tableProducts.getColumns().clear(); // Limpiar las columnas de la tabla antes de agregar nuevas
 //
         TableColumn<SparePartDTO, String> columnSparePartCost = new TableColumn<>("Codigo");
-        columnSparePartCost.setCellValueFactory(new PropertyValueFactory<>("sparePartCost"));
+        columnSparePartCost.setCellValueFactory(new PropertyValueFactory<>("price"));
 //        
 
         // Columna para el nombre del producto
@@ -519,7 +524,10 @@ public class UpdateOrderServiceController implements Initializable {
 //        }
         SparePartDTO sparePartDTO = new SparePartDTO();
         sparePartDTO.setProduct(product);
-        sparePartDTO.setSparePartCost(product.getPrice());
+        //sparePartDTO.setSparePartCost(product.getPrice());
+        sparePartDTO.setPrice(product.getPrice());
+        System.out.println("preicio de compra= " + product.getPurchasePrice());
+        sparePartDTO.setPurchasePrice(BigDecimal.valueOf(product.getPurchasePrice()));
         sparePartDTO.setProductId(product.getId());
         sparePartList.add(sparePartDTO);
 
