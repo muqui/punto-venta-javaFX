@@ -586,6 +586,7 @@ public class VentasController implements Initializable {
             Parent root = fxmlLoader.load();
             CobrarController cobrarController = fxmlLoader.getController();
             cobrarController.setOrder(order);
+            
             cobrarController.setTotal(totalTicket(tabSeleccionado));
 
             Scene scene = new Scene(root);
