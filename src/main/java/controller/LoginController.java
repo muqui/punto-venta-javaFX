@@ -58,7 +58,7 @@ public class LoginController implements Initializable {
         usuario.setPassword(txtPassword.getText().toString());
         usuario.setName(txtUsuer.getText().toString());
         HttpResponse<String> response =loginApi.login(usuario);
-          System.out.println("resultado 11q =" + response.body());
+         
 
             if (response.statusCode() == 201) {
                 // Deserializar el JSON en un objeto UsuarioDTO

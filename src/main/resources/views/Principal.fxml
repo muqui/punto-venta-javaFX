@@ -15,7 +15,7 @@
                   <Button id="btnProducts" fx:id="btnProductos" mnemonicParsing="false" onAction="#actionBtnProducts" text="Productos" />
                   <Button fx:id="btnInventory" mnemonicParsing="false" onAction="#actionBtnInventory" text="Inventario" />
                   <Button fx:id="btnClients" mnemonicParsing="false" text="Clientes" />
-                  <Button fx:id="btnConfig" mnemonicParsing="false" text="Configuracion" />
+                  <Button fx:id="btnConfig" mnemonicParsing="false" onAction="#OnActionConfig" text="Configuracion" />
                   <Button fx:id="btnReports" mnemonicParsing="false" onAction="#actionBtnReports" text="Reportes" />
                   <Button fx:id="btnCaja" mnemonicParsing="false" onAction="#onActionCaja" text="Caja" />
                   <Button fx:id="btnReparaciones" mnemonicParsing="false" onAction="#onActionReparaciones" text="Reparaciones" />

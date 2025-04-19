@@ -4,13 +4,16 @@
  */
 package dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class OrderServiceDTO {
 
@@ -24,8 +27,12 @@ public class OrderServiceDTO {
     private String folio;
     
     
-    
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     private Date date;
+    
+    @JsonIgnore
+     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
+     private Date updatedAt;
 
     private String service;
 
@@ -61,6 +68,8 @@ public class OrderServiceDTO {
     private String passwordCellPhone;
 
     private String imei;
+    
+     private ArrayList <SparePartDTO> spareParts;
 
     public OrderServiceDTO() {
     }
@@ -312,5 +321,34 @@ public class OrderServiceDTO {
         this.profit = profit;
     }
 
+    /**
+     * @return the spareParts
+     */
+    public ArrayList <SparePartDTO> getSpareParts() {
+        return spareParts;
+    }
+
+    /**
+     * @param spareParts the spareParts to set
+     */
+    public void setSpareParts(ArrayList <SparePartDTO> spareParts) {
+        this.spareParts = spareParts;
+    }
+
+    /**
+     * @return the updatedAt
+     */
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    /**
+     * @param updatedAt the updatedAt to set
+     */
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+   
 
 }

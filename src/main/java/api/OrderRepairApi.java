@@ -34,6 +34,7 @@ public class OrderRepairApi {
     String baseUrl = configManager.getProperty("api.base.url");
     String endpointCreatedServiceOrder = configManager.getProperty("api.endpoint.created.service.order");
     String endpointRepairservice = configManager.getProperty("api.endpoint.repair.service");
+    String endPointRepairServiceUpdate = configManager.getProperty("api.endpoint.repaor.service.update");
     //api.endpoint.repair.service
 
     public void createdOrderService(OrderServiceDTO orderServiceDTO) {
@@ -163,7 +164,7 @@ public class OrderRepairApi {
             // Crear cliente HTTP
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI(baseUrl + endpointRepairservice + "/" + orderServiceDTO.getFolio())) // Asegúrate de pasar el ID del producto
+                    .uri(new URI(baseUrl + endPointRepairServiceUpdate + "/" + orderServiceDTO.getFolio())) // Asegúrate de pasar el ID del producto
 
                     //  .uri(new URI("http://localhost:3000/products/" + product.getBarcode())) // Asegúrate de pasar el ID del producto
                     .header("Content-Type", "application/json")
@@ -174,7 +175,7 @@ public class OrderRepairApi {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() == 200) {
-                showAlert(Alert.AlertType.INFORMATION, "Éxito", "Order de servcio creada con exito.");
+                showAlert(Alert.AlertType.INFORMATION, "Éxito", "Order actualizada con exito.");
             } else {
                 String responseBody = response.body();
                 System.out.println("Resultado =" + responseBody);
@@ -184,7 +185,7 @@ public class OrderRepairApi {
                 // Acceder al campo "message"
                 String message = jsonResponse.getString("message");
                 System.out.println("Message = " + message);
-
+                 showAlert(Alert.AlertType.ERROR, "Error", "Orden Finalizada no se puede modificar.");
                 // Manejar error de autenticación
                 if (message.equalsIgnoreCase("product not found")) {
                     //    showAlert("Info", "El producto no existe.");

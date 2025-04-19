@@ -18,8 +18,14 @@ public class UserDTO {
       private String phone;
       private String country;
       private String  city;
-      private boolean isAdmin;
+      private String isAdmin;
 
+    @Override
+    public String toString() {
+        return "UserDTO{" + "id=" + id + ", name=" + name + ", token=" + token + ", email=" + email + ", password=" + password + ", address=" + address + ", phone=" + phone + ", country=" + country + ", city=" + city + ", isAdmin=" + isAdmin + '}';
+    }
+
+      
 //    @Override
 //    public String toString() {
 //        return "UserDTO{" + "id=" + id + ", name=" + name + ", token=" + token + ", email=" + email + ", password=" + password + '}';
@@ -159,15 +165,17 @@ public class UserDTO {
     /**
      * @return the isAdmin
      */
-    public boolean isIsAdmin() {
+    public String getIsAdmin() {
         return isAdmin;
     }
 
     /**
      * @param isAdmin the isAdmin to set
      */
-    public void setIsAdmin(boolean isAdmin) {
+    public void setIsAdmin(String isAdmin) {
         this.isAdmin = isAdmin;
     }
+
+
      
 }

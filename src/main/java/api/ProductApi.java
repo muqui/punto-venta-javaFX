@@ -312,7 +312,7 @@ public class ProductApi {
     }
 
     public List<ProductFindDTO> fetchProducts(String nameProduct, String token) throws IOException {
-        System.out.println("token en busqueda de producto 888888 " + token);
+      //  System.out.println("token en busqueda de producto 888888 " + token);
         List<ProductFindDTO> products = null;
         String urlString = baseUrl + endpointProductsSearch + "?name=" + nameProduct;
         // String urlString = "http://localhost:3000/products/search?name=" + value;
@@ -333,7 +333,7 @@ public class ProductApi {
                 inline.append(scanner.nextLine());
             }
             scanner.close();
-            System.out.println("Busqueda cadena= " + inline);
+          //  System.out.println("Busqueda cadena= " + inline);
             ObjectMapper mapper = new ObjectMapper();
             products = mapper.readValue(inline.toString(), new TypeReference<List<ProductFindDTO>>() {
             });
@@ -392,60 +392,60 @@ public class ProductApi {
         return result;
     }
 
-    public Product getProductByBarcode1(String barcode, String token) {
-        Product product = new Product();
-
-        try {
-
-            // Crear un cliente HTTP
-            HttpClient client = HttpClient.newHttpClient();
-
-            // Construir la solicitud GET
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI(baseUrl + endpointProducts + barcode))
-                    //  .uri(new URI("http://localhost:3000/products/" + barcode))
-                    .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
-                    .GET()
-                    .build();
-
-            // Enviar la solicitud y recibir la respuesta
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            // Manejar la respuesta
-            if (response.statusCode() == 200) {
-
-                // Parsear la respuesta JSON
-                JSONObject jsonResponse = new JSONObject(response.body());
-                // Crear una instancia de Product y asignar valores
-
-                product.setId(jsonResponse.getInt("id"));
-                product.setName(jsonResponse.getString("name"));
-                product.setDescription(jsonResponse.getString("description"));
-                product.setBarcode(jsonResponse.getString("barcode"));
-                // product.setPrice(jsonResponse.getDouble("price"));
-                product.setPrice(jsonResponse.getBigDecimal("price"));
-                product.setStock(jsonResponse.getInt("stock"));
-                product.setImgUrl(jsonResponse.getString("imgUrl"));
-                product.setCategoryId(jsonResponse.getInt("categoryId"));
-                product.setTotal(jsonResponse.getBigDecimal("price"));
-                product.setPurchasePrice(jsonResponse.getBigDecimal("purchasePrice"));
-                product.setHowToSell(jsonResponse.getString("howToSell"));
-
-            } else {
-                System.out.println("Error en la solicitud: " + response.statusCode());
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.initStyle(StageStyle.UTILITY);
-                alert.setTitle("Error");
-                alert.setHeaderText(null);
-                alert.setContentText("Producto no encontrado.");
-                alert.showAndWait();
-            }
-
-        } catch (Exception e) {
-        }
-        return product;
-    }
+//    public Product getProductByBarcode1(String barcode, String token) {
+//        Product product = new Product();
+//
+//        try {
+//
+//            // Crear un cliente HTTP
+//            HttpClient client = HttpClient.newHttpClient();
+//
+//            // Construir la solicitud GET
+//            HttpRequest request = HttpRequest.newBuilder()
+//                    .uri(new URI(baseUrl + endpointProducts + barcode))
+//                    //  .uri(new URI("http://localhost:3000/products/" + barcode))
+//                    .header("Content-Type", "application/json")
+//                    .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
+//                    .GET()
+//                    .build();
+//
+//            // Enviar la solicitud y recibir la respuesta
+//            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+//
+//            // Manejar la respuesta
+//            if (response.statusCode() == 200) {
+//
+//                // Parsear la respuesta JSON
+//                JSONObject jsonResponse = new JSONObject(response.body());
+//                // Crear una instancia de Product y asignar valores
+//
+//                product.setId(jsonResponse.getInt("id"));
+//                product.setName(jsonResponse.getString("name"));
+//                product.setDescription(jsonResponse.getString("description"));
+//                product.setBarcode(jsonResponse.getString("barcode"));
+//                // product.setPrice(jsonResponse.getDouble("price"));
+//                product.setPrice(jsonResponse.getBigDecimal("price"));
+//                product.setStock(jsonResponse.getInt("stock"));
+//                product.setImgUrl(jsonResponse.getString("imgUrl"));
+//                product.setCategoryId(jsonResponse.getInt("categoryId"));
+//                product.setTotal(jsonResponse.getBigDecimal("price"));
+//                product.setPurchasePrice(jsonResponse.getBigDecimal("purchasePrice"));
+//                product.setHowToSell(jsonResponse.getString("howToSell"));
+//
+//            } else {
+//             
+//                Alert alert = new Alert(Alert.AlertType.ERROR);
+//                alert.initStyle(StageStyle.UTILITY);
+//                alert.setTitle("Error");
+//                alert.setHeaderText(null);
+//                alert.setContentText("Producto no encontrado.");
+//                alert.showAndWait();
+//            }
+//
+//        } catch (Exception e) {
+//        }
+//        return product;
+//    }
 
     //Muestra el inventario 
     public InventoryResponseDTO fetchProductsInventary(String departmentName, String token) throws IOException {

@@ -16,6 +16,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 
 /**
  * FXML Controller class
@@ -114,29 +115,30 @@ public class CrearOrdenReparacionesController implements Initializable {
                 if (correo == null || correo.trim().isEmpty()) {
                     correo = null;
                 }
-               
+
                 if (budgetField.getText().trim() == null || budgetField.getText().trim().isEmpty()) {
                     presupuesto = null;
-                } else{
-                     presupuesto = Double.parseDouble(budgetField.getText().trim());
+                } else {
+                    presupuesto = Double.parseDouble(budgetField.getText().trim());
                 }
-                 if (paidField.getText().trim() == null || paidField.getText().trim().isEmpty()) {
+                if (paidField.getText().trim() == null || paidField.getText().trim().isEmpty()) {
                     abono = null;
+                } else {
+                    abono = Double.parseDouble(paidField.getText().trim());
                 }
-                 else{
-                     abono = Double.parseDouble(paidField.getText().trim());
-                 }
-                  if (remainingField.getText().trim() == null || remainingField.getText().trim().isEmpty()) {
+                if (remainingField.getText().trim() == null || remainingField.getText().trim().isEmpty()) {
                     restante = null;
-                }else{
-                      restante = Double.parseDouble(remainingField.getText().trim());
-                  }
-             
+                } else {
+                    restante = Double.parseDouble(remainingField.getText().trim());
+                }
 
                 OrderServiceDTO orderServiceDTO = new OrderServiceDTO(falla, nombre, telefono, presupuesto, abono, restante, nota, correo, marca, modelo, falla, estadoRecibido, password, imei);
                 // OrderServiceDTO orderServiceDTO = new OrderServiceDTO(nombre, telefono, correo, marca, modelo, imei, presupuesto, abono, restante, falla, estadoRecibido, contraseña, nota);
 
                 orderRepairApi.createdOrderService(orderServiceDTO);
+                // Cerrar la ventana
+                Stage stage = (Stage) nameField.getScene().getWindow();
+                stage.close();
             } else {
                 showAlert("errores", erros);
             }
@@ -180,41 +182,34 @@ public class CrearOrdenReparacionesController implements Initializable {
         if (receivedConditionField.getText().trim().isEmpty()) {
             errors.append("El campo 'Condición recibida' no puede estar vacío.\n");
         }
-  Double abono = null;
-  Double presupuesto = null;
-  Double restante = null;
+        Double abono = null;
+        Double presupuesto = null;
+        Double restante = null;
         if (!budgetField.getText().trim().isEmpty()) { //
-  presupuesto = parseDouble(budgetField.getText().trim(), "Presupuesto", errors);
-  // Validar valores lógicos de presupuesto, abono y restante
-        if (presupuesto != null && presupuesto <= 0) {
-            errors.append("El 'Presupuesto' debe ser un valor positivo.\n");
+            presupuesto = parseDouble(budgetField.getText().trim(), "Presupuesto", errors);
+            // Validar valores lógicos de presupuesto, abono y restante
+            if (presupuesto != null && presupuesto <= 0) {
+                errors.append("El 'Presupuesto' debe ser un valor positivo.\n");
+            } else {
+                System.out.println("EL VALOR ES UN NUMERO VALIDO");
+            }
         }
-        else{
-            System.out.println("EL VALOR ES UN NUMERO VALIDO");
-        }
-        }
-         if (!paidField.getText().trim().isEmpty() || presupuesto != null) { //
-        abono = parseDouble(paidField.getText().trim(), "Abono", errors);
-    if (abono != null && abono < 0) {
-            errors.append("El 'Abono' no puede ser un valor negativo.\n");
-        }
-        }
-
-          if (!remainingField.getText().trim().isEmpty() || presupuesto != null) { //
-   restante = parseDouble(remainingField.getText().trim(), "Restante", errors);
-  
-        if (restante != null && restante < 0) {
-            errors.append("El 'Restante' no puede ser un valor negativo.\n");
-        }
+        if (!paidField.getText().trim().isEmpty() || presupuesto != null) { //
+            abono = parseDouble(paidField.getText().trim(), "Abono", errors);
+            if (abono != null && abono < 0) {
+                errors.append("El 'Abono' no puede ser un valor negativo.\n");
+            }
         }
 
+        if (!remainingField.getText().trim().isEmpty() || presupuesto != null) { //
+            restante = parseDouble(remainingField.getText().trim(), "Restante", errors);
+
+            if (restante != null && restante < 0) {
+                errors.append("El 'Restante' no puede ser un valor negativo.\n");
+            }
+        }
 
         // Validar que los valores numéricos sean válidos
-       
-      
-      
-
-  
         return errors.toString();
     }
 

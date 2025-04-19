@@ -225,10 +225,17 @@ public class ProductController implements Initializable {
 
     @FXML
     void btnFindProductAnction(ActionEvent event) {
-        System.out.println("CARGAR BUSCAR PARA CARGAR A PAQUETE");
-
-        Product product = buscarProducto();
-        addTable(product);
+        System.out.println("SE EJECUTA EL BOTON BUSCAR");
+        ProductDTO product = buscarProducto();
+        System.out.println("PRODUCTO precio compra = " +  product.getPurchasePrice());
+        Product p = new Product();
+        p.setName(product.getName());
+        p.setBarcode(product.getBarcode());
+        p.setAmount(BigDecimal.ONE);
+        p.setPurchasePrice(new BigDecimal(product.getPurchasePrice()));
+        p.setTotal(new BigDecimal(product.getPurchasePrice()));
+        p.setId(product.getId());
+        addTable(p);
     }
 
     @FXML
@@ -499,8 +506,8 @@ public class ProductController implements Initializable {
         return sellingPrice;
     }
 
-    private Product buscarProducto() {
-        Product product = null;
+    private ProductDTO buscarProducto() {
+        ProductDTO product = null;
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/buscar.fxml"));
             Parent root = fxmlLoader.load();
@@ -513,12 +520,17 @@ public class ProductController implements Initializable {
             stage.showAndWait();
 
             String codigo = buscarController.getCodigo();
+            
+          
 
             if (!codigo.isEmpty()) {
+                 
                 // product = getProductByBarcode(codigo);
-                product = productApi.getProductByBarcode1(codigo, user.getToken());
-                product.setAmount(new BigDecimal("1"));
-                product.setTotal(product.getPurchasePrice());
+                product = productApi.getProductByBarcode(codigo, user.getToken());
+                
+                 System.out.println("CODIGO PARA QUE SE VA A BUSCAR.............." + product.toString());
+             //   product.setAmount(new BigDecimal("1"));
+             //   product.setTotal(product.getPurchasePrice());
 
             }
 
@@ -568,7 +580,7 @@ public class ProductController implements Initializable {
         columnName.setCellValueFactory(new PropertyValueFactory<>("name"));
 
         TableColumn<Product, Double> columnPrice = new TableColumn<>("Precio de compra");
-        columnPrice.setCellValueFactory(new PropertyValueFactory<>("purchasePrice"));
+        columnPrice.setCellValueFactory(new PropertyValueFactory<>("purchasePrice")); //purchasePrice
 
         TableColumn<Product, Integer> columnStock = new TableColumn<>("total Precio de compra");
         columnStock.setCellValueFactory(new PropertyValueFactory<>("total"));

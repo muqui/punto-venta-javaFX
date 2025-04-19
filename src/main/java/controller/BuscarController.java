@@ -101,7 +101,7 @@ public class BuscarController implements Initializable {
         products.forEach(product -> {
             Button button = new Button("Agregar");
             button.setOnAction(event -> {
-                System.out.println("Código de barras: " + product.getBarcode());
+               // System.out.println("Código de barras: " + product.getBarcode());
                 setCodigo(product.getBarcode());
 
                 Stage stage = (Stage) button.getScene().getWindow();

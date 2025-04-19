@@ -243,6 +243,20 @@ public class ReportesController implements Initializable {
 
             tableSales.getColumns().addAll(columnDate, columnUserName, columnBarcode, columnName, columnAmount, columnPrice, columnPurchasePrice, columnProfit);
 
+              tableSales.widthProperty().addListener((obs, oldVal, newVal) -> {
+            double tableWidth = newVal.doubleValue();
+            columnDate.setPrefWidth(tableWidth * 0.10);
+            columnUserName.setPrefWidth(tableWidth * 0.20);
+            columnBarcode.setPrefWidth(tableWidth * 0.20);
+            columnName.setPrefWidth(tableWidth * 0.10);
+            
+             columnAmount.setPrefWidth(tableWidth * 0.10);
+            columnPrice.setPrefWidth(tableWidth * 0.10);
+            columnPurchasePrice.setPrefWidth(tableWidth * 0.10);
+            columnProfit.setPrefWidth(tableWidth * 0.10);
+
+        });
+            
             // Obtener la fecha de hoy
             LocalDate today = LocalDate.now();
 

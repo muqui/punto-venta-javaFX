@@ -19,7 +19,7 @@ import javafx.scene.layout.AnchorPane;
 public class PrimaryController implements Initializable {
 
    // private UserDTO usuario = new UserDTO();
-    Node nodeVenta, nodeProducto, nodeReporte, nodeInventory, nodeCaja, nodeReparaciones;
+    Node nodeVenta, nodeProducto, nodeReporte, nodeInventory, nodeCaja, nodeReparaciones, nodeUser;
 
     @FXML
     private Button btnCaja;
@@ -67,6 +67,13 @@ public class PrimaryController implements Initializable {
     void actionBtnInventory(ActionEvent event) {
         nodeInventory();
     }
+    
+     @FXML
+    void OnActionConfig(ActionEvent event) {
+        nodeConfig();
+    }
+    
+    
 
     private void nodeVentas() {
         pantallaVentas();
@@ -101,6 +108,23 @@ public class PrimaryController implements Initializable {
         }
     }
 
+    
+     private void nodeConfig() {
+      
+        try {
+
+            if (nodeUser == null) {
+
+                nodeUser = (Node) FXMLLoader.load(getClass().getResource("/views/User.fxml"));
+
+            }
+            anchorPaneContenido.getChildren().setAll(nodeUser);
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
     private void nodeProductos() {
         System.out.println("Cargar alta producto");
         try {
@@ -119,7 +143,7 @@ public class PrimaryController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
+       
         pantallaVentas();
         
         setImageToButton(btnVender, "ventas.png");
@@ -130,7 +154,7 @@ public class PrimaryController implements Initializable {
         setImageToButton(btnReports, "reportes.png");
         setImageToButton(btnCaja, "caja.png");
         setImageToButton(btnReparaciones, "reparaciones.png");
-
+         //btnClients.setVisible(false);
     }
 
     private void pantallaVentas() {

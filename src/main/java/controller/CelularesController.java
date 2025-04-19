@@ -4,7 +4,6 @@ package controller;
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/javafx/FXMLController.java to edit this template
  */
-
 import api.OrderRepairApi;
 import beans.Product;
 import dto.OrderServiceDTO;
@@ -39,8 +38,9 @@ import javafx.stage.Stage;
  * @author albert
  */
 public class CelularesController implements Initializable {
-       OrderRepairApi orderRepairApi = new OrderRepairApi();
-       
+
+    OrderRepairApi orderRepairApi = new OrderRepairApi();
+
     @FXML
     private TableView<OrderServiceDTO> tableOrdersRepair;
 
@@ -49,23 +49,21 @@ public class CelularesController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-           try {
-               // TODO
-                initializeTableColumns();
-                 tableOrdersRepair.setItems(fetchOrdersServices(""));
-           } catch (IOException ex) {
-               Logger.getLogger(CelularesController.class.getName()).log(Level.SEVERE, null, ex);
-           }
-    }    
-    
-    
+        try {
+            // TODO
+            initializeTableColumns();
+            tableOrdersRepair.setItems(fetchOrdersServices(""));
+        } catch (IOException ex) {
+            Logger.getLogger(CelularesController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     @FXML
     void onActionCrearOrden(ActionEvent event) {
         System.out.println("Crear orden .................");
         abrirModalCrerOrden();
     }
-    
-    
+
     private void abrirModalCrerOrden() {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/crearOrdenReparaciones.fxml"));
@@ -78,24 +76,25 @@ public class CelularesController implements Initializable {
             stage.setScene(scene);
             stage.showAndWait();
 
-          //  String codigo = buscarController.getCodigo();
-
-      
-           
+            //  String codigo = buscarController.getCodigo();
+          //  initializeTableColumns();
+         // tableOrdersRepair.getColumns().clear(); // Limpiar las columnas de la tabla antes de agregar nuevas
+            tableOrdersRepair.setItems(fetchOrdersServices(""));
 
         } catch (IOException ex) {
             Logger.getLogger(VentasController.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
-     private void initializeTableColumns() {
+
+    private void initializeTableColumns() {
         tableOrdersRepair.getColumns().clear(); // Limpiar las columnas de la tabla antes de agregar nuevas
 
         TableColumn<OrderServiceDTO, String> columnBarcode = new TableColumn<>("Fecha Ingresos");
         columnBarcode.setCellValueFactory(new PropertyValueFactory<>("date"));
-        
+
         //client
-         TableColumn<OrderServiceDTO, String> columnClient = new TableColumn<>("Cliente");
+        TableColumn<OrderServiceDTO, String> columnClient = new TableColumn<>("Cliente");
         columnClient.setCellValueFactory(new PropertyValueFactory<>("client"));
 
         TableColumn<OrderServiceDTO, String> columnName = new TableColumn<>("folio");
@@ -106,57 +105,51 @@ public class CelularesController implements Initializable {
 
         TableColumn<OrderServiceDTO, Integer> columnStock = new TableColumn<>("Modelo");
         columnStock.setCellValueFactory(new PropertyValueFactory<>("model"));
-        
-        
+
         TableColumn<OrderServiceDTO, Integer> columnService = new TableColumn<>("Servicio");
         columnService.setCellValueFactory(new PropertyValueFactory<>("service"));
-        
-        
+
         //replacementCost
-         TableColumn<OrderServiceDTO, Integer> columnReplacementCost = new TableColumn<>("Costo Refacciones");
+        TableColumn<OrderServiceDTO, Integer> columnReplacementCost = new TableColumn<>("Costo Refacciones");
         columnReplacementCost.setCellValueFactory(new PropertyValueFactory<>("replacementCost"));
-        
+
         //repairCost
-        
-            TableColumn<OrderServiceDTO, Integer> columnRepairCost= new TableColumn<>("Costo reparacion");
+        TableColumn<OrderServiceDTO, Integer> columnRepairCost = new TableColumn<>("Costo reparacion");
         columnRepairCost.setCellValueFactory(new PropertyValueFactory<>("repairCost"));
-        
-          //status
-         TableColumn<OrderServiceDTO, Integer> columnStatus = new TableColumn<>("Estado");
+
+        //status
+        TableColumn<OrderServiceDTO, Integer> columnStatus = new TableColumn<>("Estado");
         columnStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
-        
+
         //profit
-         TableColumn<OrderServiceDTO, Integer> columnProfit = new TableColumn<>("Ganancia");
+        TableColumn<OrderServiceDTO, Integer> columnProfit = new TableColumn<>("Ganancia");
         columnProfit.setCellValueFactory(new PropertyValueFactory<>("profit"));
-        
-        
-        
-        
+
         TableColumn<OrderServiceDTO, Void> actionColumn = new TableColumn<>("Acción");
 
-actionColumn.setCellFactory(param -> new TableCell<>() {
-    private final Button button = new Button("Ver");
+        actionColumn.setCellFactory(param -> new TableCell<>() {
+            private final Button button = new Button("Ver");
 
-    {
-        button.setOnAction(event -> {
-            OrderServiceDTO order = getTableView().getItems().get(getIndex());
-            System.out.println("Botón presionado para: " + order.getFolio());
-            OpenModalUpdateOrderService(order.getFolio());
+            {
+                button.setOnAction(event -> {
+                    OrderServiceDTO order = getTableView().getItems().get(getIndex());
+                    System.out.println("Botón presionado para: " + order.getFolio());
+                    OpenModalUpdateOrderService(order.getFolio());
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(button);
+                }
+            }
         });
-    }
 
-    @Override
-    protected void updateItem(Void item, boolean empty) {
-        super.updateItem(item, empty);
-        if (empty) {
-            setGraphic(null);
-        } else {
-            setGraphic(button);
-        }
-    }
-});
-
-        tableOrdersRepair.getColumns().addAll(columnBarcode,columnClient, columnName, columnPrice, columnStock, columnService,columnRepairCost,columnReplacementCost,columnProfit,columnStatus, actionColumn);
+        tableOrdersRepair.getColumns().addAll(columnBarcode, columnClient, columnName, columnPrice, columnStock, columnService, columnRepairCost, columnReplacementCost, columnProfit, columnStatus, actionColumn);
 
         // Set table width listener to adjust column widths in percentages
         tableOrdersRepair.widthProperty().addListener((obs, oldVal, newVal) -> {
@@ -174,22 +167,21 @@ actionColumn.setCellFactory(param -> new TableCell<>() {
             columnProfit.setPrefWidth(tableWidth * 0.05);
         });
     }
-     
-     private ObservableList<OrderServiceDTO> fetchOrdersServices(String value) throws IOException {
 
-        List<OrderServiceDTO> orderServices =  orderRepairApi.fetchOrdersService();
+    private ObservableList<OrderServiceDTO> fetchOrdersServices(String value) throws IOException {
 
-        
+        List<OrderServiceDTO> orderServices = orderRepairApi.fetchOrdersService();
+
         return FXCollections.observableArrayList(orderServices);
 
-    } 
-     
-        private void OpenModalUpdateOrderService(String folio) {
+    }
+
+    private void OpenModalUpdateOrderService(String folio) {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/updateOrderService.fxml"));
             Parent root = fxmlLoader.load();
             UpdateOrderServiceController updateOrderServiceController = fxmlLoader.getController();
-             System.out.println("Folio antes de ser enviado "+  folio);
+            System.out.println("Folio antes de ser enviado " + folio);
             updateOrderServiceController.setFolio(folio);
             Scene scene = new Scene(root);
             Stage stage = new Stage();
@@ -197,16 +189,13 @@ actionColumn.setCellFactory(param -> new TableCell<>() {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setScene(scene);
             stage.showAndWait();
-           
-
-      
-          
+            
+             tableOrdersRepair.setItems(fetchOrdersServices(""));
 
         } catch (IOException ex) {
             Logger.getLogger(VentasController.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-    } 
-
+    }
 
 }

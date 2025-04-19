@@ -17,6 +17,7 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
+import helper.PrintOrderService;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -67,7 +68,7 @@ import org.json.JSONObject;
 public class CobrarController implements Initializable {
     OrderApi orderApi = new OrderApi();
     private Order order;
-    private boolean statusSell = true;
+    private boolean statusSell = false;
     private BigDecimal total;
     @FXML
     private AnchorPane anchorPaneCobrar;
@@ -148,7 +149,7 @@ public class CobrarController implements Initializable {
 
         try {
             imprimirCobrar(false);
-            System.out.println("total de la venta 1= " + total);
+          
         } catch (IOException ex) {
             Logger.getLogger(CobrarController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -157,17 +158,16 @@ public class CobrarController implements Initializable {
 
     @FXML
     void btnImprimiryCobrarAction(ActionEvent event) throws IOException {
-//        saveOrder(getOrder());
-//        closeWindow(event);
-//        sentTicketToPdf(order.getOrderDetails(), "/home/albert/Documents/miArchivo.pdf");
         imprimirCobrar(true);
     }
 
     public void imprimirCobrar(boolean print) throws IOException {
         orderApi.saveOrder(getOrder());
+        setStatusSell(true);
         closeWindow();
         if (print) {
-            sentTicketToPdf(getOrder().getOrderDetails(), "/home/albert/Documents/miArchivo.pdf");
+               PrintOrderService.createdPdf80mm(getOrder().getOrderDetails());
+           
         }
 
     }
@@ -180,58 +180,6 @@ public class CobrarController implements Initializable {
         this.order = order;
         // Aquí puedes hacer algo con el objeto order, como mostrar detalles en la UI
     }
-
-//    public void saveOrder(Order order) {
-//
-//        System.out.println("Orden " + order.toString());
-//
-//        //Enviamos order al endpoint
-//        // Convertir la orden a JSON
-//        // Convertir la orden a JSON
-//        JSONObject jsonOrder = new JSONObject();
-//        jsonOrder.put("userId", order.getUser().getId());
-//
-//        JSONArray jsonOrderDetails = new JSONArray();
-//        for (OrderDetail detail : order.getOrderDetails()) {
-//            JSONObject jsonDetail = new JSONObject();
-//            jsonDetail.put("price", detail.getPrice());
-//            jsonDetail.put("amount", detail.getAmount());
-//            jsonDetail.put("purchasePrice", detail.getPurchasePrice());
-//            System.out.println("codigo de barras detail.getProduct().getBarcode()" + detail.getProduct().getBarcode());
-//            jsonDetail.put("productId", detail.getProduct().getId());
-//            jsonOrderDetails.put(jsonDetail);
-//        }
-//        jsonOrder.put("orderDetails", jsonOrderDetails);
-//
-//        // Imprimir el JSON para depuración
-//        System.out.println("DEPURACION XXXXX:   " + jsonOrder);
-//
-//        try {
-//            // Crear HttpClient
-//            HttpClient client = HttpClient.newHttpClient();
-//
-//            // Crear HttpRequest
-//            HttpRequest request = HttpRequest.newBuilder()
-//                    .uri(new URI("http://localhost:3000/orders"))
-//                    .header("Content-Type", "application/json")
-//                    .POST(HttpRequest.BodyPublishers.ofString(jsonOrder.toString()))
-//                    .build();
-//
-//            // Enviar la solicitud y obtener la respuesta
-//            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-//
-//            // Manejar la respuesta
-//            if (response.statusCode() == 200 || response.statusCode() == 201) {
-//                System.out.println("Orden insertada con éxito: " + response.body());
-//            } else {
-//                this.setStatusSell(false);
-//                System.out.println("Error al insertar la orden: " + response.statusCode() + " " + response.body());
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//    }
 
     private void closeWindow() {
         // Obtiene la ventana activa a partir de anchorPaneCobrar
@@ -261,138 +209,8 @@ public class CobrarController implements Initializable {
         this.statusSell = statusSell;
     }
 
-    private void sentTicketToPdf(ObservableList<OrderDetail> orderDetails, String dest) throws IOException {
-        System.out.println("SE ENVIA A PDF PARA IMPRIMIR");
-        PdfWriter writer = null;
-        PdfDocument pdfDoc = null;
-        Document document = null;
 
-        try {
-            // Crear archivo y directorios si no existen
-            File file = new File(dest);
-            file.getParentFile().mkdirs();
-
-            // Inicializar el escritor de PDF
-            writer = new PdfWriter(new FileOutputStream(file));
-
-            // Inicializar el documento PDF
-            pdfDoc = new PdfDocument(writer);
-            document = new Document(pdfDoc, PageSize.A4);
-
-            // Agregar título
-            document.add(new Paragraph("MATI PAPELERÍA").setBold().setFontSize(18).setTextAlignment(TextAlignment.CENTER));
-            // Crear tabla con 5 columnas
-            //  float[] columnWidths = {2, 4, 3, 3, 4}; // Ajustar los tamaños de las columnas según sea necesario
-            // Table table = new Table(columnWidths);
-            Table table = new Table(UnitValue.createPercentArray(5)).useAllAvailableWidth();
-
-            // Encabezado de la tabla
-            table.addHeaderCell(new Cell().add(new Paragraph("Código")));
-            table.addHeaderCell(new Cell().add(new Paragraph("Nombre")));
-            table.addHeaderCell(new Cell().add(new Paragraph("Precio")));
-            table.addHeaderCell(new Cell().add(new Paragraph("Cantidad")));
-            table.addHeaderCell(new Cell().add(new Paragraph("Total")));
-
-            // Crear un formateador de decimales
-            DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
-            // Agregar datos de los productos a la tabla
-//            for (Product product : products) {
-//                table.addCell(new Cell().add(new Paragraph(product.getBarcode())));
-//                table.addCell(new Cell().add(new Paragraph(product.getName())));
-//                table.addCell(new Cell().add(new Paragraph(product.getPrice().toString())));
-//                table.addCell(new Cell().add(new Paragraph(product.getAmount().toString())));
-//                BigDecimal total = product.getPrice().multiply(product.getAmount());
-//                table.addCell(new Cell().add(new Paragraph(decimalFormat.format(total))));
-//
-//            }
-            for (OrderDetail detail : orderDetails) {
-                table.addCell(new Cell().add(new Paragraph(detail.getProduct().getBarcode())));
-                table.addCell(new Cell().add(new Paragraph(detail.getProduct().getName())));
-                table.addCell(new Cell().add(new Paragraph(detail.getProduct().getPrice().toString())));
-                table.addCell(new Cell().add(new Paragraph(detail.getAmount().toString())));
-                BigDecimal total = detail.getPrice().multiply(detail.getAmount());
-                table.addCell(new Cell().add(new Paragraph(decimalFormat.format(total))));
-                System.out.println("ID: " + detail.getId());
-                System.out.println("Producto: " + detail.getProduct().getBarcode());
-                System.out.println("Cantidad: " + detail.getAmount());
-                System.out.println("Precio: " + detail.getPrice());
-            }
-
-            // Agregar tabla al documento
-            document.add(table);
-            // Agregar total después de la tabla y alinearlo a la derecha
-            //  String totalText = "Total $ " + decimalFormat.format(totalTicket);
-            String totalText = "Total $ xxx.xx";
-            Paragraph totalParagraph = new Paragraph(totalText)
-                    .setBold()
-                    .setFontSize(18)
-                    .setMarginTop(10)
-                    .setTextAlignment(TextAlignment.RIGHT); // Alineación a la derecha
-            document.add(totalParagraph);
-
-            // Enviar el PDF creado a la impresora seleccionada por el usuario
-            // printPdf(dest);
-        } catch (IOException e) {
-            System.out.println("error desde metod imprimir" + e);
-            e.printStackTrace();
-        } finally {
-            // Cerrar el documento y el escritor
-            if (document != null) {
-                document.close();
-            }
-            if (pdfDoc != null) {
-                pdfDoc.close();
-            }
-            if (writer != null) {
-                writer.close();
-            }
-
-        }
-        sentToPrinter(dest);
-
-    }
-
-    private void sentToPrinter(String pdfFilePath) {
-        try (InputStream pdfInputStream = new FileInputStream(pdfFilePath)) {
-            // Crear un documento imprimible a partir del PDF
-            Doc pdfDoc = new SimpleDoc(pdfInputStream, DocFlavor.INPUT_STREAM.PDF, null);
-
-            // Configurar atributos de impresión
-            PrintRequestAttributeSet printAttributes = new HashPrintRequestAttributeSet();
-            printAttributes.add(MediaSizeName.ISO_A4);
-
-            // Obtener todas las impresoras disponibles
-            PrintService[] printServices = PrintServiceLookup.lookupPrintServices(null, null);
-            if (printServices.length == 0) {
-                System.out.println("No se encontraron impresoras.");
-                return;
-            }
-
-            // Mostrar opciones de impresora y permitir selección
-            PrintService selectedService = (PrintService) javax.swing.JOptionPane.showInputDialog(
-                    null,
-                    "Seleccione una impresora:",
-                    "Seleccionar impresora",
-                    javax.swing.JOptionPane.PLAIN_MESSAGE,
-                    null,
-                    printServices,
-                    printServices[0]
-            );
-
-            if (selectedService != null) {
-                // Enviar el PDF a la impresora seleccionada
-                DocPrintJob printJob = selectedService.createPrintJob();
-                printJob.print(pdfDoc, printAttributes);
-                System.out.println("Documento enviado a la impresora: " + selectedService.getName());
-            } else {
-                System.out.println("Impresión cancelada por el usuario.");
-            }
-
-        } catch (Exception e) {
-            System.out.println("Error al enviar el PDF a la impresora: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
+   
 
     /**
      * @return the total

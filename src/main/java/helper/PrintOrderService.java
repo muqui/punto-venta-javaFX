@@ -4,6 +4,7 @@
  */
 package helper;
 
+import beans.OrderDetail;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
 import com.itextpdf.kernel.geom.PageSize;
@@ -13,7 +14,6 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.borders.Border;
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.element.Tab;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.element.Text;
 import com.itextpdf.layout.properties.TextAlignment;
@@ -23,25 +23,12 @@ import dto.OrderServiceDTO;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.print.Doc;
-import javax.print.DocFlavor;
-import javax.print.DocPrintJob;
-import javax.print.PrintService;
-import javax.print.PrintServiceLookup;
-import javax.print.SimpleDoc;
-import javax.print.attribute.HashPrintRequestAttributeSet;
-import javax.print.attribute.PrintRequestAttributeSet;
-import javax.print.attribute.standard.MediaPrintableArea;
-import javax.print.attribute.standard.MediaSizeName;
-import javax.print.attribute.standard.OrientationRequested;
+import javafx.collections.ObservableList;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.printing.PDFPageable;
 
@@ -50,100 +37,6 @@ import org.apache.pdfbox.printing.PDFPageable;
  * @author albert
  */
 public class PrintOrderService {
-
-    public static void sentToPrinter(OrderServiceDTO order) {
-
-        System.out.println("SE ENVIA A PDF PARA IMPRIMIR");
-        PdfWriter writer = null;
-        PdfDocument pdfDoc = null;
-        Document document = null;
-        String dest = "/home/albert/Documents/miArchivo.pdf";
-        /*
-        id             ya     
- date          ya     
- folio         ya     
- service            
- client        ya     
- note                
- cellphone     ya      
- email         ya      
- brand               
- model                
- issue                
- received_condition   
- password_cell_phone 
- imei                 
- repair_cost         
- paid                
- left  
-         */
-
-        try {
-            // Crear archivo y directorios si no existen
-            File file = new File(dest);
-            file.getParentFile().mkdirs();
-            // Inicializar el escritor de PDF
-            writer = new PdfWriter(new FileOutputStream(file));
-            // Inicializar el documento PDF
-            pdfDoc = new PdfDocument(writer);
-            document = new Document(pdfDoc, PageSize.A4);
-            Table table = new Table(2);
-            // Establecer el ancho de la tabla al 100% de la página
-            table.setWidth(UnitValue.createPercentValue(100));
-            // Colocar el título centrado en la primera celda
-            Cell titleCell = new Cell().add(new Paragraph("Orden de servicio").setBold().setFontSize(12).setTextAlignment(TextAlignment.RIGHT));
-            titleCell.setBorder(Border.NO_BORDER);
-            // Colocar el folio alineado a la derecha en la segunda celda
-            Cell folioCell = new Cell().add(new Paragraph("Folio: " + order.getFolio()).setBold().setFontSize(12).setTextAlignment(TextAlignment.RIGHT));
-            folioCell.setBorder(Border.NO_BORDER);
-            // Agregar ambas celdas a la tabla
-            table.addCell(titleCell);
-            table.addCell(folioCell);
-            // Agregar la tabla al documento
-            document.add(table);
-            // Agregar Fecha
-            document.add(new Paragraph("Fecha: " + order.getDate()).setBold().setFontSize(12).setTextAlignment(TextAlignment.LEFT));
-            document.add(new Paragraph("DATOS DEL CLIENTE ").setBold().setFontSize(11).setTextAlignment(TextAlignment.LEFT));
-            Table tableClient = new Table(2);
-            // Establecer el ancho de la tabla al 100% de la página
-            tableClient.setWidth(UnitValue.createPercentValue(100));
-            // Colocar el título centrado en la primera celda
-            Cell nameCell = new Cell().add(new Paragraph("Nombre: " + order.getClient()).setBold().setFontSize(12).setTextAlignment(TextAlignment.LEFT));
-            nameCell.setBorder(Border.NO_BORDER);
-            // Colocar el folio alineado a la derecha en la segunda celda
-            Cell phoneCell = new Cell().add(new Paragraph("Celular: " + order.getCellphone()).setBold().setFontSize(12).setTextAlignment(TextAlignment.LEFT));
-            phoneCell.setBorder(Border.NO_BORDER);
-            // Agregar ambas celdas a la tabla
-            tableClient.addCell(nameCell);
-            tableClient.addCell(phoneCell);
-            // Agregar la tabla al documento
-            document.add(tableClient);
-            document.add(new Paragraph("Correo: " + order.getEmail()).setBold().setFontSize(12).setTextAlignment(TextAlignment.LEFT));
-            document.add(new Paragraph("DATOS DEL EQUIPO ").setBold().setFontSize(11).setTextAlignment(TextAlignment.LEFT));
-
-        } catch (IOException e) {
-            System.out.println("error desde metod imprimir" + e);
-            e.printStackTrace();
-        } finally {
-            // Cerrar el documento y el escritor
-            if (document != null) {
-                document.close();
-            }
-            if (pdfDoc != null) {
-                pdfDoc.close();
-            }
-            if (writer != null) {
-                try {
-                    writer.close();
-                } catch (IOException ex) {
-                    Logger.getLogger(PrintOrderService.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-
-        }
-        sentToPaper(dest);
-
-    }
 
     public static void createdPdf80mm(OrderServiceDTO order) {
         System.out.println("SE ENVIA A PDF PARA IMPRIMIR");
@@ -260,8 +153,8 @@ public class PrintOrderService {
             writer.close();
 
             // Enviar a la impresora
-           // sentToPaper(dest);
-           impWin();
+            // sentToPaper(dest);
+            impWin();
         } catch (Exception e) {
             System.out.println("Error al generar o imprimir el PDF: " + e.getMessage());
             e.printStackTrace();
@@ -292,35 +185,62 @@ public class PrintOrderService {
         document.close();
 
     }
-
-    private static void sentToPaper(String pdfFilePath) {
-        try (InputStream pdfInputStream = new FileInputStream(pdfFilePath)) {
-            Doc pdfDoc = new SimpleDoc(pdfInputStream, DocFlavor.INPUT_STREAM.PDF, null);
-            PrintRequestAttributeSet printAttributes = new HashPrintRequestAttributeSet();
-            printAttributes.add(new MediaPrintableArea(0, 0, 80, 297, MediaPrintableArea.MM));
-            printAttributes.add(OrientationRequested.PORTRAIT);
-            printAttributes.add(MediaSizeName.ISO_A5);
-
-            PrintService[] printServices = PrintServiceLookup.lookupPrintServices(null, null);
-            if (printServices.length == 0) {
-                System.out.println("No se encontraron impresoras.");
-                return;
+    public static void createdPdf80mm(ObservableList<OrderDetail> orderDetails) {
+        System.out.println("SE ENVIA A PDF PARA IMPRIMIR");
+        String dest = "/home/albert/Documents/miArchivo.pdf";
+        DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
+        BigDecimal totalTicket = BigDecimal.ZERO; // Inicializar acumulador
+        try {
+            // Crear archivo y directorios si no existen
+            File file = new File(dest);
+            file.getParentFile().mkdirs();
+            // Inicializar el documento PDF con tamaño 80mm de ancho
+            PdfWriter writer = new PdfWriter(new FileOutputStream(file));
+            PdfDocument pdfDoc = new PdfDocument(writer);
+            PageSize thermalPageSize = new PageSize(226.77f, 1000f); // 80mm ≈ 226.77 puntos, altura flexible
+            Document document = new Document(pdfDoc, thermalPageSize);
+            document.setMargins(3f, 5f, 3f, 5f); // Agregar márgenes mínimos para evitar cortes
+            document.add(new Paragraph("MATI PAPELERIA")
+                    .setBold().setFontSize(14).setTextAlignment(TextAlignment.CENTER));
+            document.add(new Paragraph("CANT DESCRIPCION PRECIO TOTAL")
+                    .setBold().setFontSize(12).setTextAlignment(TextAlignment.CENTER));
+            for (OrderDetail detail : orderDetails) {
+                document.add(new Paragraph(detail.getProduct().getName())
+                        .setBold().setFontSize(14).setTextAlignment(TextAlignment.LEFT));
+                Table table = new Table(UnitValue.createPercentArray(3)).useAllAvailableWidth();
+                table.setBorder(Border.NO_BORDER); // Sin bordes en la tabla
+                table.addCell(new Cell().add(new Paragraph(detail.getAmount().toString()))
+                        .setBorder(Border.NO_BORDER));
+                BigDecimal unitPrice = detail.getPrice().divide(detail.getAmount());
+                table.addCell(new Cell().add(new Paragraph(decimalFormat.format(unitPrice)))
+                        .setBorder(Border.NO_BORDER));
+                table.addCell(new Cell().add(new Paragraph(detail.getPrice().toString()))
+                        .setBorder(Border.NO_BORDER));
+                // Acumular precio total
+                totalTicket = totalTicket.add(detail.getPrice());
+                System.out.println("ID: " + detail.getId());
+                System.out.println("Producto: " + detail.getProduct().getBarcode());
+                System.out.println("Cantidad: " + detail.getAmount());
+                System.out.println("Precio: " + detail.getPrice());
+                System.out.println("precio compra: " + detail.getPrice().divide(detail.getAmount()));
+                document.add(table);
             }
 
-            PrintService selectedService = (PrintService) javax.swing.JOptionPane.showInputDialog(
-                    null, "Seleccione una impresora:", "Seleccionar impresora",
-                    javax.swing.JOptionPane.PLAIN_MESSAGE, null, printServices, printServices[0]);
+            document.add(new Paragraph("Total " + totalTicket)
+                    .setBold().setFontSize(14).setTextAlignment(TextAlignment.RIGHT));
 
-            if (selectedService != null) {
-                DocPrintJob printJob = selectedService.createPrintJob();
-                printJob.print(pdfDoc, printAttributes);
-                System.out.println("Documento enviado a la impresora: " + selectedService.getName());
-            } else {
-                System.out.println("Impresión cancelada por el usuario.");
-            }
+            // Cerrar el documento
+            document.close();
+            pdfDoc.close();
+            writer.close();
+
+            // Enviar a la impresora
+            // sentToPaper(dest);
+            impWin();
         } catch (Exception e) {
-            System.out.println("Error al enviar el PDF a la impresora: " + e.getMessage());
+            System.out.println("Error al generar o imprimir el PDF: " + e.getMessage());
             e.printStackTrace();
         }
+
     }
 }

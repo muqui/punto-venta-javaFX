@@ -158,7 +158,7 @@ public class UpdateOrderServiceController implements Initializable {
                 orderServiceDTO.setNote(noteArea.getText());
                 orderServiceDTO.setPasswordCellPhone(passwordField.getText());
                 System.out.println("");
-               // orderServiceDTO.setReplacementCost(Double.parseDouble(replacementCostField.getText().trim()));
+                orderServiceDTO.setReplacementCost(Double.parseDouble(replacementCostField.getText().trim()));
                 orderServiceDTO.setStatus(comboStatus.getValue());
               
                 if(sparePartList.size()> 0){
