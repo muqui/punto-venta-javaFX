@@ -135,7 +135,7 @@ public class VentasController implements Initializable {
         txtVentasMayoreo.setVisible(false);
         //recibimos el usuario desde Main(App)
         this.user = App.getUsuario();
-              System.out.println("Desde ventas controller token= " + this.user.getToken());
+        System.out.println("Desde ventas controller token= " + this.user.getToken());
 
         crearTicket("Ticket 1");
         txtCodigoBarras.setOnKeyPressed(new EventHandler<KeyEvent>() {
@@ -170,7 +170,7 @@ public class VentasController implements Initializable {
                             insertarMasdeUnProducto();
                             break;
                         case F3:
-                             descuento();
+                            descuento();
                             break;
                         case F5:
                             // guardarTicket();
@@ -353,7 +353,7 @@ public class VentasController implements Initializable {
             if (p.getBarcode().equalsIgnoreCase(codigoBarras)) {
 
                 System.out.println("CANTIDAD DE UNO POR UNO = " + p.getAmount() + " stock= " + p.getStock());
-                if (p.getAmount().compareTo(BigDecimal.valueOf(p.getStock())) >= 0) {
+                if (p.getAmount().compareTo(BigDecimal.valueOf(p.getStock())) >= 0 && !p.getHowToSell().equalsIgnoreCase("Paquete")) {
                     System.out.println("Solo hay " + p.getStock());
                     showAlert(Alert.AlertType.ERROR, "Error", "No hay mas productos en stock. \n Solo  hay " + p.getStock() + " productos");
                     existe = true;
@@ -377,15 +377,7 @@ public class VentasController implements Initializable {
 
     }
 
-//    // Suma total (precio)
-//    private BigDecimal totalTicket(int tabSeleccionado) {
-//        double total = 0;
-//        for (int i = 0; i < listaProductoArrayList.get(tabSeleccionado).size(); i++) {
-//            Product p = listaProductoArrayList.get(tabSeleccionado).get(i);
-//            total = total + p.getTotal();
-//        }
-//        return total;
-//    }
+
     private BigDecimal totalTicket(int tabSeleccionado) {
         BigDecimal total = BigDecimal.ZERO;  // Inicializa total como BigDecimal.ZERO
 
@@ -432,7 +424,12 @@ public class VentasController implements Initializable {
 
             }
             if (event.getSource() == p.getBotonAgregar()) {
-
+                    if (p.getAmount().compareTo(BigDecimal.valueOf(p.getStock())) >= 0 && !p.getHowToSell().equalsIgnoreCase("Paquete")) {
+                    System.out.println("Solo hay " + p.getStock());
+                    showAlert(Alert.AlertType.ERROR, "Error", "No hay mas productos en stock. \n Solo  hay " + p.getStock() + " productos");
+                   // existe = true;
+                    break;
+                }
                 //  p.setAmount(p.getAmount() + 1);
                 p.setAmount(p.getAmount().add(BigDecimal.ONE));
                 //  p.setTotal(p.getAmount() * p.getPrice());
@@ -462,7 +459,6 @@ public class VentasController implements Initializable {
         //Suma la cantidad total de productos
         labelTotalProductos.setText("" + CantidadProductosTicket(tabSeleccionado) + leyendaCantidadTotal);
     }
-
 
     private void buscarProducto() {
         try {
@@ -497,7 +493,6 @@ public class VentasController implements Initializable {
                     product.setPrice(discountedPrice);
                     product.setTotal(discountedPrice);
                 }
-
 
                 if (product.getBarcode() != null) {  // si el producto existe se carga al ticket
                     //   product.setTotal(product.getPrice() * 1);  // Calcula el total.
@@ -586,7 +581,7 @@ public class VentasController implements Initializable {
             Parent root = fxmlLoader.load();
             CobrarController cobrarController = fxmlLoader.getController();
             cobrarController.setOrder(order);
-            
+
             cobrarController.setTotal(totalTicket(tabSeleccionado));
 
             Scene scene = new Scene(root);
@@ -613,23 +608,19 @@ public class VentasController implements Initializable {
 
                 labelTotalProductos.setText("0" + leyendaCantidadTotal);
 
-            } else {
-                showAlert(Alert.AlertType.ERROR, "Error", "No hay productos suficientes.");
             }
-
         } catch (IOException ex) {
             System.out.println("error al imprimir pdf " + ex);
             Logger.getLogger(VentasController.class.getName()).log(Level.SEVERE, null, ex);
 
         }
 
-        // printProducts(products);
     }
 
     public void insertarProductoTicket(Product product, BigDecimal cantidad) {
         BigDecimal stock = new BigDecimal(product.getStock());
 
-        if (stock.compareTo(cantidad) < 0) {
+        if (stock.compareTo(cantidad) < 0 && !product.getHowToSell().equalsIgnoreCase("Paquete")) {
             showAlert(Alert.AlertType.ERROR, "Error", "No hay productos suficientes.");
             System.out.println("La cantidad solicitada excede la cantidad disponible en inventario.");
             return; // Interrumpe la ejecución del método
@@ -718,7 +709,6 @@ public class VentasController implements Initializable {
         }
         return cantidad;
     }
-
 
     public void printProductsToPdf1(ObservableList<Product> products, String dest, BigDecimal totalTicket) throws IOException {
         System.out.println("SE ENVIA A PDF PARA IMPRIMIR");
@@ -877,12 +867,12 @@ public class VentasController implements Initializable {
             BigDecimal cantidad = new BigDecimal(masdeuno.getCantidad());
 
             Product product = productApi.ProductoToTicket(codigo, user.getToken());//insertToTicket(codigo); // recibe el producto desde la rest api  
-                   if (!"".equals(discount)) {
-                    BigDecimal discountedPrice = calculateDiscount(product);
-                    System.out.println("PRECIO SI HAY DESCUENTO = " + product.getWholesalePrice());
-                    product.setPrice(discountedPrice);
-                    product.setTotal(discountedPrice);
-                }
+            if (!"".equals(discount)) {
+                BigDecimal discountedPrice = calculateDiscount(product);
+                System.out.println("PRECIO SI HAY DESCUENTO = " + product.getWholesalePrice());
+                product.setPrice(discountedPrice);
+                product.setTotal(discountedPrice);
+            }
 
             if (product.getBarcode() != null) {  // si el producto existe se carga al ticket
                 //product.setTotal(product.getPrice() * cantidad);  // Calcula el total.
@@ -937,13 +927,12 @@ public class VentasController implements Initializable {
             System.out.println("condicion para cambiar la cantiadad granel 1");
         }
 
-               if (!"".equals(discount)) {
-                    BigDecimal discountedPrice = calculateDiscount(product);
-                    System.out.println("PRECIO SI HAY DESCUENTO = " + product.getWholesalePrice());
-                    product.setPrice(discountedPrice);
-                    product.setTotal(discountedPrice);
-                }
-
+        if (!"".equals(discount)) {
+            BigDecimal discountedPrice = calculateDiscount(product);
+            System.out.println("PRECIO SI HAY DESCUENTO = " + product.getWholesalePrice());
+            product.setPrice(discountedPrice);
+            product.setTotal(discountedPrice);
+        }
 
         if (product.getBarcode() != null) {
             insertarProductoTicket(product, cantidad); //inserta el producto al ticket
@@ -951,14 +940,12 @@ public class VentasController implements Initializable {
     }
 
     private BigDecimal calculateDiscount(Product product) {
-        
+
         BigDecimal discountedPrice = new BigDecimal("0");
         if ("purchasePrice".equals(discount)) {
             discountedPrice = product.getPurchasePrice();
 
-        } 
-        else 
-            if ("wholesalePrice".equals(discount)) {
+        } else if ("wholesalePrice".equals(discount)) {
             discountedPrice = product.getWholesalePrice();
 
         } else {
