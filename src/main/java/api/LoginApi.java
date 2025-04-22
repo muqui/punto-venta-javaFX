@@ -31,7 +31,7 @@ public class LoginApi {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(baseUrl+endpoint))                  
                     .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString("{\"email\":\"" + usuario.getEmail() + "\", \"password\":\"" + usuario.getPassword() + "\"}"))
+                    .POST(HttpRequest.BodyPublishers.ofString("{\"identifier\":\"" + usuario.getEmail() + "\", \"password\":\"" + usuario.getPassword() + "\"}"))
                     .build();
 
            response = client.send(request, HttpResponse.BodyHandlers.ofString());

@@ -266,7 +266,7 @@ public class ReportesController implements Initializable {
 
             // Mostrar la fecha formateada
             System.out.println("Fecha de hoy: " + formattedDate);
-            fetchOrderDetailsTable(formattedDate, formattedDate, "", "");
+            fetchOrderDetailsTable(formattedDate, formattedDate, "", ""); 
 
         } catch (Exception ex) {
             Logger.getLogger(ReportesController.class.getName()).log(Level.SEVERE, null, ex);
@@ -277,79 +277,75 @@ public class ReportesController implements Initializable {
         fillComboBoxIncomeName();
 
     }
+private void fillChoiceBoxDepartament() {
 
-    private void fillChoiceBoxDepartament() {
+    ObservableList<DepartmentDTO> departamentList = categoriesApi.fillChoiceBoxDepartament();
 
-        ObservableList<DepartmentDTO> departamentList = categoriesApi.fillChoiceBoxDepartament();
-        System.out.println("DAtos combo = " + departamentList.get(0).getName());
+    // Crear la opción "Todos los departamentos"
+    DepartmentDTO allDepartmentsOption = new DepartmentDTO();
+    allDepartmentsOption.setId(0); // ID especial que representa "Todos"
+    allDepartmentsOption.setName("Todos los departamentos");
 
-        // Verificación de que los datos se carguen correctamente
-        if (!departamentList.isEmpty()) {
-            System.out.println("Datos combo = " + departamentList.get(0).getName());
+    // Insertar al inicio
+    departamentList.add(0, allDepartmentsOption);
+
+    // Asignar la lista al ComboBox
+    comobDepartament.setItems(departamentList);
+
+    // Configurar el StringConverter para mostrar solo el nombre
+    comobDepartament.setConverter(new StringConverter<DepartmentDTO>() {
+        @Override
+        public String toString(DepartmentDTO department) {
+            return department != null ? department.getName() : "";
         }
 
-        comobDepartament.setItems(departamentList);
+        @Override
+        public DepartmentDTO fromString(String string) {
+            return departamentList.stream()
+                    .filter(dept -> dept.getName().equals(string))
+                    .findFirst()
+                    .orElse(null);
+        }
+    });
 
-        // Configurar el StringConverter para mostrar solo el nombre
-        comobDepartament.setConverter(new StringConverter<DepartmentDTO>() {
-            @Override
-            public String toString(DepartmentDTO incomeName) {
-                return incomeName != null ? incomeName.getName() : "";
-            }
+    // Seleccionar "Todos los departamentos" como valor predeterminado
+    comobDepartament.setValue(allDepartmentsOption);
+}
 
-            @Override
-            public DepartmentDTO fromString(String string) {
-                return departamentList.stream()
-                        .filter(department -> department.getName().equals(string))
-                        .findFirst()
-                        .orElse(null);
-            }
-        });
 
-        // Establecer valor por defecto si es necesario
-        if (!departamentList.isEmpty()) {
-            comobDepartament.setValue(departamentList.get(0)); // Selecciona el primer ingreso como valor predeterminado
+   private void fillChoiceBoxUser() {
+    ObservableList<UserDTO> userList = userApi.fillChoiceBoxUser();
+
+    // Crear opción "Todos los usuarios"
+    UserDTO allUsersOption = new UserDTO();
+    //allUsersOption.setId(0L); // Usa un ID especial que no colisione con usuarios reales
+    allUsersOption.setName("Todos los usuarios");
+
+    // Insertar al inicio de la lista
+    userList.add(0, allUsersOption);
+
+    // Asignar al ComboBox
+    comboUser.setItems(userList);
+
+    // Configurar el StringConverter para mostrar solo el nombre
+    comboUser.setConverter(new StringConverter<UserDTO>() {
+        @Override
+        public String toString(UserDTO user) {
+            return user != null ? user.getName() : "";
         }
 
-        /*
-        
-         */
-    }
-
-    private void fillChoiceBoxUser() {
-
-        ObservableList<UserDTO> userList = userApi.fillChoiceBoxUser();
-        System.out.println("DAtos combo = " + userList.get(0).getName());
-
-        // Verificación de que los datos se carguen correctamente
-        if (!userList.isEmpty()) {
-            System.out.println("Datos combo = " + userList.get(0).getName());
+        @Override
+        public UserDTO fromString(String string) {
+            return userList.stream()
+                    .filter(user -> user.getName().equals(string))
+                    .findFirst()
+                    .orElse(null);
         }
+    });
 
-        comboUser.setItems(userList);
-
-        // Configurar el StringConverter para mostrar solo el nombre
-        comboUser.setConverter(new StringConverter<UserDTO>() {
-            @Override
-            public String toString(UserDTO incomeName) {
-                return incomeName != null ? incomeName.getName() : "";
-            }
-
-            @Override
-            public UserDTO fromString(String string) {
-                return userList.stream()
-                        .filter(department -> department.getName().equals(string))
-                        .findFirst()
-                        .orElse(null);
-            }
-        });
-
-        // Establecer valor por defecto si es necesario
-        if (!userList.isEmpty()) {
-            comboUser.setValue(userList.get(0)); // Selecciona el primer ingreso como valor predeterminado
-        }
-
-    }
+    // Seleccionar "Todos los usuarios" por defecto
+    comboUser.setValue(allUsersOption);
+}
 
     private void fetchOrderDetailsTable(String startDay, String endDay, String user, String category) {
         try {
@@ -472,10 +468,18 @@ public class ReportesController implements Initializable {
 
         DepartmentDTO departament = comobDepartament.getValue();
         UserDTO user = comboUser.getValue();
-
+        String  userx= user.getName();
+        String departamentName = departament.getName();
         try {
-            // llenarTablaVentas();
-            fetchOrderDetailsTable(dateStar.getValue().toString(), dateEnd.getValue().toString(), user.getName(), departament.getName());
+            if(user.getId() == 0){
+                 userx = "";
+            }
+            if(departament.getId() == 0){
+                departamentName = "";
+            }
+            
+        
+              fetchOrderDetailsTable(dateStar.getValue().toString(), dateEnd.getValue().toString(), userx, departamentName);
 
         } catch (Exception ex) {
             Logger.getLogger(ReportesController.class.getName()).log(Level.SEVERE, null, ex);

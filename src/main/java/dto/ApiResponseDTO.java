@@ -4,23 +4,38 @@
  */
 package dto;
 
+import java.util.List;
+
 /**
  *
  * @author albert
  */
 public class ApiResponseDTO {
-    private String error;
-    private String message;
+     private Object message;                            //private String error;
+   // private String message;
     private String statusCode;
     // Getters y setters
 
-    public String getMessage() {
-        return message;
+     private String error;
+   
+
+
+    /**
+     * @return the statusCode
+     */
+    public String getStatusCode() {
+        return statusCode;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    /**
+     * @param statusCode the statusCode to set
+     */
+    public void setStatusCode(String statusCode) {
+        this.statusCode = statusCode;
     }
+
+
+
 
     /**
      * @return the error
@@ -37,16 +52,16 @@ public class ApiResponseDTO {
     }
 
     /**
-     * @return the statusCode
+     * @return the message
      */
-    public String getStatusCode() {
-        return statusCode;
+    public Object getMessage() {
+        return message;
     }
 
     /**
-     * @param statusCode the statusCode to set
+     * @param message the message to set
      */
-    public void setStatusCode(String statusCode) {
-        this.statusCode = statusCode;
+    public void setMessage(Object message) {
+        this.message = message;
     }
 }

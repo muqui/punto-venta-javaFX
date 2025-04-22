@@ -135,7 +135,7 @@ public class VentasController implements Initializable {
         txtVentasMayoreo.setVisible(false);
         //recibimos el usuario desde Main(App)
         this.user = App.getUsuario();
-        System.out.println("Desde ventas controller token= " + this.user.getToken());
+        System.out.println("Desde ventas controller token= " + this.user.toString());
 
         crearTicket("Ticket 1");
         txtCodigoBarras.setOnKeyPressed(new EventHandler<KeyEvent>() {
@@ -159,6 +159,9 @@ public class VentasController implements Initializable {
 
         tabPaneTicket.sceneProperty().addListener((observable, oldScene, newScene) -> {
             if (newScene != null) {
+
+                Platform.runLater(() -> txtCodigoBarras.requestFocus());
+
                 newScene.setOnKeyPressed(event -> {
                     switch (event.getCode()) {
                         case F1:
@@ -377,7 +380,6 @@ public class VentasController implements Initializable {
 
     }
 
-
     private BigDecimal totalTicket(int tabSeleccionado) {
         BigDecimal total = BigDecimal.ZERO;  // Inicializa total como BigDecimal.ZERO
 
@@ -424,10 +426,10 @@ public class VentasController implements Initializable {
 
             }
             if (event.getSource() == p.getBotonAgregar()) {
-                    if (p.getAmount().compareTo(BigDecimal.valueOf(p.getStock())) >= 0 && !p.getHowToSell().equalsIgnoreCase("Paquete")) {
+                if (p.getAmount().compareTo(BigDecimal.valueOf(p.getStock())) >= 0 && !p.getHowToSell().equalsIgnoreCase("Paquete")) {
                     System.out.println("Solo hay " + p.getStock());
                     showAlert(Alert.AlertType.ERROR, "Error", "No hay mas productos en stock. \n Solo  hay " + p.getStock() + " productos");
-                   // existe = true;
+                    // existe = true;
                     break;
                 }
                 //  p.setAmount(p.getAmount() + 1);
@@ -623,6 +625,7 @@ public class VentasController implements Initializable {
         if (stock.compareTo(cantidad) < 0 && !product.getHowToSell().equalsIgnoreCase("Paquete")) {
             showAlert(Alert.AlertType.ERROR, "Error", "No hay productos suficientes.");
             System.out.println("La cantidad solicitada excede la cantidad disponible en inventario.");
+            txtCodigoBarras.setText("");
             return; // Interrumpe la ejecución del método
         }
 
@@ -710,83 +713,82 @@ public class VentasController implements Initializable {
         return cantidad;
     }
 
-    public void printProductsToPdf1(ObservableList<Product> products, String dest, BigDecimal totalTicket) throws IOException {
-        System.out.println("SE ENVIA A PDF PARA IMPRIMIR");
-        PdfWriter writer = null;
-        PdfDocument pdfDoc = null;
-        Document document = null;
-
-        try {
-            // Crear archivo y directorios si no existen
-            File file = new File(dest);
-            file.getParentFile().mkdirs();
-
-            // Inicializar el escritor de PDF
-            writer = new PdfWriter(new FileOutputStream(file));
-
-            // Inicializar el documento PDF
-            pdfDoc = new PdfDocument(writer);
-            document = new Document(pdfDoc, PageSize.A4);
-
-            // Agregar título
-            document.add(new Paragraph("MATI PAPELERÍA").setBold().setFontSize(18).setTextAlignment(TextAlignment.CENTER));
-            // Crear tabla con 5 columnas
-            //  float[] columnWidths = {2, 4, 3, 3, 4}; // Ajustar los tamaños de las columnas según sea necesario
-            // Table table = new Table(columnWidths);
-            Table table = new Table(UnitValue.createPercentArray(5)).useAllAvailableWidth();
-
-            // Encabezado de la tabla
-            table.addHeaderCell(new Cell().add(new Paragraph("Código")));
-            table.addHeaderCell(new Cell().add(new Paragraph("Nombre")));
-            table.addHeaderCell(new Cell().add(new Paragraph("Precio")));
-            table.addHeaderCell(new Cell().add(new Paragraph("Cantidad")));
-            table.addHeaderCell(new Cell().add(new Paragraph("Total")));
-
-            // Crear un formateador de decimales
-            DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
-            // Agregar datos de los productos a la tabla
-            for (Product product : products) {
-                table.addCell(new Cell().add(new Paragraph(product.getBarcode())));
-                table.addCell(new Cell().add(new Paragraph(product.getName())));
-                table.addCell(new Cell().add(new Paragraph(product.getPrice().toString())));
-                table.addCell(new Cell().add(new Paragraph(product.getAmount().toString())));
-                BigDecimal total = product.getPrice().multiply(product.getAmount());
-                table.addCell(new Cell().add(new Paragraph(decimalFormat.format(total))));
-
-            }
-
-            // Agregar tabla al documento
-            document.add(table);
-            // Agregar total después de la tabla y alinearlo a la derecha
-            String totalText = "Total $ " + decimalFormat.format(totalTicket);
-            Paragraph totalParagraph = new Paragraph(totalText)
-                    .setBold()
-                    .setFontSize(18)
-                    .setMarginTop(10)
-                    .setTextAlignment(TextAlignment.RIGHT); // Alineación a la derecha
-            document.add(totalParagraph);
-
-            // Enviar el PDF creado a la impresora seleccionada por el usuario
-            // printPdf(dest);
-        } catch (IOException e) {
-            System.out.println("error desde metod imprimir" + e);
-            e.printStackTrace();
-        } finally {
-            // Cerrar el documento y el escritor
-            if (document != null) {
-                document.close();
-            }
-            if (pdfDoc != null) {
-                pdfDoc.close();
-            }
-            if (writer != null) {
-                writer.close();
-            }
-
-        }
-        printPdf(dest);
-    }
-
+//    public void printProductsToPdf1(ObservableList<Product> products, String dest, BigDecimal totalTicket) throws IOException {
+//        System.out.println("SE ENVIA A PDF PARA IMPRIMIR");
+//        PdfWriter writer = null;
+//        PdfDocument pdfDoc = null;
+//        Document document = null;
+//
+//        try {
+//            // Crear archivo y directorios si no existen
+//            File file = new File(dest);
+//            file.getParentFile().mkdirs();
+//
+//            // Inicializar el escritor de PDF
+//            writer = new PdfWriter(new FileOutputStream(file));
+//
+//            // Inicializar el documento PDF
+//            pdfDoc = new PdfDocument(writer);
+//            document = new Document(pdfDoc, PageSize.A4);
+//
+//            // Agregar título
+//            document.add(new Paragraph("MATI PAPELERÍA").setBold().setFontSize(18).setTextAlignment(TextAlignment.CENTER));
+//            // Crear tabla con 5 columnas
+//            //  float[] columnWidths = {2, 4, 3, 3, 4}; // Ajustar los tamaños de las columnas según sea necesario
+//            // Table table = new Table(columnWidths);
+//            Table table = new Table(UnitValue.createPercentArray(5)).useAllAvailableWidth();
+//
+//            // Encabezado de la tabla
+//            table.addHeaderCell(new Cell().add(new Paragraph("Código")));
+//            table.addHeaderCell(new Cell().add(new Paragraph("Nombre")));
+//            table.addHeaderCell(new Cell().add(new Paragraph("Precio")));
+//            table.addHeaderCell(new Cell().add(new Paragraph("Cantidad")));
+//            table.addHeaderCell(new Cell().add(new Paragraph("Total")));
+//
+//            // Crear un formateador de decimales
+//            DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
+//            // Agregar datos de los productos a la tabla
+//            for (Product product : products) {
+//                table.addCell(new Cell().add(new Paragraph(product.getBarcode())));
+//                table.addCell(new Cell().add(new Paragraph(product.getName())));
+//                table.addCell(new Cell().add(new Paragraph(product.getPrice().toString())));
+//                table.addCell(new Cell().add(new Paragraph(product.getAmount().toString())));
+//                BigDecimal total = product.getPrice().multiply(product.getAmount());
+//                table.addCell(new Cell().add(new Paragraph(decimalFormat.format(total))));
+//
+//            }
+//
+//            // Agregar tabla al documento
+//            document.add(table);
+//            // Agregar total después de la tabla y alinearlo a la derecha
+//            String totalText = "Total $ " + decimalFormat.format(totalTicket);
+//            Paragraph totalParagraph = new Paragraph(totalText)
+//                    .setBold()
+//                    .setFontSize(18)
+//                    .setMarginTop(10)
+//                    .setTextAlignment(TextAlignment.RIGHT); // Alineación a la derecha
+//            document.add(totalParagraph);
+//
+//            // Enviar el PDF creado a la impresora seleccionada por el usuario
+//            // printPdf(dest);
+//        } catch (IOException e) {
+//            System.out.println("error desde metod imprimir" + e);
+//            e.printStackTrace();
+//        } finally {
+//            // Cerrar el documento y el escritor
+//            if (document != null) {
+//                document.close();
+//            }
+//            if (pdfDoc != null) {
+//                pdfDoc.close();
+//            }
+//            if (writer != null) {
+//                writer.close();
+//            }
+//
+//        }
+//        printPdf(dest);
+//    }
     public static BigDecimal calculateDiscountedPrice(BigDecimal originalPrice, BigDecimal discountPercentage) {
         // Convertir el porcentaje de descuento a un decimal
         BigDecimal discountDecimal = discountPercentage.divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
@@ -798,48 +800,47 @@ public class VentasController implements Initializable {
         return discountedPrice;
     }
 
-    private void printPdf(String pdfFilePath) {
-        try (InputStream pdfInputStream = new FileInputStream(pdfFilePath)) {
-            // Crear un documento imprimible a partir del PDF
-            Doc pdfDoc = new SimpleDoc(pdfInputStream, DocFlavor.INPUT_STREAM.PDF, null);
-
-            // Configurar atributos de impresión
-            PrintRequestAttributeSet printAttributes = new HashPrintRequestAttributeSet();
-            printAttributes.add(MediaSizeName.ISO_A4);
-
-            // Obtener todas las impresoras disponibles
-            PrintService[] printServices = PrintServiceLookup.lookupPrintServices(null, null);
-            if (printServices.length == 0) {
-                System.out.println("No se encontraron impresoras.");
-                return;
-            }
-
-            // Mostrar opciones de impresora y permitir selección
-            PrintService selectedService = (PrintService) javax.swing.JOptionPane.showInputDialog(
-                    null,
-                    "Seleccione una impresora:",
-                    "Seleccionar impresora",
-                    javax.swing.JOptionPane.PLAIN_MESSAGE,
-                    null,
-                    printServices,
-                    printServices[0]
-            );
-
-            if (selectedService != null) {
-                // Enviar el PDF a la impresora seleccionada
-                DocPrintJob printJob = selectedService.createPrintJob();
-                printJob.print(pdfDoc, printAttributes);
-                System.out.println("Documento enviado a la impresora: " + selectedService.getName());
-            } else {
-                System.out.println("Impresión cancelada por el usuario.");
-            }
-
-        } catch (Exception e) {
-            System.out.println("Error al enviar el PDF a la impresora: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
+//    private void printPdf(String pdfFilePath) {
+//        try (InputStream pdfInputStream = new FileInputStream(pdfFilePath)) {
+//            // Crear un documento imprimible a partir del PDF
+//            Doc pdfDoc = new SimpleDoc(pdfInputStream, DocFlavor.INPUT_STREAM.PDF, null);
+//
+//            // Configurar atributos de impresión
+//            PrintRequestAttributeSet printAttributes = new HashPrintRequestAttributeSet();
+//            printAttributes.add(MediaSizeName.ISO_A4);
+//
+//            // Obtener todas las impresoras disponibles
+//            PrintService[] printServices = PrintServiceLookup.lookupPrintServices(null, null);
+//            if (printServices.length == 0) {
+//                System.out.println("No se encontraron impresoras.");
+//                return;
+//            }
+//
+//            // Mostrar opciones de impresora y permitir selección
+//            PrintService selectedService = (PrintService) javax.swing.JOptionPane.showInputDialog(
+//                    null,
+//                    "Seleccione una impresora:",
+//                    "Seleccionar impresora",
+//                    javax.swing.JOptionPane.PLAIN_MESSAGE,
+//                    null,
+//                    printServices,
+//                    printServices[0]
+//            );
+//
+//            if (selectedService != null) {
+//                // Enviar el PDF a la impresora seleccionada
+//                DocPrintJob printJob = selectedService.createPrintJob();
+//                printJob.print(pdfDoc, printAttributes);
+//                System.out.println("Documento enviado a la impresora: " + selectedService.getName());
+//            } else {
+//                System.out.println("Impresión cancelada por el usuario.");
+//            }
+//
+//        } catch (Exception e) {
+//            System.out.println("Error al enviar el PDF a la impresora: " + e.getMessage());
+//            e.printStackTrace();
+//        }
+//    }
     private void showAlert(Alert.AlertType alertType, String title, String message) {
         Alert alert = new Alert(alertType);  // Usar el tipo de alerta proporcionado como parámetro
         alert.setTitle(title);
@@ -915,6 +916,12 @@ public class VentasController implements Initializable {
     private void insertProduct() {
 
         Product product = productApi.ProductoToTicket(txtCodigoBarras.getText(), user.getToken());       //insertToTicket(txtCodigoBarras.getText()); // recibe el producto desde la rest api
+        System.out.println("CORONA" + product.getId());
+        if (product.getId() == 0) {
+            txtCodigoBarras.setText("");
+            return;
+        }
+
         System.out.println("" + product.getStock());
 
         //   System.out.println("producto qu no regresa como se vende= " + product.toString());

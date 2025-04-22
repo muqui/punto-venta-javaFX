@@ -9,7 +9,7 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="1015.0" styleClass="mainFxmlClass" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ReportesController">
+<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="1210.0" styleClass="mainFxmlClass" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ReportesController">
     
    <children>
       <TabPane layoutX="14.0" layoutY="7.0" prefHeight="389.0" prefWidth="1000.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="4.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="7.0">
@@ -23,14 +23,14 @@
                         <Label layoutX="228.0" layoutY="17.0" text="Hasta" />
                         <DatePicker fx:id="dateEnd" layoutX="262.0" layoutY="10.0" onAction="#onActionDateEnd" />
                         <Label layoutX="449.0" layoutY="14.0" text="Usuario" />
-                        <ComboBox fx:id="comboUser" layoutX="500.0" layoutY="10.0" onAction="#onActonComboUser" prefWidth="150.0" />
-                        <Label layoutX="662.0" layoutY="17.0" text="Departamento" />
-                        <ComboBox fx:id="comobDepartament" layoutX="739.0" layoutY="10.0" onAction="#onActonComboDepartament" prefWidth="150.0" />
+                        <ComboBox fx:id="comboUser" layoutX="500.0" layoutY="10.0" onAction="#onActonComboUser" prefHeight="26.0" prefWidth="205.0" />
+                        <Label layoutX="752.0" layoutY="17.0" text="Departamento" />
+                        <ComboBox fx:id="comobDepartament" layoutX="846.0" layoutY="10.0" onAction="#onActonComboDepartament" prefHeight="26.0" prefWidth="209.0" />
                         <TableView fx:id="tableSales" layoutX="14.0" layoutY="57.0" prefHeight="262.0" prefWidth="978.0" AnchorPane.bottomAnchor="41.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="8.0" AnchorPane.topAnchor="57.0" />
                         <Label fx:id="txttotalPrice" layoutX="724.0" layoutY="326.0" text="Total" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="245.0" />
                         <Label fx:id="txttotalPurchasePrice" layoutX="787.0" layoutY="326.0" text="purchsePrice" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="133.0" />
                         <Label fx:id="txtProfit" layoutX="952.0" layoutY="326.0" text="Profit" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="14.0" />
-                        <Button fx:id="btnVentasActualizar" layoutX="903.0" layoutY="10.0" mnemonicParsing="false" onAction="#onActionVentasUpdate" text="Actualizar" />
+                        <Button fx:id="btnVentasActualizar" layoutX="1065.0" layoutY="10.0" mnemonicParsing="false" onAction="#onActionVentasUpdate" text="Actualizar" />
                      </children>
                   </AnchorPane>
             </content>

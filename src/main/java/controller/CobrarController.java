@@ -33,6 +33,7 @@ import java.text.DecimalFormat;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -92,6 +93,10 @@ public class CobrarController implements Initializable {
 
         getAnchorPaneCobrar().sceneProperty().addListener((observable, oldScene, newScene) -> {
             if (newScene != null) {
+                
+                 // Establecer el foco en txtAmount
+        Platform.runLater(() -> txtAmount.requestFocus());
+                
                 newScene.setOnKeyPressed(event -> {
                     switch (event.getCode()) {
 

@@ -519,34 +519,6 @@ public class InventoryController implements Initializable {
         // Establecer "Todos los departamentos" como valor por defecto
         comboBoxDepartament.setValue(allDepartmentsOption);
     }
-
-//    private void fillChoiceBoxDepartament() {
-//
-//        ObjectMapper mapper = new ObjectMapper();
-//        List<DepartmentDTO> departments = productApi.DepartamenNametList();
-//
-//        ObservableList<DepartmentDTO> departamentList = FXCollections.observableArrayList(departments);
-//        comboCategoryProducts.setItems(departamentList);
-//
-//        // Configurar el StringConverter para mostrar solo el nombre
-//        comboCategoryProducts.setConverter(new StringConverter<DepartmentDTO>() {
-//            @Override
-//            public String toString(DepartmentDTO department) {
-//                return department.getName();
-//            }
-//
-//            @Override
-//            public DepartmentDTO fromString(String string) {
-//                return departamentList.stream().filter(department -> department.getName().equals(string)).findFirst().orElse(null);
-//            }
-//        });
-//
-//        // Establecer valor por defecto si es necesario
-//        if (!departamentList.isEmpty()) {
-//            comboCategoryProducts.setValue(departamentList.get(0));
-//        }
-//
-//    }
     private void fetchEntriesTable(String startDate, String endDate, String categorie) {
 
         tableViewEntries.setItems(entryApi.fetchEntries(startDate, endDate, categorie));

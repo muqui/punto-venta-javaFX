@@ -10,16 +10,20 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 
-
 //https://www.flaticon.es/
 public class PrimaryController implements Initializable {
 
-   // private UserDTO usuario = new UserDTO();
+    private UserDTO user;
+    // private UserDTO usuario = new UserDTO();
     Node nodeVenta, nodeProducto, nodeReporte, nodeInventory, nodeCaja, nodeReparaciones, nodeUser;
+
+    @FXML
+    private ToolBar toolbar;
 
     @FXML
     private Button btnCaja;
@@ -67,13 +71,11 @@ public class PrimaryController implements Initializable {
     void actionBtnInventory(ActionEvent event) {
         nodeInventory();
     }
-    
-     @FXML
+
+    @FXML
     void OnActionConfig(ActionEvent event) {
         nodeConfig();
     }
-    
-    
 
     private void nodeVentas() {
         pantallaVentas();
@@ -108,9 +110,8 @@ public class PrimaryController implements Initializable {
         }
     }
 
-    
-     private void nodeConfig() {
-      
+    private void nodeConfig() {
+
         try {
 
             if (nodeUser == null) {
@@ -124,7 +125,7 @@ public class PrimaryController implements Initializable {
             ex.printStackTrace();
         }
     }
-    
+
     private void nodeProductos() {
         System.out.println("Cargar alta producto");
         try {
@@ -143,9 +144,29 @@ public class PrimaryController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-       
+        this.user = App.getUsuario();
+        System.out.println("usuario desde la ventana principal= " + this.user.toString());
+
+        btnClients.setVisible(false);
+        btnReparaciones.setVisible(false);
+        toolbar.getItems().remove(btnClients);
+        toolbar.getItems().remove(btnReparaciones);
+
+        if (user.getIsAdmin().equalsIgnoreCase("user")) {
+            // Ocultar el toolbar al iniciar
+         //   toolbar.setVisible(false);
+       //     toolbar.setManaged(false); // Esto hace que el espacio que ocupa desaparezca también
+//            toolbar.getItems().remove(btnProductos);
+//            toolbar.getItems().remove(btnConfig);
+//            toolbar.getItems().remove(btnCaja);
+//            toolbar.getItems().remove(btnInventory);
+        }
+        if (user.getIsAdmin().equalsIgnoreCase("admin")) {
+
+        }
+
         pantallaVentas();
-        
+
         setImageToButton(btnVender, "ventas.png");
         setImageToButton(btnProductos, "productos.png");
         setImageToButton(btnInventory, "inventario.png");
@@ -154,7 +175,7 @@ public class PrimaryController implements Initializable {
         setImageToButton(btnReports, "reportes.png");
         setImageToButton(btnCaja, "caja.png");
         setImageToButton(btnReparaciones, "reparaciones.png");
-         //btnClients.setVisible(false);
+
     }
 
     private void pantallaVentas() {
@@ -179,12 +200,6 @@ public class PrimaryController implements Initializable {
         System.out.println("Cargar reporte");
         try {
 
-//            if (nodeReporte == null) {
-////                Usuario u = new Usuario();
-////                u.setNombre("Alngel");
-//                nodeReporte = (Node) FXMLLoader.load(getClass().getResource("/views/Reportes.fxml"));
-//                
-//            }
             nodeReporte = (Node) FXMLLoader.load(getClass().getResource("/views/Reportes.fxml"));
 
             anchorPaneContenido.getChildren().setAll(nodeReporte);
@@ -229,5 +244,4 @@ public class PrimaryController implements Initializable {
         button.setGraphic(imageView);
     }
 
-  
 }

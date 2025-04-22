@@ -19,10 +19,11 @@ public class UserDTO {
       private String country;
       private String  city;
       private String isAdmin;
+    
 
     @Override
     public String toString() {
-        return "UserDTO{" + "id=" + id + ", name=" + name + ", token=" + token + ", email=" + email + ", password=" + password + ", address=" + address + ", phone=" + phone + ", country=" + country + ", city=" + city + ", isAdmin=" + isAdmin + '}';
+        return "UserDTO{" + "id=" + getId() + ", name=" + getName() + ", token=" + getToken() + ", email=" + getEmail() + ", password=" + getPassword() + ", address=" + getAddress() + ", phone=" + getPhone() + ", country=" + getCountry() + ", city=" + getCity() + ", isAdmin=" + getIsAdmin() + '}';
     }
 
       
@@ -175,6 +176,7 @@ public class UserDTO {
     public void setIsAdmin(String isAdmin) {
         this.isAdmin = isAdmin;
     }
+
 
 
      

@@ -15,9 +15,9 @@
    <children>
       <Label layoutX="29.0" layoutY="96.0" text="Usuario" />
       <Label layoutX="29.0" layoutY="151.0" text="Contraseña" />
-      <TextField fx:id="txtUsuer" layoutX="29.0" layoutY="114.0" prefHeight="26.0" prefWidth="401.0" text="muqui_0001@hotmail.com" />
+      <TextField fx:id="txtUsuer" layoutX="29.0" layoutY="114.0" onAction="#onActionUser" prefHeight="26.0" prefWidth="401.0" text="" />
       <Button fx:id="btnAceptar" layoutX="29.0" layoutY="240.0" mnemonicParsing="false" onAction="#btnAceptarAction" prefHeight="49.0" prefWidth="401.0" text="Log in" />
-      <PasswordField fx:id="txtPassword" layoutX="29.0" layoutY="169.0" prefHeight="26.0" prefWidth="401.0" text="123456" />
+      <PasswordField fx:id="txtPassword" layoutX="29.0" layoutY="169.0" onAction="#onActionPassword" prefHeight="26.0" prefWidth="401.0" text="" />
       <Label fx:id="txtError" layoutX="28.0" layoutY="204.0" prefHeight="20.0" prefWidth="401.0" text="Label" textFill="#e80606">
          <font>
             <Font name="System Bold" size="14.0" />
