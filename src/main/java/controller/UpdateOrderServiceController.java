@@ -12,10 +12,12 @@ import dto.OrderServiceDTO;
 import dto.ProductDTO;
 import dto.SparePartDTO;
 import dto.UserDTO;
+import helper.AlertMessage;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -160,18 +162,18 @@ public class UpdateOrderServiceController implements Initializable {
                 System.out.println("");
                 orderServiceDTO.setReplacementCost(Double.parseDouble(replacementCostField.getText().trim()));
                 orderServiceDTO.setStatus(comboStatus.getValue());
-              
-                if(sparePartList.size()> 0){
+
+                if (sparePartList.size() > 0) {
                     for (SparePartDTO part : data) {
-                   
-                    System.out.println("ID 11:28 = " + part.getProduct().getId() + "Costo de compra " + part.getProduct().getPurchasePrice() );
-                    part.setProductId(part.getProduct().getId());
-                    part.setPurchasePrice(BigDecimal.valueOf(part.getProduct().getPurchasePrice()));
-                    // Agrega más campos si es necesario
-                  
+
+                        System.out.println("ID 11:28 = " + part.getProduct().getId() + "Costo de compra " + part.getProduct().getPurchasePrice());
+                        part.setProductId(part.getProduct().getId());
+                        part.setPurchasePrice(BigDecimal.valueOf(part.getProduct().getPurchasePrice()));
+                        // Agrega más campos si es necesario
+
+                    }
                 }
-                }
-                  orderServiceDTO.setSpareParts(sparePartList);
+                orderServiceDTO.setSpareParts(sparePartList);
                 if (orderServiceDTO.getEmail() == null || orderServiceDTO.getEmail().trim().isEmpty()) {
                     orderServiceDTO.setEmail(null);
                 }
@@ -202,7 +204,7 @@ public class UpdateOrderServiceController implements Initializable {
                 // OrderServiceDTO orderServiceDTO = new OrderServiceDTO(nombre, telefono, correo, marca, modelo, imei, presupuesto, abono, restante, falla, estadoRecibido, contraseña, nota);
                 System.out.println("ENVIAR A ACTUALIZAR ..................FECHA = " + orderServiceDTO.getDate());
                 orderRepairApi.updateOrderRepair(orderServiceDTO);
-                  Stage stage = (Stage) nameField.getScene().getWindow();
+                Stage stage = (Stage) nameField.getScene().getWindow();
                 stage.close();
             } else {
                 showAlert("errores", erros);
@@ -210,6 +212,7 @@ public class UpdateOrderServiceController implements Initializable {
 
         } catch (NumberFormatException e) {
             System.err.println("Error: Ingrese valores numéricos válidos para presupuesto, abono y restante.");
+            AlertMessage.showAlert(Alert.AlertType.ERROR, "error", " Ingrese valores numéricos válidos");
         }
 
     }
@@ -247,6 +250,19 @@ public class UpdateOrderServiceController implements Initializable {
             orderServiceDTO = orderRepairApi.getOrderService(folio);
             sparePartList = orderServiceDTO.getSpareParts();
             data = FXCollections.observableList(sparePartList);
+            tableProducts.setItems(data);
+            tableProducts.refresh();
+            int size = data.size();
+
+            if (size == 0) {
+                System.out.println("Total is zeroxxxxxxxxx");
+                // replacementCostField.setText("" + total);
+                replacementCostField.setEditable(true);
+
+            } else {
+                System.out.println("Total is not zeroxxxxxxxxxxxxx");
+                replacementCostField.setEditable(false);
+            }
             tableProducts.setItems(data);
             tableProducts.refresh();
             phoneField.setText(orderServiceDTO.getCellphone());
@@ -397,7 +413,9 @@ public class UpdateOrderServiceController implements Initializable {
                 ProductDTO product = productApi.getProductByBarcode(codigo, user.getToken());   //insertToTicket(codigo); // recibe el producto desde la rest api  
                 // product.setAmount(new BigDecimal("1"));
                 addTable(product);
-                System.out.println("usuarPRODUCTO ZZZZ para insertar en la order de reparacion como refaccion " + product.getBarcode());
+                BigDecimal total = calculateTotalPrice(sparePartList);
+                replacementCostField.setText("" + total);
+                replacementCostField.setEditable(false);
             }
 
         } catch (IOException ex) {
@@ -426,24 +444,7 @@ public class UpdateOrderServiceController implements Initializable {
             ProductDTO product = cellData.getValue().getProduct();
             return new SimpleStringProperty(product != null ? product.getName() : "");
         });
-//
-//        TableColumn<SparePartDTO, String> columnAmount = new TableColumn<>("Cantidad");
-//        columnAmount.setCellValueFactory(new PropertyValueFactory<>("amount"));
-//
-//        TableColumn<SparePartDTO, String> columnName = new TableColumn<>("Refaccion");
-//        columnName.setCellValueFactory(new PropertyValueFactory<>("name"));
-//
-//        TableColumn<SparePartDTO, Integer> columnStock = new TableColumn<>("total Precio de compra");
-//        columnStock.setCellValueFactory(new PropertyValueFactory<>("total"));
 
-//        TableColumn<SparePartDTO, Button> columnButtonAdd = new TableColumn<>("Acción");
-//        columnButtonAdd.setCellValueFactory(new PropertyValueFactory<>("botonAgregar"));
-//
-//        TableColumn<SparePartDTO, Button> columnButtonDelete = new TableColumn<>("Acción");
-//        columnButtonDelete.setCellValueFactory(new PropertyValueFactory<>("botonEliminar"));
-//
-//        TableColumn<SparePartDTO, Button> columnButtonless = new TableColumn<>("Acción");
-//        columnButtonless.setCellValueFactory(new PropertyValueFactory<>("botonBorrar"));
         TableColumn<SparePartDTO, Void> columnButtonDelete = new TableColumn<>("Eliminar");
 
         Callback<TableColumn<SparePartDTO, Void>, TableCell<SparePartDTO, Void>> cellFactory = new Callback<>() {
@@ -457,6 +458,13 @@ public class UpdateOrderServiceController implements Initializable {
                         btn.setOnAction(event -> {
                             SparePartDTO data = getTableView().getItems().get(getIndex());
                             getTableView().getItems().remove(data);
+                            BigDecimal total = calculateTotalPrice(sparePartList);
+
+                            if (total.compareTo(BigDecimal.ZERO) == 0) {
+                                System.out.println("Total is zero");
+                                replacementCostField.setText("" + total);
+                                replacementCostField.setEditable(true);
+                            }
                         });
                     }
 
@@ -549,6 +557,7 @@ public class UpdateOrderServiceController implements Initializable {
         tableProducts.refresh();
 
     }
+
     /*  
            private void eventoTabla(ActionEvent event) {
         for (int i = 0; data.size() > i; i++) {
@@ -589,4 +598,14 @@ public class UpdateOrderServiceController implements Initializable {
 
     }
      */
+    public static BigDecimal calculateTotalPrice(List<SparePartDTO> spareParts) {
+        if (spareParts == null || spareParts.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+
+        return spareParts.stream()
+                .map(SparePartDTO::getPrice)
+                .filter(p -> p != null)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 }

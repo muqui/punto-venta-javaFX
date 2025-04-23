@@ -147,10 +147,10 @@ public class PrimaryController implements Initializable {
         this.user = App.getUsuario();
         System.out.println("usuario desde la ventana principal= " + this.user.toString());
 
-        btnClients.setVisible(false);
-        btnReparaciones.setVisible(false);
-        toolbar.getItems().remove(btnClients);
-        toolbar.getItems().remove(btnReparaciones);
+     //   btnClients.setVisible(false);
+     //   btnReparaciones.setVisible(false);
+    //    toolbar.getItems().remove(btnClients);
+     //   toolbar.getItems().remove(btnReparaciones);
 
         if (user.getIsAdmin().equalsIgnoreCase("user")) {
             // Ocultar el toolbar al iniciar

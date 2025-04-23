@@ -485,7 +485,7 @@ public class VentasController implements Initializable {
                 //  product.setHowToSell("Unidad");
                 if (product.getHowToSell().equalsIgnoreCase("Granel")) {
 
-                    cantidad = dialogAmount();
+                    cantidad = dialogAmount(product.getPrice());
 
                     System.out.println("condicion para cambiar la cantiadad granel 0");
                 }
@@ -688,7 +688,7 @@ public class VentasController implements Initializable {
         labelTotalProductos.setText("" + CantidadProductosTicket(tabSeleccionado) + leyendaCantidadTotal);
     }
 
-    private BigDecimal dialogAmount() {
+    private BigDecimal dialogAmount(BigDecimal price) {
         BigDecimal cantidad = new BigDecimal("0");
         try {
 
@@ -699,6 +699,7 @@ public class VentasController implements Initializable {
             VentaGranelController ventaGranelController = fxmlLoader.getController();
             Scene scene = new Scene(root);
             Stage stage = new Stage();
+            ventaGranelController.setPrice(price);
             //stage.setResizable(false);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setScene(scene);
@@ -930,7 +931,7 @@ public class VentasController implements Initializable {
 
         if (product.getHowToSell().equalsIgnoreCase("Granel")) {
 
-            cantidad = dialogAmount();
+            cantidad = dialogAmount(product.getPrice());
             System.out.println("condicion para cambiar la cantiadad granel 1");
         }
 

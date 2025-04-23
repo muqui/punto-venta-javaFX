@@ -19,6 +19,7 @@ public class UserDTO {
       private String country;
       private String  city;
       private String isAdmin;
+      private boolean isActive;
     
 
     @Override
@@ -175,6 +176,20 @@ public class UserDTO {
      */
     public void setIsAdmin(String isAdmin) {
         this.isAdmin = isAdmin;
+    }
+
+    /**
+     * @return the isActive
+     */
+    public boolean isIsActive() {
+        return isActive;
+    }
+
+    /**
+     * @param isActive the isActive to set
+     */
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
     }
 
 
