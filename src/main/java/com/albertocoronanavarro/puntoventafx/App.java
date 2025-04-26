@@ -31,6 +31,7 @@ public class App extends Application {
             Parent root = FXMLLoader.load(getClass().getResource("/views/login.fxml"));
             primaryStage.setTitle("Ventas");
             primaryStage.setScene(new Scene(root));
+        //   primaryStage.setResizable(false);
             primaryStage.show();
         } catch (IOException ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
@@ -52,8 +53,15 @@ public class App extends Application {
             this.setUsuario(usuario);
     
         getStg().setTitle("" + usuario.getEmail());
-         getStg().getScene().setRoot(root);
-         getStg().setMaximized(true);
+     //    getStg().getScene().setRoot(root);
+     
+     Scene scene = new Scene(root);
+getStg().setScene(scene);
+           
+    getStg().setResizable(true);  
+     getStg().setMaximized(true);  
+     getStg().show(); // <- Forzar que se muestre en estado actualizado
+      getStg().setMaximized(true); 
          
       
 

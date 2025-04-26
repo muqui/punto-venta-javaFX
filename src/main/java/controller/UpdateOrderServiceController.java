@@ -134,6 +134,7 @@ public class UpdateOrderServiceController implements Initializable {
                 "En reparación",
                 "Reparado",
                 "Entregado",
+                "Cancelado",
                 "Finalizada"
         );
 
