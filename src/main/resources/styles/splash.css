@@ -1,0 +1,20 @@
+/*
+ * Empty Stylesheet file.
+ */
+
+.mainFxmlClass {
+    -fx-background-color: transparent;
+}
+
+#splashPane {
+    -fx-background-color: transparent;
+}
+
+
+.progress-indicator {
+    -fx-progress-color: red;
+}
+
+.label {
+    -fx-text-fill: red;
+}

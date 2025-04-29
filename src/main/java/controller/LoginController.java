@@ -29,7 +29,14 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -81,62 +88,99 @@ public class LoginController implements Initializable {
 
     }
 
-    private void login(ActionEvent event) throws JsonProcessingException, IOException {
-        usuario.setEmail(txtUsuer.getText().toString());
-        usuario.setPassword(txtPassword.getText().toString());
-        usuario.setName(txtUsuer.getText().toString());
-        HttpResponse<String> response = loginApi.login(usuario);
+ private void login(ActionEvent event) {
+    // Crear y mostrar el Splash
+    Stage splashStage = new Stage(StageStyle.TRANSPARENT); // Cambiado a TRANSPARENT
+    splashStage.setAlwaysOnTop(true);
 
-        if (response == null) {
-            txtError.setText("No se puede establecer conexion con el servidor");
-            return;
-        }
-
-        if (response.statusCode() == 201) {
-            // Deserializar el JSON en un objeto UsuarioDTO
-            ObjectMapper objectMapper = new ObjectMapper();
-            UserDTO authenticatedUser = objectMapper.readValue(response.body(), UserDTO.class);
-
-            //  System.out.println("TOKEN: " + authenticatedUser.getToken());
-            JSONObject payload = JwtUtils.decodePayload(authenticatedUser.getToken());
-            if (payload != null) {
-                String email = payload.optString("email");
-                String name = payload.optString("name");
-                int id = payload.optInt("id");
-
-                JSONArray rolesArray = payload.optJSONArray("roles");
-                String role = rolesArray != null && rolesArray.length() > 0 ? rolesArray.getString(0) : "user";
-
-                authenticatedUser.setName(name);
-                authenticatedUser.setEmail(email);
-                authenticatedUser.setId(id);
-                authenticatedUser.setIsAdmin(role);
-                System.out.println("Nombre: " + name);
-                System.out.println("Email: " + email);
-                System.out.println("ID: " + id);
-                System.out.println("Rol: " + role);
-            }
-            // Manejar autenticación exitosa
-            App main = new App();
-            //System.out.println("token desde el usuario login " + authenticatedUser.getToken());
-            // System.out.println("OBJETO RECIBIDO DESDE LOGIN: " + authenticatedUser.toString());
-            main.setUsuario(authenticatedUser);
-            main.changeScene("/views/Principal.fxml", authenticatedUser, event);
-            //System.out.println("Login exitoso");
-        } else {
-
-            ApiResponseDTO apiResponse = new ObjectMapper().readValue(response.body(), ApiResponseDTO.class);
-
-            if (apiResponse.getMessage() instanceof String) {
-                String msg = (String) apiResponse.getMessage();
-                System.out.println("Mensaje simple: " + msg);
-            } else if (apiResponse.getMessage() instanceof List) {
-                List<?> msgs = (List<?>) apiResponse.getMessage();
-                msgs.forEach(System.out::println);
-            }
-            txtError.setText("Error de conexión: " + apiResponse.getMessage());
-        }
-
+    try {
+        Parent splashRoot = FXMLLoader.load(getClass().getResource("/views/splash.fxml"));
+        
+        Scene splashScene = new Scene(splashRoot);
+        splashScene.setFill(Color.TRANSPARENT); // Establece fondo transparente
+        splashStage.setScene(splashScene);
+        
+        splashStage.toFront();
+        splashStage.show();
+    } catch (IOException e) {
+        e.printStackTrace();
+        txtError.setText("No se pudo cargar el splash");
+        return;
     }
+
+    // Datos del usuario
+    usuario.setEmail(txtUsuer.getText());
+    usuario.setPassword(txtPassword.getText());
+    usuario.setName(txtUsuer.getText());
+
+    // Task en segundo plano
+    Task<Void> loginTask = new Task<>() {
+        @Override
+        protected Void call() {
+            try {
+                HttpResponse<String> response = loginApi.login(usuario);
+
+                if (response == null) {
+                    Platform.runLater(() -> txtError.setText("No se puede establecer conexión con el servidor"));
+                    return null;
+                }
+
+                if (response.statusCode() == 201) {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    UserDTO authenticatedUser = objectMapper.readValue(response.body(), UserDTO.class);
+
+                    JSONObject payload = JwtUtils.decodePayload(authenticatedUser.getToken());
+                    if (payload != null) {
+                        authenticatedUser.setEmail(payload.optString("email"));
+                        authenticatedUser.setName(payload.optString("name"));
+                        authenticatedUser.setId(payload.optInt("id"));
+
+                        JSONArray rolesArray = payload.optJSONArray("roles");
+                        String role = rolesArray != null && rolesArray.length() > 0 ? rolesArray.getString(0) : "user";
+                        authenticatedUser.setIsAdmin(role);
+                    }
+
+                    Platform.runLater(() -> {
+                        try {
+                            App main = new App();
+                            main.setUsuario(authenticatedUser);
+                            main.changeScene("/views/Principal.fxml", authenticatedUser, event);
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    });
+
+                } else {
+                    ApiResponseDTO apiResponse = new ObjectMapper().readValue(response.body(), ApiResponseDTO.class);
+                    Platform.runLater(() -> txtError.setText(""+ apiResponse.getMessage()));
+                }
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                Platform.runLater(() -> txtError.setText("Error durante el login"));
+            }
+            return null;
+        }
+
+        @Override
+        protected void succeeded() {
+            splashStage.close();
+        }
+
+        @Override
+        protected void failed() {
+            splashStage.close();
+        }
+
+        @Override
+        protected void cancelled() {
+            splashStage.close();
+        }
+    };
+
+    new Thread(loginTask).start();
+}
+
+
 
 }
