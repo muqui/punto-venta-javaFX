@@ -16,9 +16,11 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Scanner;
 import javafx.scene.control.Alert;
@@ -88,13 +90,14 @@ public class OrderRepairApi {
         }
     }
 
-    public List<OrderServiceDTO> fetchOrdersService() throws IOException {
+    public List<OrderServiceDTO> fetchOrdersService(String StartDate, String endDate, String status) throws IOException {
+        String encodedStatus = URLEncoder.encode(status, StandardCharsets.UTF_8);
 
+        //http://localhost:3000/repair-cellphones?startDate=2025-05-01&endDate=2025-05-09&status=Reparado
         List<OrderServiceDTO> orderServices = null;
-        String urlString = baseUrl + endpointRepairservice;
+        String urlString = baseUrl + endpointRepairservice + "?startDate="+ StartDate +"&endDate=" +endDate + "&status=" + encodedStatus;
         System.out.println("endpoint obtener todas la ordenes de servicio" + urlString);
-        // String urlString = baseUrl + endpointProductsSearch+"?name=" + nameProduct;
-        // String urlString = "http://localhost:3000/products/search?name=" + value;
+       
         URL url = new URL(urlString);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");

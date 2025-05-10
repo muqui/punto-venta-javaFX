@@ -130,8 +130,8 @@ public class UpdateOrderServiceController implements Initializable {
         this.user = App.getUsuario();
         ObservableList<String> statusOptions = FXCollections.observableArrayList(
                 "Pendiente",
-                "En revisión",
-                "En reparación",
+                "En revision",
+                "En reparacion",
                 "Reparado",
                 "Entregado",
                 "Cancelado",

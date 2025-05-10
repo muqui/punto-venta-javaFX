@@ -10,6 +10,7 @@ import dto.OrderServiceDTO;
 import dto.ProductFindDTO;
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -23,12 +24,15 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -44,18 +48,63 @@ public class CelularesController implements Initializable {
     @FXML
     private TableView<OrderServiceDTO> tableOrdersRepair;
 
+    @FXML
+    private AnchorPane anchorPaneReparaciones;
+
+    @FXML
+    private Button btnFilter;
+
+    @FXML
+    private ComboBox<String> comboBoxStatus;
+
+    @FXML
+    private DatePicker datePickerEnd;
+
+    @FXML
+    private DatePicker datePickerStar;
+
+    @FXML
+    void onActionFilter(ActionEvent event) {
+      
+       filterOrderService();   
+    }
+
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         try {
+            datePickerEnd.setValue(LocalDate.now());
+            datePickerStar.setValue(LocalDate.now().minusDays(7));
+            
+              ObservableList<String> statusOptions = FXCollections.observableArrayList(
+                "Todos",
+                "Pendiente",
+                "En revision",
+                "En reparacion",
+                "Reparado",
+                "Entregado",
+                "Cancelado",
+                "Finalizada"
+        );
+
+        comboBoxStatus.setItems(statusOptions);
+        comboBoxStatus.setValue("Todos"); // Valor por defecto
+        
             // TODO
             initializeTableColumns();
             tableOrdersRepair.setItems(fetchOrdersServices(""));
         } catch (IOException ex) {
             Logger.getLogger(CelularesController.class.getName()).log(Level.SEVERE, null, ex);
         }
+      
+          comboBoxStatus.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+        if (newVal != null) {
+          //  System.out.println("Nuevo estado seleccionado: " + newVal);
+            filterOrderService();
+        }
+    });
     }
 
     @FXML
@@ -77,8 +126,8 @@ public class CelularesController implements Initializable {
             stage.showAndWait();
 
             //  String codigo = buscarController.getCodigo();
-          //  initializeTableColumns();
-         // tableOrdersRepair.getColumns().clear(); // Limpiar las columnas de la tabla antes de agregar nuevas
+            //  initializeTableColumns();
+            // tableOrdersRepair.getColumns().clear(); // Limpiar las columnas de la tabla antes de agregar nuevas
             tableOrdersRepair.setItems(fetchOrdersServices(""));
 
         } catch (IOException ex) {
@@ -170,7 +219,10 @@ public class CelularesController implements Initializable {
 
     private ObservableList<OrderServiceDTO> fetchOrdersServices(String value) throws IOException {
 
-        List<OrderServiceDTO> orderServices = orderRepairApi.fetchOrdersService();
+    
+        
+        
+        List<OrderServiceDTO> orderServices = orderRepairApi.fetchOrdersService(datePickerStar.getValue().toString(), datePickerEnd.getValue().toString(), comboBoxStatus.getValue().toString());
 
         return FXCollections.observableArrayList(orderServices);
 
@@ -189,13 +241,27 @@ public class CelularesController implements Initializable {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setScene(scene);
             stage.showAndWait();
-            
-             tableOrdersRepair.setItems(fetchOrdersServices(""));
+
+            tableOrdersRepair.setItems(fetchOrdersServices(""));
 
         } catch (IOException ex) {
             Logger.getLogger(VentasController.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
+
+    private void filterOrderService() {
+           System.out.println("FILTRAR REPARACIONES");
+        System.out.println("Fecha Fin " + datePickerEnd.getValue());
+        System.out.println("Fecha inicio " + datePickerStar.getValue());
+        System.out.println("Status " +  comboBoxStatus.getValue().toString()); 
+        try {
+            tableOrdersRepair.setItems(fetchOrdersServices(""));
+            tableOrdersRepair.refresh();
+        } catch (IOException ex) {
+            Logger.getLogger(CelularesController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
 
 }
