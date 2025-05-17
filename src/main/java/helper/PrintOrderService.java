@@ -18,7 +18,7 @@ import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.element.Text;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
-
+import helper.NumeroALetras;
 import dto.OrderServiceDTO;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import javafx.collections.ObservableList;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.printing.PDFPageable;
@@ -185,6 +187,9 @@ public class PrintOrderService {
         document.close();
 
     }
+    /*
+    ** Imprime el ticket de la venta del POS
+    */
     public static void createdPdf80mm(ObservableList<OrderDetail> orderDetails) {
         System.out.println("SE ENVIA A PDF PARA IMPRIMIR");
         String dest = "/home/albert/Documents/miArchivo.pdf";
@@ -199,11 +204,13 @@ public class PrintOrderService {
             PdfDocument pdfDoc = new PdfDocument(writer);
             PageSize thermalPageSize = new PageSize(226.77f, 1000f); // 80mm ≈ 226.77 puntos, altura flexible
             Document document = new Document(pdfDoc, thermalPageSize);
-            document.setMargins(3f, 5f, 3f, 5f); // Agregar márgenes mínimos para evitar cortes
+            document.setMargins(5f, 10f, 5f, 10f); // Agregar márgenes mínimos para evitar cortes
             document.add(new Paragraph("MATI PAPELERIA")
                     .setBold().setFontSize(14).setTextAlignment(TextAlignment.CENTER));
+            document.add(new Paragraph("Fecha: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")))
+        .setFontSize(12).setTextAlignment(TextAlignment.CENTER));
             document.add(new Paragraph("CANT DESCRIPCION PRECIO TOTAL")
-                    .setBold().setFontSize(12).setTextAlignment(TextAlignment.CENTER));
+                    .setBold().setFontSize(10).setTextAlignment(TextAlignment.CENTER));
             for (OrderDetail detail : orderDetails) {
                 document.add(new Paragraph(detail.getProduct().getName())
                         .setBold().setFontSize(14).setTextAlignment(TextAlignment.LEFT));
@@ -218,6 +225,8 @@ public class PrintOrderService {
                         .setBorder(Border.NO_BORDER));
                 // Acumular precio total
                 totalTicket = totalTicket.add(detail.getPrice());
+                  
+                        
                 System.out.println("ID: " + detail.getId());
                 System.out.println("Producto: " + detail.getProduct().getBarcode());
                 System.out.println("Cantidad: " + detail.getAmount());
@@ -228,6 +237,10 @@ public class PrintOrderService {
 
             document.add(new Paragraph("Total " + totalTicket)
                     .setBold().setFontSize(14).setTextAlignment(TextAlignment.RIGHT));
+            
+              String enLetras = NumeroALetras.convertir(totalTicket);
+                  document.add(new Paragraph(enLetras)
+                    .setBold().setFontSize(12).setTextAlignment(TextAlignment.LEFT));
 
             // Cerrar el documento
             document.close();
