@@ -202,6 +202,9 @@ public class ProductController implements Initializable {
         if (tabSeleccionado == 0) {
             fillChoiceBoxDepartament();
         }
+        if(tabSeleccionado == 1){
+            fillChoiceBoxUpdateDepartament();
+        }
 
     }
 
