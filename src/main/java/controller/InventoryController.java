@@ -15,6 +15,7 @@ import dto.DepartmentDTO;
 import dto.EntryDTO;
 import dto.InventoryResponseDTO;
 import dto.OrderDetailDTO;
+import dto.PaginatedInventoryResponseDTO;
 import dto.ProductDTO;
 import dto.UserDTO;
 import helper.DateUtil;
@@ -167,87 +168,93 @@ public class InventoryController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        this.user = App.getUsuario();
-         fillChoiceBoxGanancias();
-
-        txtAddInventoryBarcode.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent ke) {
-                if (ke.getCode().equals(KeyCode.ENTER)) {
-
-                    System.out.println("BUSCAR PRODUCTO AÑADIR AL INVENTARIO");
-
-                    updateProduct();
-
-                }
-            }
-
-        });
-        
-                // Agregar un listener al ComboBox
-        ComboAddInventoryProfit.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                System.out.println("Elemento seleccionado: " + newValue);
-                 try {
-            // double precioMenudeo = calculateSellingPrice(Double.parseDouble(txtSavepurchasePrice.getText()), Double.parseDouble(comboSaveGanancia.getValue()));
-            BigDecimal precioMenudeo = calculateSellingPrice(new BigDecimal(txtAddInventorypurchasePrice.getText()), new BigDecimal(ComboAddInventoryProfit.getValue()));
-            txtAddInventoryPrice.setText("" + precioMenudeo);
-        } catch (NumberFormatException e) {
-            System.out.println("Formato de precio inválido");
-            // Muestra una alerta si el formato es inválido
-            showAlert("Error", "Formato de precio inválido");
-        }
-            }
-        });
-
-        // TODO
-        // Añadir listener para manejar la selección
-        comboCategoryProducts.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                // Acción al seleccionar un elemento
-                System.out.println("Seleccionado: " + newValue.getName());
-                //realizarAccion(newValue);
-
-                try {
-                    InventoryResponseDTO inventoryResponseDTO;
-                    if ("TODOS LOS DEPARTAMENTOS".equals(newValue.getName())) {
-                        inventoryResponseDTO = productApi.fetchProductsInventary("", user.getToken());
-                    } else {
-                        inventoryResponseDTO = productApi.fetchProductsInventary(newValue.getName(), user.getToken());
-                    }
-                    List<ProductDTO> products = inventoryResponseDTO.getProducts();
-                    labelTotalInventory.setText("Total: " + inventoryResponseDTO.getTotalInventoryCost());
-                    ObservableList<ProductDTO> observableListProducts = FXCollections.observableArrayList(products);
-                    tableProducts.setItems(observableListProducts);
-                } catch (IOException ex) {
-                    Logger.getLogger(InventoryController.class.getName()).log(Level.SEVERE, null, ex);
-                }
-
-            }
-        });
-        // Añadir listener para manejar la selección
-        comboBoxDepartament.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                // Acción al seleccionar un elemento
-                System.out.println("Seleccionado: " + newValue.getName());
-                //realizarAccion(newValue);
-
-                fetchEntriesTable(datePickerEntriesSartDate.getValue().toString(), datePickerEntriesEndDate.getValue().toString(), newValue.getName());
-
-            }
-        });
-
         try {
-            entries();  //carga los datos de lasa entradas al inventario
-            outputs(); //carga los datos de las salidas al inventario
-            fetchDataInventorie(); // carga las informacion del inventario.
-            fillChoiceBoxDepartament(); // carga los departamentos  en a vista de productos
-            fillChoiceBoxDepartamentEntries(); // carga los departamentos  de entradas del inventario
-
-            datePickerEntriesEndDate.setValue(LocalDate.now());
-            datePickerEntriesSartDate.setValue(LocalDate.now());
-
-        } catch (Exception e) {
+            this.user = App.getUsuario();
+            fillChoiceBoxGanancias();
+            
+            productApi.fetchProductsInventary("", user.getToken(), 1, 5);
+            txtAddInventoryBarcode.setOnKeyPressed(new EventHandler<KeyEvent>() {
+                @Override
+                public void handle(KeyEvent ke) {
+                    if (ke.getCode().equals(KeyCode.ENTER)) {
+                        
+                        System.out.println("BUSCAR PRODUCTO AÑADIR AL INVENTARIO");
+                        
+                        updateProduct();
+                        
+                    }
+                }
+                
+            });
+            
+            // Agregar un listener al ComboBox
+            ComboAddInventoryProfit.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue != null) {
+                    System.out.println("Elemento seleccionado: " + newValue);
+                    try {
+                        // double precioMenudeo = calculateSellingPrice(Double.parseDouble(txtSavepurchasePrice.getText()), Double.parseDouble(comboSaveGanancia.getValue()));
+                        BigDecimal precioMenudeo = calculateSellingPrice(new BigDecimal(txtAddInventorypurchasePrice.getText()), new BigDecimal(ComboAddInventoryProfit.getValue()));
+                        txtAddInventoryPrice.setText("" + precioMenudeo);
+                    } catch (NumberFormatException e) {
+                        System.out.println("Formato de precio inválido");
+                        // Muestra una alerta si el formato es inválido
+                        showAlert("Error", "Formato de precio inválido");
+                    }
+                }
+            });
+            
+            // TODO
+            // Añadir listener para manejar la selección
+            comboCategoryProducts.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue != null) {
+                    // Acción al seleccionar un elemento
+                    System.out.println("Seleccionado: " + newValue.getName());
+                    //realizarAccion(newValue);
+                    
+                    try {
+                        InventoryResponseDTO inventoryResponseDTO;
+                        if ("TODOS LOS DEPARTAMENTOS".equals(newValue.getName())) {
+                            inventoryResponseDTO = productApi.fetchProductsInventary("", user.getToken());
+                        } else {
+                            inventoryResponseDTO = productApi.fetchProductsInventary(newValue.getName(), user.getToken());
+                        }
+                        List<ProductDTO> products = inventoryResponseDTO.getProducts();
+                        labelTotalInventory.setText("Total: " + inventoryResponseDTO.getTotalInventoryCost());
+                        ObservableList<ProductDTO> observableListProducts = FXCollections.observableArrayList(products);
+                        tableProducts.setItems(observableListProducts);
+                    } catch (IOException ex) {
+                        Logger.getLogger(InventoryController.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    
+                }
+            });
+            // Añadir listener para manejar la selección
+            comboBoxDepartament.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue != null) {
+                    // Acción al seleccionar un elemento
+                    System.out.println("Seleccionado: " + newValue.getName());
+                    //realizarAccion(newValue);
+                    
+                    fetchEntriesTable(datePickerEntriesSartDate.getValue().toString(), datePickerEntriesEndDate.getValue().toString(), newValue.getName());
+                    
+                }
+            });
+            
+            try {
+                entries();  //carga los datos de lasa entradas al inventario
+                outputs(); //carga los datos de las salidas al inventario
+                fetchDataInventorie(); // carga las informacion del inventario.
+                fillChoiceBoxDepartament(); // carga los departamentos  en a vista de productos
+                fillChoiceBoxDepartamentEntries(); // carga los departamentos  de entradas del inventario
+                
+                datePickerEntriesEndDate.setValue(LocalDate.now());
+                datePickerEntriesSartDate.setValue(LocalDate.now());
+                
+            } catch (Exception e) {
+            }
+            
+        } catch (IOException ex) {
+            Logger.getLogger(InventoryController.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }

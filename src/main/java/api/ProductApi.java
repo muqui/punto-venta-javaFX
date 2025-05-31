@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import config.ConfigManager;
 import dto.DepartmentDTO;
 import dto.InventoryResponseDTO;
+import dto.PaginatedInventoryResponseDTO;
 import dto.ProductDTO;
 import dto.ProductFindDTO;
 import java.io.IOException;
@@ -42,7 +43,7 @@ public class ProductApi {
     String endpointCategories = configManager.getProperty("api.endpoint.categories");
     String endpointProductsSearch = configManager.getProperty("api.products.search");
     String endpointProductsInventory = configManager.getProperty("api.products.inventory");
-   
+    //api.endpoint.products
 
     public void ProductApi() {
 
@@ -478,5 +479,40 @@ public class ProductApi {
             return response;
         }
     }
+     public PaginatedInventoryResponseDTO fetchProductsInventary(String departmentName, String token, int page, int limit) throws IOException {
+    PaginatedInventoryResponseDTO response = null;
+
+    String fullUrl = baseUrl + endpointProducts + "&page=" + page + "&limit=" + limit;
+    URL url = new URL("https://back-navarro-pos.duckdns.org/products?page=1&limit=5");
+
+    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+    conn.setRequestMethod("GET");
+    conn.setRequestProperty("Authorization", "Bearer " + token);
+    conn.setRequestProperty("Content-Type", "application/json");
+    conn.connect();
+
+    int responseCode = conn.getResponseCode();
+    if (responseCode != 200) {
+        throw new RuntimeException("HttpResponseCode: " + responseCode);
+    }
+         System.out.println("codio respuesta: " +  responseCode);
+    Scanner scanner = new Scanner(conn.getInputStream());
+    StringBuilder inline = new StringBuilder();
+    while (scanner.hasNext()) {
+        inline.append(scanner.nextLine());
+    }
+    scanner.close();
+
+    ObjectMapper mapper = new ObjectMapper();
+    response = mapper.readValue(inline.toString(), PaginatedInventoryResponseDTO.class);
+    
+     List<ProductDTO> products = response.getData();
+            System.out.println("respuesta con paginacion");
+            for (ProductDTO product : products) {
+                System.out.println(product.getBarcode());
+            }
+    return response;
+}
+
 
 }
