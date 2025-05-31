@@ -24,8 +24,10 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Scanner;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Alert;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -159,18 +161,37 @@ public class OrderApi {
             // Enviar la solicitud y obtener la respuesta
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            // Manejar la respuesta
-            if (response.statusCode() == 200 || response.statusCode() == 201) {
-                System.out.println("Orden insertada con éxito: " + response.body());
-            } else {
-              //  this.setStatusSell(false);
-                System.out.println("Error al insertar la orden: " + response.statusCode() + " " + response.body());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+            int status = response.statusCode();
+           if (status == 200 || status == 201) {
+            System.out.println("✅ Orden insertada con éxito: " + response.body());
+        } else if (status == 401) {
+            System.out.println("⚠️ Token expirado o inválido. Por favor, inicie sesión nuevamente.");
+            showAlert("Sesión expirada", "Su sesión ha caducado. Inicie sesión otra vez.");
+        } else if (status == 403) {
+            System.out.println("❌ No tiene permisos para realizar esta operación.");
+            showAlert("Acceso denegado", "No tiene permisos para registrar órdenes.");
+        } else {
+            System.out.println("❌ Error al insertar la orden: " + status + " " + response.body());
+            showAlert("Error", "Error al registrar la orden: " + status);
         }
+
+    } catch (java.net.ConnectException | java.net.UnknownHostException e) {
+        System.out.println("❌ No se pudo conectar con el servidor: " + e.getMessage());
+        showAlert("Sin conexión", "No se pudo conectar con el servidor. Verifique su conexión a internet.");
+    } catch (Exception e) {
+        e.printStackTrace();
+        showAlert("Error", "Ocurrió un error inesperado: " + e.getMessage());
+    }
 
     }
 
-    
+    private void showAlert(String title, String content) {
+    Platform.runLater(() -> {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    });
+}
 }

@@ -4,16 +4,20 @@ import dto.UserDTO;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 
 //https://www.flaticon.es/
 public class PrimaryController implements Initializable {
@@ -27,6 +31,9 @@ public class PrimaryController implements Initializable {
 
     @FXML
     private Button btnCaja;
+    
+        @FXML
+    private Button btnClose;
 
     @FXML
     private AnchorPane anchorPaneContenido;
@@ -51,6 +58,41 @@ public class PrimaryController implements Initializable {
 
     @FXML
     private Button btnReports;
+    
+     @FXML
+    void onActionCloseSession(ActionEvent event) {
+           System.out.println("cerrar session");
+
+    try {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/login.fxml"));
+        Parent root = loader.load();
+
+        Stage stage = App.getStage();
+
+        // Primero, asegurarse de quitar el modo maximizado
+        stage.setMaximized(false);
+
+        // Establecer la nueva escena
+        Scene loginScene = new Scene(root);
+        stage.setScene(loginScene);
+        stage.setTitle("Login");
+
+        // Quitar el modo full screen (por si acaso)
+        stage.setFullScreen(false);
+
+        // Esperar a que la escena esté aplicada antes de ajustar tamaño
+        Platform.runLater(() -> {
+            stage.setWidth(452);
+            stage.setHeight(500);
+            stage.centerOnScreen();
+        });
+
+        App.setUsuario(null); // limpiar usuario
+
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+    }
 
     @FXML
     void actionBtnVender(ActionEvent event) {
@@ -175,6 +217,8 @@ public class PrimaryController implements Initializable {
         setImageToButton(btnReports, "reportes.png");
         setImageToButton(btnCaja, "caja.png");
         setImageToButton(btnReparaciones, "reparaciones.png");
+          setImageToButton(btnClose, "cerrar-sesion.png");
+        //cerrar-sesion  btnClose
 
     }
 

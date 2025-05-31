@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 
-<AnchorPane fx:id="anchorPaneMain" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.albertocoronanavarro.puntoventafx.PrimaryController">
+<AnchorPane fx:id="anchorPaneMain" minHeight="-Infinity" minWidth="-Infinity" prefHeight="406.0" prefWidth="808.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.albertocoronanavarro.puntoventafx.PrimaryController">
    <children>
       <BorderPane layoutX="-3.0" layoutY="3.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="3.0" AnchorPane.leftAnchor="3.0" AnchorPane.rightAnchor="3.0" AnchorPane.topAnchor="3.0">
          <top>
@@ -19,11 +19,12 @@
                   <Button fx:id="btnReports" mnemonicParsing="false" onAction="#actionBtnReports" text="Reportes" />
                   <Button fx:id="btnCaja" mnemonicParsing="false" onAction="#onActionCaja" text="Caja" />
                   <Button fx:id="btnReparaciones" mnemonicParsing="false" onAction="#onActionReparaciones" text="Reparaciones" />
+                  <Button fx:id="btnClose" mnemonicParsing="false" onAction="#onActionCloseSession" text="cerrar sesión" />
               </items>
             </ToolBar>
          </top>
          <center>
-            <AnchorPane fx:id="anchorPaneContenido" prefHeight="354.0" prefWidth="1271.0" BorderPane.alignment="CENTER" />
+            <AnchorPane fx:id="anchorPaneContenido" prefHeight="360.0" prefWidth="663.0" BorderPane.alignment="CENTER" />
          </center>
       </BorderPane>
    </children>
