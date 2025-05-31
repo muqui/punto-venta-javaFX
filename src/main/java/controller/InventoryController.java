@@ -18,6 +18,7 @@ import dto.OrderDetailDTO;
 import dto.PaginatedInventoryResponseDTO;
 import dto.ProductDTO;
 import dto.UserDTO;
+import helper.AlertMessage;
 import helper.DateUtil;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -129,15 +130,99 @@ public class InventoryController implements Initializable {
 
     @FXML
     void onActionBtnUpdateProduct(ActionEvent event) {
-        String barcode = txtAddInventoryBarcode.getText();
-        ProductDTO productDto = productApi.getProductByBarcode(barcode, user.getToken());
-        int newStock = Integer.parseInt(txtAddInventoryAdd.getText());
-        System.out.println("producto amodificar =    " + productDto.toString());
-        productDto.setEntriy(newStock);
-        productDto.setPurchasePrice(Double.parseDouble(txtAddInventorypurchasePrice.getText()));
-        productDto.setPrice(new BigDecimal(txtAddInventoryPrice.getText()));
-        productDto.setSupplier(txtAddInventorySupplier.getText());
-        productApi.addINvetory(productDto, user.getToken());
+//        String barcode = txtAddInventoryBarcode.getText();
+//        ProductDTO productDto = productApi.getProductByBarcode(barcode, user.getToken());
+//        int newStock = Integer.parseInt(txtAddInventoryAdd.getText());
+//        System.out.println("producto amodificar =    " + productDto.toString());
+//        productDto.setEntriy(newStock);
+//        productDto.setPurchasePrice(Double.parseDouble(txtAddInventorypurchasePrice.getText()));
+//        productDto.setPrice(new BigDecimal(txtAddInventoryPrice.getText()));
+//        productDto.setSupplier(txtAddInventorySupplier.getText());
+//        productApi.addINvetory(productDto, user.getToken());
+    // Obtener los valores de los campos
+    String barcode = txtAddInventoryBarcode.getText();
+    String newStockText = txtAddInventoryAdd.getText();
+    String purchasePriceText = txtAddInventorypurchasePrice.getText();
+    String priceText = txtAddInventoryPrice.getText();
+    String supplier = txtAddInventorySupplier.getText();
+
+    // Validación individual por campo
+    if (barcode == null || barcode.trim().isEmpty()) {
+        AlertMessage.showAlert(Alert.AlertType.ERROR,"Error", "El campo 'Código de barras' es obligatorio.");
+        return;
+    }
+
+    if (newStockText == null || newStockText.trim().isEmpty()) {
+        AlertMessage.showAlert(Alert.AlertType.ERROR,"Error", "El campo 'Cantidad a agregar' es obligatorio.");
+        return;
+    }
+
+    if (purchasePriceText == null || purchasePriceText.trim().isEmpty()) {
+        AlertMessage.showAlert(Alert.AlertType.ERROR,"Error", "El campo 'Precio de compra' es obligatorio.");
+        return;
+    }
+
+    if (priceText == null || priceText.trim().isEmpty()) {
+        AlertMessage.showAlert(Alert.AlertType.ERROR,"Error", "El campo 'Precio de venta' es obligatorio.");
+        return;
+    }
+
+    if (supplier == null || supplier.trim().isEmpty()) {
+        AlertMessage.showAlert(Alert.AlertType.ERROR,"Error", "El campo 'Proveedor' es obligatorio.");
+        return;
+    }
+
+    int newStock;
+    double purchasePrice;
+    BigDecimal price;
+
+    // Validación: conversión numérica
+    try {
+        newStock = Integer.parseInt(newStockText);
+    } catch (NumberFormatException e) {
+        AlertMessage.showAlert(Alert.AlertType.ERROR,"Error", "El campo 'Cantidad a agregar' debe ser un número entero válido.");
+        return;
+    }
+
+    try {
+        purchasePrice = Double.parseDouble(purchasePriceText);
+    } catch (NumberFormatException e) {
+        AlertMessage.showAlert(Alert.AlertType.ERROR,"Error", "El campo 'Precio de compra' debe ser un número válido.");
+        return;
+    }
+
+    try {
+        price = new BigDecimal(priceText);
+    } catch (NumberFormatException e) {
+        AlertMessage.showAlert(Alert.AlertType.ERROR, "Error", "El campo 'Precio de venta' debe ser un número decimal válido.");
+        return;
+    }
+
+    // Obtener producto
+    ProductDTO productDto = productApi.getProductByBarcode(barcode, user.getToken());
+    if (productDto == null) {
+        AlertMessage.showAlert(Alert.AlertType.ERROR,"Error", "Producto no encontrado con el código de barras proporcionado.");
+        
+        return;
+    }
+
+    // Actualizar datos
+    productDto.setEntriy(newStock);
+    productDto.setPurchasePrice(purchasePrice);
+    productDto.setPrice(price);
+    productDto.setSupplier(supplier);
+
+    // Enviar actualización
+    productApi.addINvetory(productDto, user.getToken());
+    
+       txtAddInventoryBarcode.setText("");
+    txtAddInventoryAdd.setText("");
+    txtAddInventorypurchasePrice.setText("");
+    txtAddInventoryPrice.setText("");
+    txtAddInventorySupplier.setText("");
+    txtAddInventoryName.setText("");
+    txtAddInventoryholesalePrice.setText("");
+  //  showAlert("Éxito", "Inventario actualizado correctamente.");
 
     }
 
@@ -198,7 +283,7 @@ public class InventoryController implements Initializable {
                     } catch (NumberFormatException e) {
                         System.out.println("Formato de precio inválido");
                         // Muestra una alerta si el formato es inválido
-                        showAlert("Error", "Formato de precio inválido");
+                        AlertMessage.showAlert(Alert.AlertType.ERROR,"Error", "Formato de precio inválido");
                     }
                 }
             });
@@ -567,11 +652,11 @@ public class InventoryController implements Initializable {
     }
 
          
-          private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
+//          private void showAlert(String title, String message) {
+//        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+//        alert.setTitle(title);
+//        alert.setHeaderText(null);
+//        alert.setContentText(message);
+//        alert.showAndWait();
+//    }
 }
