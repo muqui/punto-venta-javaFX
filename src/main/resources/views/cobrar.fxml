@@ -42,5 +42,6 @@
       </TabPane>
       <Button layoutX="542.0" layoutY="376.0" mnemonicParsing="false" onAction="#btnCobrarAction" prefHeight="25.0" prefWidth="119.0" text="F12- Cobrar" />
       <Button layoutX="350.0" layoutY="376.0" mnemonicParsing="false" onAction="#btnImprimiryCobrarAction" text="F11- Imprimir y cobrar" />
+      <Button fx:id="btnPresupuesto" layoutX="187.0" layoutY="376.0" mnemonicParsing="false" onAction="#OnActionPresupuesto" prefHeight="26.0" prefWidth="119.0" text="Presupuesto" />
    </children>
 </AnchorPane>

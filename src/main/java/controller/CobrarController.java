@@ -165,6 +165,10 @@ public class CobrarController implements Initializable {
     void btnImprimiryCobrarAction(ActionEvent event) throws IOException {
         imprimirCobrar(true);
     }
+         @FXML
+    void OnActionPresupuesto(ActionEvent event) {
+             presupuesto(true);
+    }
 
     public void imprimirCobrar(boolean print) throws IOException {
         orderApi.saveOrder(getOrder());
@@ -176,7 +180,15 @@ public class CobrarController implements Initializable {
         }
 
     }
+    public void presupuesto(boolean print){
+           closeWindow();
+        if (print) {
+               PrintOrderService.createdPdfLetterTiclekPOS(getOrder().getOrderDetails());
+           
+        }
+    }
 
+  
     public void cobrar() {
 
     }

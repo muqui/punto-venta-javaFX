@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -187,9 +188,10 @@ public class PrintOrderService {
         document.close();
 
     }
+
     /*
     ** Imprime el ticket de la venta del POS
-    */
+     */
     public static void createdPdf80mm(ObservableList<OrderDetail> orderDetails) {
         System.out.println("SE ENVIA A PDF PARA IMPRIMIR");
         String dest = "/home/albert/Documents/miArchivo.pdf";
@@ -208,7 +210,7 @@ public class PrintOrderService {
             document.add(new Paragraph("MATI PAPELERIA")
                     .setBold().setFontSize(14).setTextAlignment(TextAlignment.CENTER));
             document.add(new Paragraph("Fecha: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")))
-        .setFontSize(12).setTextAlignment(TextAlignment.CENTER));
+                    .setFontSize(12).setTextAlignment(TextAlignment.CENTER));
             document.add(new Paragraph("CANT DESCRIPCION PRECIO TOTAL")
                     .setBold().setFontSize(10).setTextAlignment(TextAlignment.CENTER));
             for (OrderDetail detail : orderDetails) {
@@ -225,8 +227,7 @@ public class PrintOrderService {
                         .setBorder(Border.NO_BORDER));
                 // Acumular precio total
                 totalTicket = totalTicket.add(detail.getPrice());
-                  
-                        
+
                 System.out.println("ID: " + detail.getId());
                 System.out.println("Producto: " + detail.getProduct().getBarcode());
                 System.out.println("Cantidad: " + detail.getAmount());
@@ -237,9 +238,9 @@ public class PrintOrderService {
 
             document.add(new Paragraph("Total " + totalTicket)
                     .setBold().setFontSize(14).setTextAlignment(TextAlignment.RIGHT));
-            
-              String enLetras = NumeroALetras.convertir(totalTicket);
-                  document.add(new Paragraph(enLetras)
+
+            String enLetras = NumeroALetras.convertir(totalTicket);
+            document.add(new Paragraph(enLetras)
                     .setBold().setFontSize(12).setTextAlignment(TextAlignment.LEFT));
 
             // Cerrar el documento
@@ -256,4 +257,92 @@ public class PrintOrderService {
         }
 
     }
+
+    public static void createdPdfLetterTiclekPOS(ObservableList<OrderDetail> orderDetails) {
+        // Obtener timestamp actual
+        long timestamp = System.currentTimeMillis();
+        System.out.println("SE ENVIA A PDF PARA IMPRIMIR EN TAMAÑO CARTA");
+        // Ruta con nombre de archivo que incluye el timestamp
+        String dest = "/home/albert/Documents/miArchivo_Carta_" + timestamp + ".pdf";
+        DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
+        BigDecimal totalTicket = BigDecimal.ZERO;
+
+        try {
+            File file = new File(dest);
+            file.getParentFile().mkdirs();
+
+            PdfWriter writer = new PdfWriter(new FileOutputStream(file));
+            PdfDocument pdfDoc = new PdfDocument(writer);
+
+            // Cambiar tamaño a carta
+            Document document = new Document(pdfDoc, PageSize.LETTER);
+            document.setMargins(40f, 40f, 40f, 40f); // Márgenes amplios para carta
+
+            // Encabezado
+            document.add(new Paragraph("MATI PAPELERIA")
+                    .setBold().setFontSize(18).setTextAlignment(TextAlignment.CENTER));
+            document.add(new Paragraph("Fecha: "
+                    + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")))
+                    .setFontSize(12).setTextAlignment(TextAlignment.RIGHT));
+
+            document.add(new Paragraph("PRESUPUESTO")
+                    .setBold().setFontSize(14).setTextAlignment(TextAlignment.CENTER)
+                    .setMarginTop(20));
+
+            // Títulos de columna
+            Table headerTable = new Table(UnitValue.createPercentArray(new float[]{1, 5, 2, 2}))
+                    .useAllAvailableWidth();
+            headerTable.addHeaderCell(new Cell().add(new Paragraph("Cant").setBold()));
+            headerTable.addHeaderCell(new Cell().add(new Paragraph("Descripción").setBold()));
+            headerTable.addHeaderCell(new Cell().add(new Paragraph("P/U").setBold()));
+            headerTable.addHeaderCell(new Cell().add(new Paragraph("Total").setBold()));
+
+            // Cuerpo de la tabla
+            for (OrderDetail detail : orderDetails) {
+                BigDecimal unitPrice = detail.getPrice().divide(detail.getAmount(), 2, RoundingMode.HALF_UP);
+                totalTicket = totalTicket.add(detail.getPrice());
+
+                headerTable.addCell(new Cell().add(new Paragraph(detail.getAmount().toString())));
+                headerTable.addCell(new Cell().add(new Paragraph(detail.getProduct().getName())));
+                headerTable.addCell(new Cell().add(new Paragraph(decimalFormat.format(unitPrice))));
+                headerTable.addCell(new Cell().add(new Paragraph(decimalFormat.format(detail.getPrice()))));
+
+                // Opcional: logs
+                System.out.println("ID: " + detail.getId());
+                System.out.println("Producto: " + detail.getProduct().getBarcode());
+                System.out.println("Cantidad: " + detail.getAmount());
+                System.out.println("Precio: " + detail.getPrice());
+            }
+
+            document.add(headerTable);
+
+            // Total
+            document.add(new Paragraph("Total: $" + decimalFormat.format(totalTicket))
+                    .setBold().setFontSize(14).setTextAlignment(TextAlignment.RIGHT)
+                    .setMarginTop(20));
+
+            // Total en letras
+            String enLetras = NumeroALetras.convertir(totalTicket);
+            document.add(new Paragraph("Total en letras: " + enLetras)
+                    .setFontSize(12).setTextAlignment(TextAlignment.LEFT).setMarginTop(10));
+            
+            // Total en letras
+            String leyenda = "Este presupuesto tiene una vigencia de 8 días naturales a partir de su emisión.";
+            document.add(new Paragraph(leyenda)
+                    .setFontSize(12).setTextAlignment(TextAlignment.LEFT).setMarginTop(10));
+
+            document.close();
+            pdfDoc.close();
+            writer.close();
+
+            // Puedes enviar a impresora aquí si deseas
+            // sentToPaper(dest);
+            impWin();
+
+        } catch (Exception e) {
+            System.out.println("Error al generar o imprimir el PDF: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
 }
