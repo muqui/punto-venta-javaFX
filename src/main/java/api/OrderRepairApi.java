@@ -63,7 +63,7 @@ public class OrderRepairApi {
                 OrderServiceDTO order = objectMapper.readValue(response.body(), OrderServiceDTO.class);
                 System.out.println("Orden insertada= " + order.toString());
                 //PrintOrderService.sentToPrinter(order);
-                PrintOrderService.createdPdf80mm(order);
+                PrintOrderService.printOrderReparir80mm(order);
                 showAlert(Alert.AlertType.INFORMATION, "Éxito", "Order de servcio creada con exito.");
 
             } else {

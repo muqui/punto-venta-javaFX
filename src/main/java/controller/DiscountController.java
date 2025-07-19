@@ -70,7 +70,7 @@ public class DiscountController implements Initializable {
 
         sliderPorcentaje.setMin(0); // Valor mínimo
         sliderPorcentaje.setMax(100); // Valor máximo
-        sliderPorcentaje.setValue(50); // Valor inicial
+        sliderPorcentaje.setValue(20); // Valor inicial
         sliderPorcentaje.setShowTickLabels(true); // Mostrar etiquetas
         sliderPorcentaje.setShowTickMarks(true); // Mostrar marcas
         sliderPorcentaje.setMajorTickUnit(10); // Intervalo entre etiquetas principales

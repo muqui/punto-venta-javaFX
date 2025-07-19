@@ -5,6 +5,9 @@
 package helper;
 
 import beans.OrderDetail;
+import com.itextpdf.io.font.constants.StandardFonts;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
 import org.apache.pdfbox.pdmodel.PDDocument;
 
 import com.itextpdf.kernel.geom.PageSize;
@@ -41,131 +44,136 @@ import org.apache.pdfbox.printing.PDFPageable;
  */
 public class PrintOrderService {
 
-    public static void createdPdf80mm(OrderServiceDTO order) {
-        System.out.println("SE ENVIA A PDF PARA IMPRIMIR");
-        String dest = "/home/albert/Documents/miArchivo.pdf";
+public static void printOrderReparir80mm(OrderServiceDTO order) {
+    System.out.println("SE ENVIA A PDF PARA IMPRIMIR");
+    String dest = "/home/albert/Documents/miArchivo.pdf";
 
-        try {
-            // Crear archivo y directorios si no existen
-            File file = new File(dest);
-            file.getParentFile().mkdirs();
+    try {
+        File file = new File(dest);
+        file.getParentFile().mkdirs();
 
-            // Inicializar el documento PDF con tamaño 80mm de ancho
-            PdfWriter writer = new PdfWriter(new FileOutputStream(file));
-            PdfDocument pdfDoc = new PdfDocument(writer);
-            PageSize thermalPageSize = new PageSize(226.77f, 1000f); // 80mm ≈ 226.77 puntos, altura flexible
-            Document document = new Document(pdfDoc, thermalPageSize);
-            document.setMargins(3f, 5f, 3f, 5f); // Agregar márgenes mínimos para evitar cortes
+        PdfWriter writer = new PdfWriter(new FileOutputStream(file));
+        PdfDocument pdfDoc = new PdfDocument(writer);
+        PageSize thermalPageSize = new PageSize(226.77f, 1000f); // 80mm de ancho
+        Document document = new Document(pdfDoc, thermalPageSize);
+        document.setMargins(3f, 15f, 3f, 5f); // top, right, bottom, left
 
-            document.add(new Paragraph("ORDER DE SERVICIO")
-                    .setBold().setFontSize(14).setTextAlignment(TextAlignment.CENTER));
+        // Tamaños de fuente sugeridos
+        float fontSizeTitle = 12f;
+        float fontSizeMain = 10f;
+        float fontSizeSmall = 9f;
+        float fontSizeMicroSmall = 7f;
 
-            document.add(new Paragraph("Navarro TECH")
-                    .setBold().setFontSize(18).setTextAlignment(TextAlignment.CENTER));
-            document.add(new Paragraph("33 20 87 48 74")
-                    .setBold().setFontSize(14).setTextAlignment(TextAlignment.CENTER));
+        // Fuente compacta
+        PdfFont font = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+        document.setFont(font);
 
-            // Agregar contenido de izquierda a derecha y de arriba hacia abajo
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-            String formattedDate = sdf.format(order.getDate());
-            document.add(new Paragraph("📆 Fecha: " + formattedDate)
-                    .setBold().setFontSize(14).setTextAlignment(TextAlignment.LEFT));
+        document.add(new Paragraph("ORDER DE SERVICIO")
+                .setBold().setFontSize(fontSizeTitle).setTextAlignment(TextAlignment.CENTER));
 
-            document.add(new Paragraph("📌 FOLIO: " + order.getFolio())
-                    .setBold().setFontSize(14).setTextAlignment(TextAlignment.LEFT));
+        document.add(new Paragraph("Navarro TECH")
+                .setBold().setFontSize(14).setTextAlignment(TextAlignment.CENTER));
 
-            document.add(new Paragraph("🛠️ DATOS DEL CLIENTE")
-                    .setBold().setFontSize(11).setTextAlignment(TextAlignment.LEFT));
+        document.add(new Paragraph("33 20 87 48 74")
+                .setBold().setFontSize(fontSizeTitle).setTextAlignment(TextAlignment.CENTER));
 
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        String formattedDate = sdf.format(order.getDate());
+        document.add(new Paragraph("📆 Fecha: " + formattedDate)
+                .setFontSize(fontSizeMain).setTextAlignment(TextAlignment.LEFT));
+
+        document.add(new Paragraph("📌 FOLIO: " + order.getFolio())
+                .setFontSize(fontSizeMain).setTextAlignment(TextAlignment.LEFT));
+
+        document.add(new Paragraph("🛠️ DATOS DEL CLIENTE")
+                .setBold().setFontSize(fontSizeSmall).setTextAlignment(TextAlignment.LEFT));
+
+        document.add(new Paragraph()
+                .add(new Text("👤 Cliente: ").setBold())
+                .add(new Text(order.getClient()))
+                .setFontSize(fontSizeMain)
+                .setTextAlignment(TextAlignment.LEFT));
+
+        document.add(new Paragraph()
+                .add(new Text("Telefono: ").setBold())
+                .add(new Text(order.getCellphone()))
+                .setFontSize(fontSizeMain)
+                .setTextAlignment(TextAlignment.LEFT));
+
+        if (order.getEmail() != null && !order.getEmail().isEmpty()) {
             document.add(new Paragraph()
-                    .add(new Text("👤 Cliente: ").setBold()) // "Cliente" en negritas
-                    .add(new Text(order.getClient())) // El nombre del cliente en texto normal
-                    .setFontSize(14)
+                    .add(new Text("Email: ").setBold())
+                    .add(new Text(order.getEmail()))
+                    .setFontSize(fontSizeMain)
                     .setTextAlignment(TextAlignment.LEFT));
-
-            document.add(new Paragraph()
-                    .add(new Text("Telefono: ").setBold())
-                    .add(new Text(order.getCellphone()))
-                    .setFontSize(14)
-                    .setTextAlignment(TextAlignment.LEFT));
-
-            if (order.getEmail() != null && !order.getEmail().isEmpty()) {
-                document.add(new Paragraph()
-                        .add(new Text("Email: ").setBold())
-                        .add(new Text(order.getEmail()))
-                        .setFontSize(14)
-                        .setTextAlignment(TextAlignment.LEFT));
-            }
-
-            document.add(new Paragraph("🛠️ DATOS DEL EQUIPO")
-                    .setBold().setFontSize(11).setTextAlignment(TextAlignment.LEFT));
-
-            document.add(new Paragraph()
-                    .add(new Text("Marca: ").setBold())
-                    .add(new Text(order.getBrand()))
-                    .setFontSize(14)
-                    .setTextAlignment(TextAlignment.LEFT));
-
-            document.add(new Paragraph()
-                    .add(new Text("Modelo: ").setBold())
-                    .add(new Text(order.getModel()))
-                    .setFontSize(14)
-                    .setTextAlignment(TextAlignment.LEFT));
-
-            document.add(new Paragraph()
-                    .add(new Text("Servicio: ").setBold())
-                    .add(new Text(order.getService()))
-                    .setFontSize(14)
-                    .setTextAlignment(TextAlignment.LEFT));
-            if (order.getRepairCost() != null && order.getRepairCost() > 0) {
-
-                document.add(new Paragraph("COSTO DEL SERVICIO")
-                        .setBold().setFontSize(14).setTextAlignment(TextAlignment.LEFT));
-
-                document.add(new Paragraph()
-                        .add(new Text("Costo: ").setBold())
-                        .add(new Text(String.format("%.2f", order.getRepairCost())))
-                        .setFontSize(14)
-                        .setTextAlignment(TextAlignment.LEFT));
-
-                document.add(new Paragraph()
-                        .add(new Text("Abono: ").setBold())
-                        .add(new Text(String.format("%.2f", order.getPaid())))
-                        .setFontSize(14)
-                        .setTextAlignment(TextAlignment.LEFT));
-
-                document.add(new Paragraph()
-                        .add(new Text("Saldo: ").setBold())
-                        .add(new Text(String.format("%.2f", order.getLeft())))
-                        .setFontSize(14)
-                        .setTextAlignment(TextAlignment.LEFT));
-
-            }
-
-            document.add(new Paragraph("TÉRMINOS Y CONDICIONES\n"
-                    + "Anticipo: Se requiere 50% de anticipo para todas las reparaciones.\n"
-                    + "Garantía: La garantía es de 1 mes para reparaciones de display, solo si el equipo no tiene daños adicionales, como golpes, humedad o intervención externa.\n"
-                    + "Responsabilidad: La empresa no se responsabiliza de problemas surgidos después de 30 días de la entrega del equipo.\n"
-                    + "Condiciones: El teléfono debe estar libre de golpes, humedad o ser abierto por terceros para que aplique la garantía.\n"
-                    + "Riesgos: En equipos que no encienden pueden surgir problemas adicionales, los cuales deberán ser aprobados por el cliente.")
-                    .setFontSize(12).setTextAlignment(TextAlignment.JUSTIFIED));
-
-            // Cerrar el documento
-            document.close();
-            pdfDoc.close();
-            writer.close();
-
-            // Enviar a la impresora
-            // sentToPaper(dest);
-            impWin();
-        } catch (Exception e) {
-            System.out.println("Error al generar o imprimir el PDF: " + e.getMessage());
-            e.printStackTrace();
         }
-    }
 
-    private static void impWin() throws PrinterException, IOException {
-        String dest = "/home/albert/Documents/miArchivo.pdf";
+        document.add(new Paragraph("🛠️ DATOS DEL EQUIPO")
+                .setBold().setFontSize(fontSizeSmall).setTextAlignment(TextAlignment.LEFT));
+
+        document.add(new Paragraph()
+                .add(new Text("Marca: ").setBold())
+                .add(new Text(order.getBrand()))
+                .setFontSize(fontSizeMain)
+                .setTextAlignment(TextAlignment.LEFT));
+
+        document.add(new Paragraph()
+                .add(new Text("Modelo: ").setBold())
+                .add(new Text(order.getModel()))
+                .setFontSize(fontSizeMain)
+                .setTextAlignment(TextAlignment.LEFT));
+
+        document.add(new Paragraph()
+                .add(new Text("Servicio: ").setBold())
+                .add(new Text(order.getService()))
+                .setFontSize(fontSizeMain)
+                .setTextAlignment(TextAlignment.LEFT));
+
+        if (order.getRepairCost() != null && order.getRepairCost() > 0) {
+            document.add(new Paragraph("COSTO DEL SERVICIO")
+                    .setBold().setFontSize(fontSizeMain).setTextAlignment(TextAlignment.LEFT));
+
+            document.add(new Paragraph()
+                    .add(new Text("Costo: ").setBold())
+                    .add(new Text(String.format("%.2f", order.getRepairCost())))
+                    .setFontSize(fontSizeMain)
+                    .setTextAlignment(TextAlignment.LEFT));
+
+            document.add(new Paragraph()
+                    .add(new Text("Abono: ").setBold())
+                    .add(new Text(String.format("%.2f", order.getPaid())))
+                    .setFontSize(fontSizeMain)
+                    .setTextAlignment(TextAlignment.LEFT));
+
+            document.add(new Paragraph()
+                    .add(new Text("Saldo: ").setBold())
+                    .add(new Text(String.format("%.2f", order.getLeft())))
+                    .setFontSize(fontSizeMain)
+                    .setTextAlignment(TextAlignment.LEFT));
+        }
+
+        document.add(new Paragraph("TÉRMINOS Y CONDICIONES\n"
+                + "Anticipo: Se requiere 50% de anticipo para todas las reparaciones.\n"
+                + "Garantía: La garantía es de 1 mes para reparaciones de display, solo si el equipo no tiene daños adicionales, como golpes, humedad o intervención externa.\n"
+                + "Responsabilidad: La empresa no se responsabiliza de problemas surgidos después de 30 días de la entrega del equipo.\n"
+                + "Condiciones: El teléfono debe estar libre de golpes, humedad o ser abierto por terceros para que aplique la garantía.\n"
+                + "Riesgos: En equipos que no encienden pueden surgir problemas adicionales, los cuales deberán ser aprobados por el cliente.")
+                .setFontSize(fontSizeMicroSmall).setTextAlignment(TextAlignment.JUSTIFIED));
+
+        document.close();
+        pdfDoc.close();
+        writer.close();
+
+        sentoToPrinter(dest);
+    } catch (Exception e) {
+        System.out.println("Error al generar o imprimir el PDF: " + e.getMessage());
+        e.printStackTrace();
+    }
+}
+
+
+    private static void sentoToPrinter(String dest) throws PrinterException, IOException {
+      //  String dest = "/home/albert/Documents/miArchivo.pdf";
         // Cargar el PDF
         File file = new File(dest);
 
@@ -250,7 +258,7 @@ public class PrintOrderService {
 
             // Enviar a la impresora
             // sentToPaper(dest);
-            impWin();
+            sentoToPrinter(dest);
         } catch (Exception e) {
             System.out.println("Error al generar o imprimir el PDF: " + e.getMessage());
             e.printStackTrace();
@@ -335,9 +343,8 @@ public class PrintOrderService {
             pdfDoc.close();
             writer.close();
 
-            // Puedes enviar a impresora aquí si deseas
-            // sentToPaper(dest);
-            impWin();
+        
+            sentoToPrinter(dest);
 
         } catch (Exception e) {
             System.out.println("Error al generar o imprimir el PDF: " + e.getMessage());
