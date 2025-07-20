@@ -7,8 +7,12 @@ package controller;
 import api.UserApi;
 import dto.OrderServiceDTO;
 import dto.UserDTO;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,10 +23,12 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -33,7 +39,7 @@ import javafx.stage.Stage;
  * @author albert
  */
 public class UserController implements Initializable {
-
+    private ToggleGroup paperOrderServiceSizeGroup;
     UserApi userApi = new UserApi();
     @FXML
     private Button btnCreatedUSer;
@@ -46,6 +52,14 @@ public class UserController implements Initializable {
 
     @FXML
     private TableView<UserDTO> tableUsers;
+    @FXML
+    private RadioButton RadioButtonOrderService58;
+
+    @FXML
+    private RadioButton RadioButtonOrderService80;
+
+    @FXML
+    private RadioButton RadioButtonOrderServiceLetter;
 
     @FXML
     void onActionCreatedUser(ActionEvent event) {
@@ -65,6 +79,41 @@ public class UserController implements Initializable {
         // TODO
         // userApi.fillChoiceBoxUser();
         initializeTableColumns();
+        
+            paperOrderServiceSizeGroup = new ToggleGroup();
+
+    RadioButtonOrderService58.setToggleGroup(paperOrderServiceSizeGroup);
+    RadioButtonOrderService80.setToggleGroup(paperOrderServiceSizeGroup);
+    RadioButtonOrderServiceLetter.setToggleGroup(paperOrderServiceSizeGroup);
+
+       // Leer el valor guardado
+    String savedPrinter = loadPrinterNameFromProperties();
+
+    if (savedPrinter != null) {
+        switch (savedPrinter) {
+            case "58mm":
+                RadioButtonOrderService58.setSelected(true);
+                break;
+            case "80mm":
+                RadioButtonOrderService80.setSelected(true);
+                break;
+            case "Letter":
+                RadioButtonOrderServiceLetter.setSelected(true);
+                break;
+            default:
+                RadioButtonOrderServiceLetter.setSelected(true); // valor por defecto si no coincide
+        }
+    } else {
+        RadioButtonOrderServiceLetter.setSelected(true); // valor por defecto si no hay archivo
+    }
+    paperOrderServiceSizeGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+    if (newToggle != null) {
+        RadioButton selectedRadio = (RadioButton) newToggle;
+        String printerName = selectedRadio.getText(); // o usa .getId() si prefieres el ID
+
+        savePrinterNameToProperties(printerName);
+    }
+});
 
     }
 
@@ -143,5 +192,41 @@ public class UserController implements Initializable {
         }
 
     }
+    
+    private void savePrinterNameToProperties(String printerName) {
+    Properties config = new Properties();
+    File file = new File("config.properties");
+
+    try {
+        if (file.exists()) {
+            try (FileInputStream in = new FileInputStream(file)) {
+                config.load(in);
+            }
+        }
+
+        config.setProperty("printer.order.service.name", printerName);
+
+        try (FileOutputStream out = new FileOutputStream(file)) {
+            config.store(out, "Configuración de impresora actualizada");
+        }
+
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+}
+
+    private String loadPrinterNameFromProperties() {
+    Properties config = new Properties();
+    File file = new File("config.properties");
+
+    try (FileInputStream in = new FileInputStream(file)) {
+        config.load(in);
+        return config.getProperty("printer.order.service.name"); // puede devolver null si no existe
+    } catch (IOException e) {
+        e.printStackTrace();
+        return null;
+    }
+}
+
 
 }

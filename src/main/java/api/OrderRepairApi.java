@@ -11,6 +11,7 @@ import config.ConfigManager;
 import dto.IncomeDTO;
 import dto.OrderServiceDTO;
 import dto.ProductFindDTO;
+import helper.ConfigLoader;
 import helper.PrintOrderService;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -31,7 +32,9 @@ import org.json.JSONObject;
  * @author albert
  */
 public class OrderRepairApi {
-  String token = App.getUsuario().getToken();
+
+    String printerName = ConfigLoader.getOrderPrinterName();
+    String token = App.getUsuario().getToken();
     ConfigManager configManager = new ConfigManager(); //carga el archivo de config.properties
     String baseUrl = configManager.getProperty("api.base.url");
     String endpointCreatedServiceOrder = configManager.getProperty("api.endpoint.created.service.order");
@@ -51,7 +54,7 @@ public class OrderRepairApi {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(baseUrl + endpointCreatedServiceOrder)) // Cambiar el endpoint a POST si es necesario
                     .header("Content-Type", "application/json")
-                     .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
+                    .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
                     .POST(HttpRequest.BodyPublishers.ofString(jsonProduct)) // Cambiado a POST
                     .build();
 
@@ -63,7 +66,18 @@ public class OrderRepairApi {
                 OrderServiceDTO order = objectMapper.readValue(response.body(), OrderServiceDTO.class);
                 System.out.println("Orden insertada= " + order.toString());
                 //PrintOrderService.sentToPrinter(order);
-                PrintOrderService.printOrderReparir80mm(order);
+                switch (printerName) {
+                    case "58mm":
+                        PrintOrderService.printOrderReparir58mm(order);
+                        break;
+                    case "80mm":
+                        PrintOrderService.printOrderReparir80mm(order);
+                        break;
+                    case "Letter":
+                    default:
+                        PrintOrderService.printOrderReparirLetter(order);
+                        break;
+                }
                 showAlert(Alert.AlertType.INFORMATION, "Éxito", "Order de servcio creada con exito.");
 
             } else {
@@ -95,14 +109,14 @@ public class OrderRepairApi {
 
         //http://localhost:3000/repair-cellphones?startDate=2025-05-01&endDate=2025-05-09&status=Reparado
         List<OrderServiceDTO> orderServices = null;
-        String urlString = baseUrl + endpointRepairservice + "?startDate="+ StartDate +"&endDate=" +endDate + "&status=" + encodedStatus;
+        String urlString = baseUrl + endpointRepairservice + "?startDate=" + StartDate + "&endDate=" + endDate + "&status=" + encodedStatus;
         System.out.println("endpoint obtener todas la ordenes de servicio" + urlString);
-       
+
         URL url = new URL(urlString);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
-         conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
-            conn.setRequestProperty("Content-Type", "application/json");
+        conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
+        conn.setRequestProperty("Content-Type", "application/json");
         conn.connect();
 
         int responseCode = conn.getResponseCode();
@@ -134,8 +148,8 @@ public class OrderRepairApi {
         URL url = new URL(urlString);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
-         conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
-            conn.setRequestProperty("Content-Type", "application/json");
+        conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
+        conn.setRequestProperty("Content-Type", "application/json");
         conn.connect();
 
         int responseCode = conn.getResponseCode();
@@ -171,7 +185,7 @@ public class OrderRepairApi {
 
                     //  .uri(new URI("http://localhost:3000/products/" + product.getBarcode())) // Asegúrate de pasar el ID del producto
                     .header("Content-Type", "application/json")
-                     .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
+                    .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
                     .method("PATCH", HttpRequest.BodyPublishers.ofString(jsonProduct)) // Cambiar POST a PATCH
                     .build();
 
@@ -188,7 +202,7 @@ public class OrderRepairApi {
                 // Acceder al campo "message"
                 String message = jsonResponse.getString("message");
                 System.out.println("Message = " + message);
-                 showAlert(Alert.AlertType.ERROR, "Error", "Orden Finalizada no se puede modificar.");
+                showAlert(Alert.AlertType.ERROR, "Error", "Orden Finalizada no se puede modificar.");
                 // Manejar error de autenticación
                 if (message.equalsIgnoreCase("product not found")) {
                     //    showAlert("Info", "El producto no existe.");
