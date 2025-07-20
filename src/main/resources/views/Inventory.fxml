@@ -12,11 +12,11 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 
-<AnchorPane id="AnchorPane" prefHeight="516.0" prefWidth="997.0" styleClass="mainFxmlClass" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.InventoryController">
+<AnchorPane id="AnchorPane" prefHeight="516.0" prefWidth="1274.0" styleClass="mainFxmlClass" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.InventoryController">
    <children>
       <BorderPane prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <center>
-            <TabPane fx:id="tabPaneInventory" onMouseClicked="#mouseClickTabPaneInventory" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+            <TabPane fx:id="tabPaneInventory" onMouseClicked="#mouseClickTabPaneInventory" prefHeight="516.0" prefWidth="1156.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
               <tabs>
                 <Tab text="Productos">
                      <content>
@@ -41,7 +41,9 @@
                               <DatePicker fx:id="datePickerEntriesSartDate" layoutX="54.0" layoutY="19.0" />
                               <Label layoutX="250.0" layoutY="23.0" text="Hasta" />
                               <DatePicker fx:id="datePickerEntriesEndDate" layoutX="290.0" layoutY="19.0" />
-                              <Button fx:id="btnEntriesUpdate" layoutX="860.0" layoutY="19.0" mnemonicParsing="false" onAction="#onActionEntriesUpdate" text="Actualizar" />
+                              <Button fx:id="btnEntriesUpdate" layoutX="1108.0" layoutY="19.0" mnemonicParsing="false" onAction="#onActionEntriesUpdate" text="Buscar" />
+                              <TextField fx:id="txtEntryName" layoutX="928.0" layoutY="19.0" />
+                              <Label layoutX="864.0" layoutY="23.0" text="Nombre" />
                            </children>
                         </AnchorPane>
                      </content></Tab>

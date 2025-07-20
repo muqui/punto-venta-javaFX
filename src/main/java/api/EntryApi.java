@@ -89,5 +89,55 @@ public class EntryApi {
 
         return entryList;
     }
+    
+    public ObservableList<EntryDTO> fetchEntriesByName(String name) {
+    ConfigManager configManager = new ConfigManager(); // carga el archivo config.properties
+    String baseUrl = configManager.getProperty("api.base.url");
+    //String endpointEntriesByName = "/products/entries-by-name"; // o configManager.getProperty si lo tienes en config
+      String endpointEntriesByName = configManager.getProperty("api.products.entries.by.name");
+    ObservableList<EntryDTO> entryList = null;
+    try {
+        String encodedName = URLEncoder.encode(name, StandardCharsets.UTF_8);
+        URL url = new URL(baseUrl + endpointEntriesByName + "?name=" + encodedName);
+        System.out.println("url" + url.toString());
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("Authorization", "Bearer " + token); // agrega token si usas auth
+        conn.setRequestProperty("Content-Type", "application/json");
+        conn.connect();
+
+        int responseCode = conn.getResponseCode();
+        System.out.println("Response Code: " + responseCode);
+
+        if (responseCode != 200) {
+            throw new RuntimeException("HttpResponseCode: " + responseCode);
+        } else {
+            Scanner scanner = new Scanner(conn.getInputStream());
+            StringBuilder inline = new StringBuilder();
+            while (scanner.hasNext()) {
+                inline.append(scanner.nextLine());
+            }
+            scanner.close();
+
+            ObjectMapper mapper = new ObjectMapper();
+            List<EntryDTO> entries = mapper.readValue(inline.toString(), new com.fasterxml.jackson.core.type.TypeReference<List<EntryDTO>>() {});
+
+            entries.forEach(entry -> System.out.println(entry.toString()));
+
+            entryList = FXCollections.observableArrayList(entries);
+            System.out.println("Observable list: " + entries);
+        }
+
+    } catch (MalformedURLException ex) {
+        Logger.getLogger(InventoryController.class.getName()).log(Level.SEVERE, null, ex);
+        System.out.println("MalformedURLException: " + ex);
+    } catch (IOException ex) {
+        Logger.getLogger(InventoryController.class.getName()).log(Level.SEVERE, null, ex);
+        System.out.println("IOException: " + ex);
+    }
+
+    return entryList;
+}
+
 
 }

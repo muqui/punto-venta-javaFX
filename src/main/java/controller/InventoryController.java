@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -63,10 +64,13 @@ import javafx.util.StringConverter;
  * @author albert
  */
 public class InventoryController implements Initializable {
+
     private UserDTO user;
     ProductApi productApi = new ProductApi();
     EntryApi entryApi = new EntryApi();
     OrderApi orderApia = new OrderApi();
+    @FXML
+    private TextField txtEntryName;
 
     @FXML
     private TableView<ProductDTO> tableProducts;
@@ -123,8 +127,13 @@ public class InventoryController implements Initializable {
     @FXML
     void onActionEntriesUpdate(ActionEvent event) {
         DepartmentDTO departament = comboBoxDepartament.getValue();
-
-        fetchEntriesTable(datePickerEntriesSartDate.getValue().toString(), datePickerEntriesEndDate.getValue().toString(), departament.getName());
+        System.out.println("Buscar por nombre: " + txtEntryName.getText());
+        String name = txtEntryName.getText().trim();
+        if (!"".equalsIgnoreCase(name)) {
+            fetchEntriesTable(name);
+        } else {
+            fetchEntriesTable(datePickerEntriesSartDate.getValue().toString(), datePickerEntriesEndDate.getValue().toString(), departament.getName());
+        }
 
     }
 
@@ -139,90 +148,90 @@ public class InventoryController implements Initializable {
 //        productDto.setPrice(new BigDecimal(txtAddInventoryPrice.getText()));
 //        productDto.setSupplier(txtAddInventorySupplier.getText());
 //        productApi.addINvetory(productDto, user.getToken());
-    // Obtener los valores de los campos
-    String barcode = txtAddInventoryBarcode.getText();
-    String newStockText = txtAddInventoryAdd.getText();
-    String purchasePriceText = txtAddInventorypurchasePrice.getText();
-    String priceText = txtAddInventoryPrice.getText();
-    String supplier = txtAddInventorySupplier.getText();
+        // Obtener los valores de los campos
+        String barcode = txtAddInventoryBarcode.getText();
+        String newStockText = txtAddInventoryAdd.getText();
+        String purchasePriceText = txtAddInventorypurchasePrice.getText();
+        String priceText = txtAddInventoryPrice.getText();
+        String supplier = txtAddInventorySupplier.getText();
 
-    // Validación individual por campo
-    if (barcode == null || barcode.trim().isEmpty()) {
-        AlertMessage.showAlert(Alert.AlertType.ERROR,"Error", "El campo 'Código de barras' es obligatorio.");
-        return;
-    }
+        // Validación individual por campo
+        if (barcode == null || barcode.trim().isEmpty()) {
+            AlertMessage.showAlert(Alert.AlertType.ERROR, "Error", "El campo 'Código de barras' es obligatorio.");
+            return;
+        }
 
-    if (newStockText == null || newStockText.trim().isEmpty()) {
-        AlertMessage.showAlert(Alert.AlertType.ERROR,"Error", "El campo 'Cantidad a agregar' es obligatorio.");
-        return;
-    }
+        if (newStockText == null || newStockText.trim().isEmpty()) {
+            AlertMessage.showAlert(Alert.AlertType.ERROR, "Error", "El campo 'Cantidad a agregar' es obligatorio.");
+            return;
+        }
 
-    if (purchasePriceText == null || purchasePriceText.trim().isEmpty()) {
-        AlertMessage.showAlert(Alert.AlertType.ERROR,"Error", "El campo 'Precio de compra' es obligatorio.");
-        return;
-    }
+        if (purchasePriceText == null || purchasePriceText.trim().isEmpty()) {
+            AlertMessage.showAlert(Alert.AlertType.ERROR, "Error", "El campo 'Precio de compra' es obligatorio.");
+            return;
+        }
 
-    if (priceText == null || priceText.trim().isEmpty()) {
-        AlertMessage.showAlert(Alert.AlertType.ERROR,"Error", "El campo 'Precio de venta' es obligatorio.");
-        return;
-    }
+        if (priceText == null || priceText.trim().isEmpty()) {
+            AlertMessage.showAlert(Alert.AlertType.ERROR, "Error", "El campo 'Precio de venta' es obligatorio.");
+            return;
+        }
 
-    if (supplier == null || supplier.trim().isEmpty()) {
-        AlertMessage.showAlert(Alert.AlertType.ERROR,"Error", "El campo 'Proveedor' es obligatorio.");
-        return;
-    }
+        if (supplier == null || supplier.trim().isEmpty()) {
+            AlertMessage.showAlert(Alert.AlertType.ERROR, "Error", "El campo 'Proveedor' es obligatorio.");
+            return;
+        }
 
-    int newStock;
-    double purchasePrice;
-    BigDecimal price;
+        int newStock;
+        double purchasePrice;
+        BigDecimal price;
 
-    // Validación: conversión numérica
-    try {
-        newStock = Integer.parseInt(newStockText);
-    } catch (NumberFormatException e) {
-        AlertMessage.showAlert(Alert.AlertType.ERROR,"Error", "El campo 'Cantidad a agregar' debe ser un número entero válido.");
-        return;
-    }
+        // Validación: conversión numérica
+        try {
+            newStock = Integer.parseInt(newStockText);
+        } catch (NumberFormatException e) {
+            AlertMessage.showAlert(Alert.AlertType.ERROR, "Error", "El campo 'Cantidad a agregar' debe ser un número entero válido.");
+            return;
+        }
 
-    try {
-        purchasePrice = Double.parseDouble(purchasePriceText);
-    } catch (NumberFormatException e) {
-        AlertMessage.showAlert(Alert.AlertType.ERROR,"Error", "El campo 'Precio de compra' debe ser un número válido.");
-        return;
-    }
+        try {
+            purchasePrice = Double.parseDouble(purchasePriceText);
+        } catch (NumberFormatException e) {
+            AlertMessage.showAlert(Alert.AlertType.ERROR, "Error", "El campo 'Precio de compra' debe ser un número válido.");
+            return;
+        }
 
-    try {
-        price = new BigDecimal(priceText);
-    } catch (NumberFormatException e) {
-        AlertMessage.showAlert(Alert.AlertType.ERROR, "Error", "El campo 'Precio de venta' debe ser un número decimal válido.");
-        return;
-    }
+        try {
+            price = new BigDecimal(priceText);
+        } catch (NumberFormatException e) {
+            AlertMessage.showAlert(Alert.AlertType.ERROR, "Error", "El campo 'Precio de venta' debe ser un número decimal válido.");
+            return;
+        }
 
-    // Obtener producto
-    ProductDTO productDto = productApi.getProductByBarcode(barcode, user.getToken());
-    if (productDto == null) {
-        AlertMessage.showAlert(Alert.AlertType.ERROR,"Error", "Producto no encontrado con el código de barras proporcionado.");
-        
-        return;
-    }
+        // Obtener producto
+        ProductDTO productDto = productApi.getProductByBarcode(barcode, user.getToken());
+        if (productDto == null) {
+            AlertMessage.showAlert(Alert.AlertType.ERROR, "Error", "Producto no encontrado con el código de barras proporcionado.");
 
-    // Actualizar datos
-    productDto.setEntriy(newStock);
-    productDto.setPurchasePrice(purchasePrice);
-    productDto.setPrice(price);
-    productDto.setSupplier(supplier);
+            return;
+        }
 
-    // Enviar actualización
-    productApi.addINvetory(productDto, user.getToken());
-    
-       txtAddInventoryBarcode.setText("");
-    txtAddInventoryAdd.setText("");
-    txtAddInventorypurchasePrice.setText("");
-    txtAddInventoryPrice.setText("");
-    txtAddInventorySupplier.setText("");
-    txtAddInventoryName.setText("");
-    txtAddInventoryholesalePrice.setText("");
-  //  showAlert("Éxito", "Inventario actualizado correctamente.");
+        // Actualizar datos
+        productDto.setEntriy(newStock);
+        productDto.setPurchasePrice(purchasePrice);
+        productDto.setPrice(price);
+        productDto.setSupplier(supplier);
+
+        // Enviar actualización
+        productApi.addINvetory(productDto, user.getToken());
+
+        txtAddInventoryBarcode.setText("");
+        txtAddInventoryAdd.setText("");
+        txtAddInventorypurchasePrice.setText("");
+        txtAddInventoryPrice.setText("");
+        txtAddInventorySupplier.setText("");
+        txtAddInventoryName.setText("");
+        txtAddInventoryholesalePrice.setText("");
+        //  showAlert("Éxito", "Inventario actualizado correctamente.");
 
     }
 
@@ -256,22 +265,22 @@ public class InventoryController implements Initializable {
         try {
             this.user = App.getUsuario();
             fillChoiceBoxGanancias();
-            
+
             productApi.fetchProductsInventary("", user.getToken(), 1, 5);
             txtAddInventoryBarcode.setOnKeyPressed(new EventHandler<KeyEvent>() {
                 @Override
                 public void handle(KeyEvent ke) {
                     if (ke.getCode().equals(KeyCode.ENTER)) {
-                        
+
                         System.out.println("BUSCAR PRODUCTO AÑADIR AL INVENTARIO");
-                        
+
                         updateProduct();
-                        
+
                     }
                 }
-                
+
             });
-            
+
             // Agregar un listener al ComboBox
             ComboAddInventoryProfit.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue != null) {
@@ -283,11 +292,11 @@ public class InventoryController implements Initializable {
                     } catch (NumberFormatException e) {
                         System.out.println("Formato de precio inválido");
                         // Muestra una alerta si el formato es inválido
-                        AlertMessage.showAlert(Alert.AlertType.ERROR,"Error", "Formato de precio inválido");
+                        AlertMessage.showAlert(Alert.AlertType.ERROR, "Error", "Formato de precio inválido");
                     }
                 }
             });
-            
+
             // TODO
             // Añadir listener para manejar la selección
             comboCategoryProducts.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -295,7 +304,7 @@ public class InventoryController implements Initializable {
                     // Acción al seleccionar un elemento
                     System.out.println("Seleccionado: " + newValue.getName());
                     //realizarAccion(newValue);
-                    
+
                     try {
                         InventoryResponseDTO inventoryResponseDTO;
                         if ("TODOS LOS DEPARTAMENTOS".equals(newValue.getName())) {
@@ -310,7 +319,7 @@ public class InventoryController implements Initializable {
                     } catch (IOException ex) {
                         Logger.getLogger(InventoryController.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    
+
                 }
             });
             // Añadir listener para manejar la selección
@@ -319,25 +328,25 @@ public class InventoryController implements Initializable {
                     // Acción al seleccionar un elemento
                     System.out.println("Seleccionado: " + newValue.getName());
                     //realizarAccion(newValue);
-                    
+
                     fetchEntriesTable(datePickerEntriesSartDate.getValue().toString(), datePickerEntriesEndDate.getValue().toString(), newValue.getName());
-                    
+
                 }
             });
-            
+
             try {
                 entries();  //carga los datos de lasa entradas al inventario
                 outputs(); //carga los datos de las salidas al inventario
                 fetchDataInventorie(); // carga las informacion del inventario.
                 fillChoiceBoxDepartament(); // carga los departamentos  en a vista de productos
                 fillChoiceBoxDepartamentEntries(); // carga los departamentos  de entradas del inventario
-                
+
                 datePickerEntriesEndDate.setValue(LocalDate.now());
                 datePickerEntriesSartDate.setValue(LocalDate.now());
-                
+
             } catch (Exception e) {
             }
-            
+
         } catch (IOException ex) {
             Logger.getLogger(InventoryController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -407,10 +416,10 @@ public class InventoryController implements Initializable {
 
     public void entries() {
         try {
+            tableViewEntries.getColumns().clear();
             // Columna para la fecha
             TableColumn<EntryDTO, Date> columnDate = new TableColumn<>("Fecha");
             columnDate.setCellValueFactory(new PropertyValueFactory<>("date"));
-            columnDate.setPrefWidth(150); // Ajusta el ancho según sea necesario
 
             // Columna para el nombre del producto
             TableColumn<EntryDTO, String> columnProductBarcode = new TableColumn<>("Codigo de barras");
@@ -418,43 +427,45 @@ public class InventoryController implements Initializable {
                 ProductDTO product = cellData.getValue().getProduct();
                 return new SimpleStringProperty(product != null ? product.getBarcode() : "");
             });
-            columnProductBarcode.setPrefWidth(150); // Ajusta el ancho según sea necesario
+
             // Columna para el nombre del producto
             TableColumn<EntryDTO, String> columnProductName = new TableColumn<>("Nombre del Producto");
             columnProductName.setCellValueFactory(cellData -> {
                 ProductDTO product = cellData.getValue().getProduct();
                 return new SimpleStringProperty(product != null ? product.getName() : "");
             });
-            columnProductName.setPrefWidth(150); // Ajusta el ancho según sea necesario
+
+            // Columna para la fecha
+            TableColumn<EntryDTO, String> columnSupplier = new TableColumn<>("Proveedor");
+            columnSupplier.setCellValueFactory(new PropertyValueFactory<>("supplier"));
 
             // Columna para la cantidad
             TableColumn<EntryDTO, BigDecimal> columnAmount = new TableColumn<>("Cantidad");
             columnAmount.setCellValueFactory(new PropertyValueFactory<>("amount"));
-            columnAmount.setPrefWidth(100); // Ajusta el ancho según sea necesario
 
             // Columna para el precio
             TableColumn<EntryDTO, BigDecimal> columnPrice = new TableColumn<>("Precio compra");
             columnPrice.setCellValueFactory(new PropertyValueFactory<>("purchasePrice"));
-            columnPrice.setPrefWidth(100); // Ajusta el ancho según sea necesario
 
             //Columna total precio compra
             // Columna para el precio
             TableColumn<EntryDTO, BigDecimal> columnTotalPrice = new TableColumn<>("total compra");
             columnTotalPrice.setCellValueFactory(new PropertyValueFactory<>("purchaseTotalPrice"));
-            columnTotalPrice.setPrefWidth(100); // Ajusta el ancho según sea necesario
 
             // Agregar las columnas a la tabla
-            tableViewEntries.getColumns().addAll(columnDate, columnProductBarcode, columnProductName, columnAmount, columnPrice, columnTotalPrice);
+            tableViewEntries.getColumns().addAll(columnDate, columnProductBarcode, columnProductName, columnSupplier, columnAmount, columnPrice, columnTotalPrice);
 
             tableViewEntries.setItems(entryApi.fetchEntries(DateUtil.getTodayDateString(), DateUtil.getTodayDateString(), "TODOS LOS DEPARTAMENTOS"));
+            // Ajustar tamaño una vez que todo esté listo
+            Platform.runLater(() -> {
+                ajustarAnchoColumnas(columnDate, columnProductBarcode, columnProductName,
+                        columnSupplier, columnAmount, columnPrice, columnTotalPrice);
+            });
+
+            // También ajustar al redimensionar
             tableViewEntries.widthProperty().addListener((obs, oldVal, newVal) -> {
-                double tableWidth = newVal.doubleValue();
-                columnDate.setPrefWidth(tableWidth * 0.20); // 30% width
-                columnProductBarcode.setPrefWidth(tableWidth * .20);
-                columnProductName.setPrefWidth(tableWidth * 0.20); // 40% width
-                columnAmount.setPrefWidth(tableWidth * 0.20); // 30% width
-                columnPrice.setPrefWidth(tableWidth * 0.10); // 30% width
-                columnTotalPrice.setPrefWidth(tableWidth * 0.10);
+                ajustarAnchoColumnas(columnDate, columnProductBarcode, columnProductName,
+                        columnSupplier, columnAmount, columnPrice, columnTotalPrice);
             });
 
         } catch (Exception e) {
@@ -611,25 +622,30 @@ public class InventoryController implements Initializable {
         // Establecer "Todos los departamentos" como valor por defecto
         comboBoxDepartament.setValue(allDepartmentsOption);
     }
+
     private void fetchEntriesTable(String startDate, String endDate, String categorie) {
 
         tableViewEntries.setItems(entryApi.fetchEntries(startDate, endDate, categorie));
 
     }
 
-    private void updateProduct() {
-          ProductDTO product = productApi.getProductByBarcode(txtAddInventoryBarcode.getText(), user.getToken());
-      
-              
-                txtAddInventoryName.setText(product.getName());
-                txtAddInventorypurchasePrice.setText("" + product.getPurchasePrice());
-                txtAddInventoryPrice.setText("" + product.getPrice());
-                txtAddInventoryholesalePrice.setText("" + product.getWholesalePrice());
-            
-      
+    private void fetchEntriesTable(String name) {
+
+        tableViewEntries.setItems(entryApi.fetchEntriesByName(name));
+
     }
-    
-     private void fillChoiceBoxGanancias() {
+
+    private void updateProduct() {
+        ProductDTO product = productApi.getProductByBarcode(txtAddInventoryBarcode.getText(), user.getToken());
+
+        txtAddInventoryName.setText(product.getName());
+        txtAddInventorypurchasePrice.setText("" + product.getPurchasePrice());
+        txtAddInventoryPrice.setText("" + product.getPrice());
+        txtAddInventoryholesalePrice.setText("" + product.getWholesalePrice());
+
+    }
+
+    private void fillChoiceBoxGanancias() {
         ObservableList<String> gananciaOptions = FXCollections.observableArrayList();
         for (int i = 5; i <= 100; i += 1) {
             gananciaOptions.add(String.valueOf(i));
@@ -640,10 +656,9 @@ public class InventoryController implements Initializable {
         ComboAddInventoryProfit.setValue("43");
         ComboAddInventoryProfit.setValue("43");
     }
-     
-        
-         //calcula el precio de venta menudeo
-         public static BigDecimal calculateSellingPrice(BigDecimal cost, BigDecimal profitMargin) {
+
+    //calcula el precio de venta menudeo
+    public static BigDecimal calculateSellingPrice(BigDecimal cost, BigDecimal profitMargin) {
         // Convertir el porcentaje de margen de beneficio a un decimal
         BigDecimal profitMarginDecimal = profitMargin.divide(BigDecimal.valueOf(100));
         // Calcular el precio de venta
@@ -651,7 +666,6 @@ public class InventoryController implements Initializable {
         return sellingPrice;
     }
 
-         
 //          private void showAlert(String title, String message) {
 //        Alert alert = new Alert(Alert.AlertType.INFORMATION);
 //        alert.setTitle(title);
@@ -659,4 +673,23 @@ public class InventoryController implements Initializable {
 //        alert.setContentText(message);
 //        alert.showAndWait();
 //    }
+    private void ajustarAnchoColumnas(
+            TableColumn<?, ?> columnDate,
+            TableColumn<?, ?> columnProductBarcode,
+            TableColumn<?, ?> columnProductName,
+            TableColumn<?, ?> columnSupplier,
+            TableColumn<?, ?> columnAmount,
+            TableColumn<?, ?> columnPrice,
+            TableColumn<?, ?> columnTotalPrice
+    ) {
+        double tableWidth = tableViewEntries.getWidth();
+        columnDate.setPrefWidth(tableWidth * 0.20);
+        columnProductBarcode.setPrefWidth(tableWidth * 0.10);
+        columnProductName.setPrefWidth(tableWidth * 0.20);
+        columnAmount.setPrefWidth(tableWidth * 0.20);
+        columnPrice.setPrefWidth(tableWidth * 0.10);
+        columnTotalPrice.setPrefWidth(tableWidth * 0.10);
+        columnSupplier.setPrefWidth(tableWidth * 0.10);
+    }
+
 }
