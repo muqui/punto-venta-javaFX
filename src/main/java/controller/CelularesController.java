@@ -8,6 +8,8 @@ import api.OrderRepairApi;
 import beans.Product;
 import dto.OrderServiceDTO;
 import dto.ProductFindDTO;
+import helper.ConfigLoader;
+import helper.PrintOrderService;
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
@@ -42,7 +44,7 @@ import javafx.stage.Stage;
  * @author albert
  */
 public class CelularesController implements Initializable {
-
+     String printerName = ConfigLoader.getOrderPrinterName();
     OrderRepairApi orderRepairApi = new OrderRepairApi();
 
     @FXML
@@ -65,8 +67,8 @@ public class CelularesController implements Initializable {
 
     @FXML
     void onActionFilter(ActionEvent event) {
-      
-       filterOrderService();   
+
+        filterOrderService();
     }
 
     /**
@@ -77,34 +79,34 @@ public class CelularesController implements Initializable {
         try {
             datePickerEnd.setValue(LocalDate.now());
             datePickerStar.setValue(LocalDate.now().minusDays(7));
-            
-              ObservableList<String> statusOptions = FXCollections.observableArrayList(
-                "Todos",
-                "Pendiente",
-                "En revision",
-                "En reparacion",
-                "Reparado",
-                "Entregado",
-                "Cancelado",
-                "Finalizada"
-        );
 
-        comboBoxStatus.setItems(statusOptions);
-        comboBoxStatus.setValue("Todos"); // Valor por defecto
-        
+            ObservableList<String> statusOptions = FXCollections.observableArrayList(
+                    "Todos",
+                    "Pendiente",
+                    "En revision",
+                    "En reparacion",
+                    "Reparado",
+                    "Entregado",
+                    "Cancelado",
+                    "Finalizada"
+            );
+
+            comboBoxStatus.setItems(statusOptions);
+            comboBoxStatus.setValue("Todos"); // Valor por defecto
+
             // TODO
             initializeTableColumns();
             tableOrdersRepair.setItems(fetchOrdersServices(""));
         } catch (IOException ex) {
             Logger.getLogger(CelularesController.class.getName()).log(Level.SEVERE, null, ex);
         }
-      
-          comboBoxStatus.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-        if (newVal != null) {
-          //  System.out.println("Nuevo estado seleccionado: " + newVal);
-            filterOrderService();
-        }
-    });
+
+        comboBoxStatus.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                //  System.out.println("Nuevo estado seleccionado: " + newVal);
+                filterOrderService();
+            }
+        });
     }
 
     @FXML
@@ -139,7 +141,7 @@ public class CelularesController implements Initializable {
     private void initializeTableColumns() {
         tableOrdersRepair.getColumns().clear(); // Limpiar las columnas de la tabla antes de agregar nuevas
 
-        TableColumn<OrderServiceDTO, String> columnBarcode = new TableColumn<>("Fecha Ingresos");
+        TableColumn<OrderServiceDTO, String> columnBarcode = new TableColumn<>("Fecha Ingreso");
         columnBarcode.setCellValueFactory(new PropertyValueFactory<>("date"));
 
         //client
@@ -173,8 +175,12 @@ public class CelularesController implements Initializable {
         //profit
         TableColumn<OrderServiceDTO, Integer> columnProfit = new TableColumn<>("Ganancia");
         columnProfit.setCellValueFactory(new PropertyValueFactory<>("profit"));
-
+        //Show info
         TableColumn<OrderServiceDTO, Void> actionColumn = new TableColumn<>("Acción");
+        
+        TableColumn<OrderServiceDTO, Void> actionPrintClientColumn = new TableColumn<>("Cliente");
+
+        TableColumn<OrderServiceDTO, Void> actionPrintTicketColumn = new TableColumn<>("Ticket");
 
         actionColumn.setCellFactory(param -> new TableCell<>() {
             private final Button button = new Button("Ver");
@@ -197,31 +203,82 @@ public class CelularesController implements Initializable {
                 }
             }
         });
+        actionPrintClientColumn.setCellFactory(param -> new TableCell<>() {
+            private final Button button = new Button("imprimir");
 
-        tableOrdersRepair.getColumns().addAll(columnBarcode, columnClient, columnName, columnPrice, columnStock, columnService, columnRepairCost, columnReplacementCost, columnProfit, columnStatus, actionColumn);
+            {
+                button.setOnAction(event -> {
+                    OrderServiceDTO order = getTableView().getItems().get(getIndex());
+                    PrintOrderService.printOrderReparir80mmDataClient(order);
+
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(button);
+                }
+            }
+        });
+            actionPrintTicketColumn.setCellFactory(param -> new TableCell<>() {
+            private final Button button = new Button("imprimir");
+
+            {
+                button.setOnAction(event -> {
+                    OrderServiceDTO order = getTableView().getItems().get(getIndex());
+                    switch (printerName) {
+                    case "58mm":
+                        PrintOrderService.printOrderReparir58mm(order);
+                        break;
+                    case "80mm":
+                        PrintOrderService.printOrderReparir80mm(order);
+                        break;
+                    case "Letter":
+                    default:
+                        PrintOrderService.printOrderReparirLetter(order);
+                        break;
+                }
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(button);
+                }
+            }
+        });
+
+        tableOrdersRepair.getColumns().addAll(columnName, columnBarcode, columnClient, columnPrice, columnStock, columnService, columnRepairCost, columnReplacementCost, columnProfit, columnStatus, actionColumn, actionPrintClientColumn, actionPrintTicketColumn);
 
         // Set table width listener to adjust column widths in percentages
         tableOrdersRepair.widthProperty().addListener((obs, oldVal, newVal) -> {
             double tableWidth = newVal.doubleValue();
-            columnBarcode.setPrefWidth(tableWidth * 0.10); // 15% width
+            columnBarcode.setPrefWidth(tableWidth * 0.08); // 15% width
             columnClient.setPrefWidth(tableWidth * 0.10);
-            columnName.setPrefWidth(tableWidth * 0.10); // 15% width
+            columnName.setPrefWidth(tableWidth * 0.14); // 715% width
             columnPrice.setPrefWidth(tableWidth * 0.10); // 15% width
             columnStock.setPrefWidth(tableWidth * 0.10); // 15% width
             actionColumn.setPrefWidth(tableWidth * 0.04);
             columnService.setPrefWidth(tableWidth * 0.10);
-            columnReplacementCost.setPrefWidth(tableWidth * 0.10);
-            columnRepairCost.setPrefWidth(tableWidth * 0.10);
-            columnStatus.setPrefWidth(tableWidth * 0.10);
+            columnReplacementCost.setPrefWidth(tableWidth * 0.05);
+            columnRepairCost.setPrefWidth(tableWidth * 0.05);
+            columnStatus.setPrefWidth(tableWidth * 0.05);
             columnProfit.setPrefWidth(tableWidth * 0.05);
+            actionPrintClientColumn.setPrefWidth(tableWidth * 0.07);
+            actionPrintTicketColumn.setPrefWidth(tableWidth * 0.07);
         });
     }
 
     private ObservableList<OrderServiceDTO> fetchOrdersServices(String value) throws IOException {
 
-    
-        
-        
         List<OrderServiceDTO> orderServices = orderRepairApi.fetchOrdersService(datePickerStar.getValue().toString(), datePickerEnd.getValue().toString(), comboBoxStatus.getValue().toString());
 
         return FXCollections.observableArrayList(orderServices);
@@ -251,10 +308,10 @@ public class CelularesController implements Initializable {
     }
 
     private void filterOrderService() {
-           System.out.println("FILTRAR REPARACIONES");
+        System.out.println("FILTRAR REPARACIONES");
         System.out.println("Fecha Fin " + datePickerEnd.getValue());
         System.out.println("Fecha inicio " + datePickerStar.getValue());
-        System.out.println("Status " +  comboBoxStatus.getValue().toString()); 
+        System.out.println("Status " + comboBoxStatus.getValue().toString());
         try {
             tableOrdersRepair.setItems(fetchOrdersServices(""));
             tableOrdersRepair.refresh();
@@ -262,6 +319,5 @@ public class CelularesController implements Initializable {
             Logger.getLogger(CelularesController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
 
 }

@@ -78,6 +78,8 @@ public class OrderRepairApi {
                         PrintOrderService.printOrderReparirLetter(order);
                         break;
                 }
+                
+                PrintOrderService.printOrderReparir80mmDataClient(order);
                 showAlert(Alert.AlertType.INFORMATION, "Éxito", "Order de servcio creada con exito.");
 
             } else {

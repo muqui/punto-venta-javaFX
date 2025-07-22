@@ -453,7 +453,7 @@ public class PrintOrderService {
             writer.close();
 
             sentoToPrinter(dest);
-            printOrderReparir80mmDataClient(order);
+           // printOrderReparir80mmDataClient(order);
         } catch (Exception e) {
             System.out.println("Error al generar o imprimir el PDF: " + e.getMessage());
             e.printStackTrace();
