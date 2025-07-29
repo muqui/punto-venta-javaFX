@@ -40,6 +40,7 @@ public class OrderRepairApi {
     String endpointCreatedServiceOrder = configManager.getProperty("api.endpoint.created.service.order");
     String endpointRepairservice = configManager.getProperty("api.endpoint.repair.service");
     String endPointRepairServiceUpdate = configManager.getProperty("api.endpoint.repaor.service.update");
+      String clientId = configManager.getProperty("x.client.id");
     //api.endpoint.repair.service
 
     public void createdOrderService(OrderServiceDTO orderServiceDTO) {
@@ -54,6 +55,7 @@ public class OrderRepairApi {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(baseUrl + endpointCreatedServiceOrder)) // Cambiar el endpoint a POST si es necesario
                     .header("Content-Type", "application/json")
+                       .header("x-client-id", clientId)
                     .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
                     .POST(HttpRequest.BodyPublishers.ofString(jsonProduct)) // Cambiado a POST
                     .build();

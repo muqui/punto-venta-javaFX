@@ -36,12 +36,14 @@ import org.json.JSONObject;
  * @author albert
  */
 public class OrderApi {
-      String token = App.getUsuario().getToken();
-      
+
+    String token = App.getUsuario().getToken();
+
     ConfigManager configManager = new ConfigManager(); //carga el archivo de config.properties
     String baseUrl = configManager.getProperty("api.base.url");
     String endpointOrdersSolds = configManager.getProperty("api.endpoint.orders.solds");
     String endpointOrders = configManager.getProperty("api.orders");
+    String clientId = configManager.getProperty("x.client.id");
     //api.orders =/orders
 
     // Método para obtener la lista de pedidos como ObservableList
@@ -59,15 +61,16 @@ public class OrderApi {
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
-         conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
-            conn.setRequestProperty("Content-Type", "application/json");
+        conn.setRequestProperty("x-client-id", clientId);
+        conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
+        conn.setRequestProperty("Content-Type", "application/json");
         conn.connect();
 
         int responseCode = conn.getResponseCode();
         if (responseCode != 200) {
             throw new RuntimeException("HttpResponseCode: " + responseCode);
         } else {
-             Scanner scanner = new Scanner(conn.getInputStream());
+            Scanner scanner = new Scanner(conn.getInputStream());
             StringBuilder inline = new StringBuilder();
             while (scanner.hasNext()) {
                 inline.append(scanner.nextLine());
@@ -86,11 +89,11 @@ public class OrderApi {
     // Método para obtener la lista de pedidos como ObservableList
     public ObservableList<OrderDetailDTO> fetchOrderDetails() throws IOException {
         // URL url = new URL("http://localhost:3000/orders");x
-        URL url = new URL(baseUrl+endpointOrders);
+        URL url = new URL(baseUrl + endpointOrders);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
-            conn.setRequestProperty("Content-Type", "application/json");
+        conn.setRequestProperty("Content-Type", "application/json");
         conn.connect();
 
         int responseCode = conn.getResponseCode();
@@ -120,7 +123,7 @@ public class OrderApi {
         }
     }
 
-      public void saveOrder(Order order) {
+    public void saveOrder(Order order) {
 
         System.out.println("Orden " + order.toString());
 
@@ -151,10 +154,10 @@ public class OrderApi {
 
             // Crear HttpRequest
             HttpRequest request = HttpRequest.newBuilder()
-                  //  .uri(new URI("http://localhost:3000/orders"))
-                    .uri(new URI(baseUrl+endpointOrders))
+                    //  .uri(new URI("http://localhost:3000/orders"))
+                    .uri(new URI(baseUrl + endpointOrders))
                     .header("Content-Type", "application/json")
-                     .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
+                    .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
                     .POST(HttpRequest.BodyPublishers.ofString(jsonOrder.toString()))
                     .build();
 
@@ -162,36 +165,36 @@ public class OrderApi {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             int status = response.statusCode();
-           if (status == 200 || status == 201) {
-            System.out.println("✅ Orden insertada con éxito: " + response.body());
-        } else if (status == 401) {
-            System.out.println("⚠️ Token expirado o inválido. Por favor, inicie sesión nuevamente.");
-            showAlert("Sesión expirada", "Su sesión ha caducado. Inicie sesión otra vez.");
-        } else if (status == 403) {
-            System.out.println("❌ No tiene permisos para realizar esta operación.");
-            showAlert("Acceso denegado", "No tiene permisos para registrar órdenes.");
-        } else {
-            System.out.println("❌ Error al insertar la orden: " + status + " " + response.body());
-            showAlert("Error", "Error al registrar la orden: " + status);
-        }
+            if (status == 200 || status == 201) {
+                System.out.println("✅ Orden insertada con éxito: " + response.body());
+            } else if (status == 401) {
+                System.out.println("⚠️ Token expirado o inválido. Por favor, inicie sesión nuevamente.");
+                showAlert("Sesión expirada", "Su sesión ha caducado. Inicie sesión otra vez.");
+            } else if (status == 403) {
+                System.out.println("❌ No tiene permisos para realizar esta operación.");
+                showAlert("Acceso denegado", "No tiene permisos para registrar órdenes.");
+            } else {
+                System.out.println("❌ Error al insertar la orden: " + status + " " + response.body());
+                showAlert("Error", "Error al registrar la orden: " + status);
+            }
 
-    } catch (java.net.ConnectException | java.net.UnknownHostException e) {
-        System.out.println("❌ No se pudo conectar con el servidor: " + e.getMessage());
-        showAlert("Sin conexión", "No se pudo conectar con el servidor. Verifique su conexión a internet.");
-    } catch (Exception e) {
-        e.printStackTrace();
-        showAlert("Error", "Ocurrió un error inesperado: " + e.getMessage());
-    }
+        } catch (java.net.ConnectException | java.net.UnknownHostException e) {
+            System.out.println("❌ No se pudo conectar con el servidor: " + e.getMessage());
+            showAlert("Sin conexión", "No se pudo conectar con el servidor. Verifique su conexión a internet.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Error", "Ocurrió un error inesperado: " + e.getMessage());
+        }
 
     }
 
     private void showAlert(String title, String content) {
-    Platform.runLater(() -> {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
-    });
-}
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            alert.setContentText(content);
+            alert.showAndWait();
+        });
+    }
 }

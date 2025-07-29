@@ -37,6 +37,7 @@ public class ExpenseApi {
     String baseUrl = configManager.getProperty("api.base.url");
     String enpointExpenseName = configManager.getProperty("api.endpoint.expense.name");
     String endpointExpenses = configManager.getProperty("api.endpoint.expenses");
+      String clientId = configManager.getProperty("x.client.id");
 
       String token = App.getUsuario().getToken();
     public void crearNombreEgreso(ExpenseNameDTO expenseNameDTO) {
@@ -52,6 +53,7 @@ public class ExpenseApi {
                     .uri(new URI(baseUrl + enpointExpenseName)) // Cambiar el endpoint a POST si es necesario
                     // .uri(new URI("http://localhost:3000/expenses/name")) // Cambiar el endpoint a POST si es necesario
                     .header("Content-Type", "application/json")
+                     .header("x-client-id", clientId) 
                       .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
                     .POST(HttpRequest.BodyPublishers.ofString(jsonProduct)) // Cambiado a POST
                     .build();

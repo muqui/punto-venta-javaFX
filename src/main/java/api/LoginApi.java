@@ -24,13 +24,14 @@ public class LoginApi {
     public HttpResponse<String> login(UserDTO usuario){
         HttpResponse<String> response = null;
          String baseUrl = configManager.getProperty("api.base.url");
-        String endpoint = configManager.getProperty("api.endpoint.login");
-        
+         String endpoint = configManager.getProperty("api.endpoint.login");
+          String clientId = configManager.getProperty("x.client.id");
         try {
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(baseUrl+endpoint))                  
                     .header("Content-Type", "application/json")
+                      .header("x-client-id", clientId) // <-- agrega esta línea
                     .POST(HttpRequest.BodyPublishers.ofString("{\"identifier\":\"" + usuario.getEmail() + "\", \"password\":\"" + usuario.getPassword() + "\"}"))
                     .build();
 

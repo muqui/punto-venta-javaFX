@@ -35,6 +35,7 @@ public class EntryApi {
         ConfigManager configManager = new ConfigManager(); //carga el archivo de config.properties
         String baseUrl = configManager.getProperty("api.base.url");
         String endpointProductsEntries = configManager.getProperty("api.products.entries");
+         String clientId = configManager.getProperty("x.client.id"); 
         //api.products.entries =/products/entries
 
         ObservableList<EntryDTO> entryList = null;
@@ -47,6 +48,7 @@ public class EntryApi {
            
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
+              conn.setRequestProperty("x-client-id", clientId);
              conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
             conn.setRequestProperty("Content-Type", "application/json");
             conn.connect();

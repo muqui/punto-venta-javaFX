@@ -39,6 +39,7 @@ public class IncomeApi {
     String endpointIncomes = configManager.getProperty("api.endpoint.incomes");
     String endpointIncomesName = configManager.getProperty("api.endpoint.incomes.name");
     String endpointExpenses = configManager.getProperty("api.endpoint.expenses");
+      String clientId = configManager.getProperty("x.client.id");
       String token = App.getUsuario().getToken();
 
     public void crearIngreso(IncomeDTO incomeDto) {
@@ -54,6 +55,7 @@ public class IncomeApi {
                     //.uri(new URI("http://localhost:3000/incomes")) // Cambiar el endpoint a POST si es necesario
                     .header("Content-Type", "application/json")
                      .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
+                     .header("x-client-id", clientId) 
                     .POST(HttpRequest.BodyPublishers.ofString(jsonProduct)) // Cambiado a POST
                     .build();
 

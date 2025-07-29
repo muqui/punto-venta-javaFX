@@ -33,6 +33,7 @@ public class CategoriesApi {
     ConfigManager configManager = new ConfigManager(); //carga el archivo de config.properties
     String baseUrl = configManager.getProperty("api.base.url");
     String endpointCategories = configManager.getProperty("api.endpoint.categories");
+      String clientId = configManager.getProperty("x.client.id");
     //api.endpoint.categories=/categories
      String token = App.getUsuario().getToken();
     // api.base.url=http://localhost:3000
@@ -46,6 +47,7 @@ public class CategoriesApi {
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
+            conn.setRequestProperty("x-client-id", clientId);
             conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
             conn.setRequestProperty("Content-Type", "application/json");
             conn.connect();
@@ -93,6 +95,7 @@ public class CategoriesApi {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(apiUrl))
                     .header("Content-Type", "application/json")
+                    .header("x-client-id", clientId)
                       .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
                     .POST(HttpRequest.BodyPublishers.ofString(jsonProduct))
                     .build();

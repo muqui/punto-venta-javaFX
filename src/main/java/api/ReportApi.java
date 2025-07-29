@@ -27,6 +27,7 @@ public class ReportApi {
     ConfigManager configManager = new ConfigManager(); //carga el archivo de config.properties
     String baseUrl = configManager.getProperty("api.base.url");
     String endpointReports = configManager.getProperty("api.endpoint.reports");
+    String clientId = configManager.getProperty("x.client.id");
 
     public ReportCompleteDTO RepoertCompleResponseDTO(String startDay, String endDay) {
         ReportCompleteDTO response = null;
@@ -40,6 +41,7 @@ public class ReportApi {
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
+             conn.setRequestProperty("x-client-id", clientId);
             conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
             conn.setRequestProperty("Content-Type", "application/json");
             conn.connect();

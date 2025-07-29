@@ -36,6 +36,7 @@ public class UserApi {
     String baseUrl = configManager.getProperty("api.base.url");
     String endpointUser = configManager.getProperty("api.endpoint.users");  //api.endpoint.users
     String enpointCreateUser = configManager.getProperty("api.endpoint.signup");
+    String clientId = configManager.getProperty("x.client.id");
 
     public ObservableList<UserDTO> fillChoiceBoxUser() {
         ObservableList<UserDTO> userList = null;
@@ -45,6 +46,7 @@ public class UserApi {
             URL url = new URL(urlString);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
+            conn.setRequestProperty("x-client-id", clientId);
             conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
             conn.setRequestProperty("Content-Type", "application/json");
             conn.connect();
@@ -119,10 +121,11 @@ public class UserApi {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
     public void updateUser(UserDTO user) {
         System.out.println("USUARIO PARA ACTUALIZAR desde la api =  " + user.toString());
         try {
-            if(user.getPassword().equals("") ){
+            if (user.getPassword().equals("")) {
                 user.setPassword(null);
             }
             ObjectMapper objectMapper = new ObjectMapper();

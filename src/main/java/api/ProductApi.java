@@ -43,6 +43,7 @@ public class ProductApi {
     String endpointCategories = configManager.getProperty("api.endpoint.categories");
     String endpointProductsSearch = configManager.getProperty("api.products.search");
     String endpointProductsInventory = configManager.getProperty("api.products.inventory");
+    String clientId = configManager.getProperty("x.client.id");
     //api.endpoint.products
 
     public void ProductApi() {
@@ -63,6 +64,7 @@ public class ProductApi {
                     .uri(new URI(baseUrl + endpointProducts + barcode))
                     //.uri(new URI("http://localhost:3000/products/" + barcode))
                     .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
+                       .header("x-client-id", clientId)
                     .header("Content-Type", "application/json")
                     .GET()
                     .build();
@@ -124,6 +126,7 @@ public class ProductApi {
 
                     // .uri(new URI("http://localhost:3000/products/addInventory/" + product.getBarcode())) // Asegúrate de pasar el ID del producto
                     .header("Content-Type", "application/json")
+                      .header("x-client-id", clientId)
                     .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
                     .method("PATCH", HttpRequest.BodyPublishers.ofString(jsonProduct)) // Cambiar POST a PATCH
                     .build();
@@ -172,6 +175,7 @@ public class ProductApi {
                     .uri(new URI(baseUrl + endpointProducts + barcode))
                     // .uri(new URI("http://localhost:3000/products/" + barcode))
                     .header("Content-Type", "application/json")
+                      .header("x-client-id", clientId)
                     .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
                     .GET()
                     .build();
