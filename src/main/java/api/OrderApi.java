@@ -93,6 +93,7 @@ public class OrderApi {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
+         conn.setRequestProperty("x-client-id", clientId);
         conn.setRequestProperty("Content-Type", "application/json");
         conn.connect();
 
@@ -157,6 +158,7 @@ public class OrderApi {
                     //  .uri(new URI("http://localhost:3000/orders"))
                     .uri(new URI(baseUrl + endpointOrders))
                     .header("Content-Type", "application/json")
+                      .header("x-client-id", clientId) 
                     .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
                     .POST(HttpRequest.BodyPublishers.ofString(jsonOrder.toString()))
                     .build();

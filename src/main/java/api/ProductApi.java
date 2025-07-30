@@ -128,6 +128,7 @@ public class ProductApi {
                     .header("Content-Type", "application/json")
                       .header("x-client-id", clientId)
                     .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
+                    
                     .method("PATCH", HttpRequest.BodyPublishers.ofString(jsonProduct)) // Cambiar POST a PATCH
                     .build();
 
@@ -233,6 +234,7 @@ public class ProductApi {
 
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
+              conn.setRequestProperty("x-client-id", clientId);
             conn.setRequestProperty("Content-Type", "application/json");
             conn.connect();
 
@@ -284,6 +286,7 @@ public class ProductApi {
                     //  .uri(new URI("http://localhost:3000/products/" + product.getBarcode())) // Asegúrate de pasar el ID del producto
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer " + token)
+                        .header("x-client-id", clientId) 
                     .method("PATCH", HttpRequest.BodyPublishers.ofString(jsonProduct)) // Cambiar POST a PATCH
                     .build();
 
@@ -325,6 +328,7 @@ public class ProductApi {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
+          conn.setRequestProperty("x-client-id", clientId);
         conn.setRequestProperty("Content-Type", "application/json");
         conn.connect();
 
@@ -362,6 +366,7 @@ public class ProductApi {
                     // .uri(new URI("http://localhost:3000/products"))
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
+                        .header("x-client-id", clientId) 
                     .POST(HttpRequest.BodyPublishers.ofString(jsonProduct))
                     .build();
 
@@ -462,6 +467,7 @@ public class ProductApi {
         conn.setRequestMethod("GET");
 
         conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
+          conn.setRequestProperty("x-client-id", clientId);
         conn.setRequestProperty("Content-Type", "application/json");
         conn.connect();
 
@@ -492,6 +498,7 @@ public class ProductApi {
     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
     conn.setRequestMethod("GET");
     conn.setRequestProperty("Authorization", "Bearer " + token);
+      conn.setRequestProperty("x-client-id", clientId);
     conn.setRequestProperty("Content-Type", "application/json");
     conn.connect();
 

@@ -97,6 +97,7 @@ public class ExpenseApi {
             conn.setRequestMethod("GET");
             
  conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
+   conn.setRequestProperty("x-client-id", clientId);
             conn.setRequestProperty("Content-Type", "application/json");
             conn.connect();
 
@@ -136,6 +137,7 @@ public class ExpenseApi {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
              conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
+               conn.setRequestProperty("x-client-id", clientId);
             conn.setRequestProperty("Content-Type", "application/json");
             conn.connect();
 

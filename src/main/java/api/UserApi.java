@@ -18,6 +18,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -89,6 +90,7 @@ public class UserApi {
                     .uri(new URI(baseUrl + enpointCreateUser)) // Cambiar el endpoint a POST si es necesario
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
+                    .header("x-client-id", clientId) 
                     .POST(HttpRequest.BodyPublishers.ofString(jsonProduct)) // Cambiado a POST
                     .build();
 
@@ -122,38 +124,42 @@ public class UserApi {
         alert.showAndWait();
     }
 
-    public void updateUser(UserDTO user) {
-        System.out.println("USUARIO PARA ACTUALIZAR desde la api =  " + user.toString());
-        try {
-            if (user.getPassword().equals("")) {
-                user.setPassword(null);
-            }
-            ObjectMapper objectMapper = new ObjectMapper();
-            String jsonProduct = objectMapper.writeValueAsString(user);
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI(baseUrl + endpointUser + "/" + user.getId())) // Asegúrate de pasar el ID del producto
-                    .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
-                    .method("PATCH", HttpRequest.BodyPublishers.ofString(jsonProduct)) // Cambiar POST a PATCH
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() == 200) {
-                showAlert(Alert.AlertType.INFORMATION, "Éxito", "Usuario actualizado con exito.");
-            } else {
-                String responseBody = response.body();
-                JSONObject jsonResponse = new JSONObject(responseBody);
-                String message = jsonResponse.getString("message");
-                System.out.println("Message = " + message);
-                showAlert(Alert.AlertType.ERROR, "Error", "Usuario  no se puede modificar.");
-                if (message.equalsIgnoreCase("product not found")) {
-                } else {
-                }
-            }
-
-        } catch (Exception e) {
-            System.out.println("Error API " + e);
+public void updateUser(UserDTO user) {
+    System.out.println("USUARIO PARA ACTUALIZAR desde la api =  " + user.toString());
+    try {
+        if (user.getPassword().equals("")) {
+            user.setPassword(null);
         }
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, Object> userMap = objectMapper.convertValue(user, Map.class);
+        userMap.remove("token"); // ✅ Aquí eliminamos el campo problemático
+
+        String jsonProduct = objectMapper.writeValueAsString(userMap);
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(new URI(baseUrl + endpointUser + "/" + user.getId()))
+                .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer " + token)
+                .header("x-client-id", clientId)
+                .method("PATCH", HttpRequest.BodyPublishers.ofString(jsonProduct))
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() == 200) {
+            showAlert(Alert.AlertType.INFORMATION, "Éxito", "Usuario actualizado con éxito.");
+        } else {
+            String responseBody = response.body();
+            JSONObject jsonResponse = new JSONObject(responseBody);
+            String message = jsonResponse.getString("message");
+            System.out.println("Message = " + message);
+            showAlert(Alert.AlertType.ERROR, "Error", "Usuario no se puede modificar.");
+        }
+    } catch (Exception e) {
+        System.out.println("Error API " + e);
     }
+}
+
 
 }

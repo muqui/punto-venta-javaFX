@@ -19,32 +19,31 @@ import java.net.http.HttpResponse;
  * @author albert
  */
 public class LoginApi {
-     ConfigManager configManager = new ConfigManager(); //carga el archivo de config.properties
-    
-    public HttpResponse<String> login(UserDTO usuario){
+
+    ConfigManager configManager = new ConfigManager(); //carga el archivo de config.properties
+    String baseUrl = configManager.getProperty("api.base.url");
+    String endpoint = configManager.getProperty("api.endpoint.login");
+    String clientId = configManager.getProperty("x.client.id");
+
+    public HttpResponse<String> login(UserDTO usuario) {
         HttpResponse<String> response = null;
-         String baseUrl = configManager.getProperty("api.base.url");
-         String endpoint = configManager.getProperty("api.endpoint.login");
-          String clientId = configManager.getProperty("x.client.id");
+
         try {
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI(baseUrl+endpoint))                  
+                    .uri(new URI(baseUrl + endpoint))
                     .header("Content-Type", "application/json")
-                      .header("x-client-id", clientId) // <-- agrega esta línea
+                    .header("x-client-id", clientId) // <-- agrega esta línea
                     .POST(HttpRequest.BodyPublishers.ofString("{\"identifier\":\"" + usuario.getEmail() + "\", \"password\":\"" + usuario.getPassword() + "\"}"))
                     .build();
 
-           response = client.send(request, HttpResponse.BodyHandlers.ofString());
-          
-
-
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         } catch (Exception e) {
             System.out.println("error api " + e);
-           // txtError.setText("ERROR: " + e);
+            // txtError.setText("ERROR: " + e);
         }
         return response;
     }
-    
+
 }

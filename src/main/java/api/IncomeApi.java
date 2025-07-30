@@ -99,6 +99,7 @@ public class IncomeApi {
                     .uri(new URI(baseUrl + endpointIncomesName))
                     //.uri(new URI("http://localhost:3000/incomes/name")) // Cambiar el endpoint a POST si es necesario
                     .header("Content-Type", "application/json")
+                     .header("x-client-id", clientId) 
                      .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
                     .POST(HttpRequest.BodyPublishers.ofString(jsonProduct)) // Cambiado a POST
                     .build();
@@ -140,6 +141,7 @@ public class IncomeApi {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
              conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
+             conn.setRequestProperty("x-client-id", clientId);
             conn.setRequestProperty("Content-Type", "application/json");
 
             conn.connect();
@@ -182,6 +184,7 @@ public class IncomeApi {
                     .uri(new URI(baseUrl + endpointExpenses))
                     //.uri(new URI("http://localhost:3000/expenses")) // Cambiar el endpoint a POST si es necesario
                     .header("Content-Type", "application/json")
+                     .header("x-client-id", clientId) 
                     .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
                     .POST(HttpRequest.BodyPublishers.ofString(jsonProduct)) // Cambiado a POST
                     .build();
@@ -230,6 +233,7 @@ public class IncomeApi {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
              conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
+               conn.setRequestProperty("x-client-id", clientId);
             conn.setRequestProperty("Content-Type", "application/json");
             conn.connect();
 

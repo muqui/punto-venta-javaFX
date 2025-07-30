@@ -109,10 +109,12 @@ public class CreateUserController implements Initializable {
      * @param user the user to set
      */
     public void setUser(UserDTO user) {
+          
+      btnCreatedUser.setText("Actualizar");
         this.user = user;
          txtName.setText(user.getName());
         txtEmail.setText(user.getEmail());
-        txtPassword.setText(user.getPassword());
+        txtPassword.setText("");
         txtAdress.setText(user.getAddress());
         txtPhone.setText(user.getPhone());
         txtCity.setText(user.getCity());
