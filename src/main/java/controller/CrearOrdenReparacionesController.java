@@ -134,7 +134,9 @@ public class CrearOrdenReparacionesController implements Initializable {
 
                 OrderServiceDTO orderServiceDTO = new OrderServiceDTO(falla, nombre, telefono, presupuesto, abono, restante, nota, correo, marca, modelo, falla, estadoRecibido, password, imei);
                 // OrderServiceDTO orderServiceDTO = new OrderServiceDTO(nombre, telefono, correo, marca, modelo, imei, presupuesto, abono, restante, falla, estadoRecibido, contraseña, nota);
-
+                String folio = orderRepairApi.createdOrderServiceRemote(orderServiceDTO);
+                System.out.println("FOLIO DESDE REMOTO= " +  folio);
+                orderServiceDTO.setFolio(folio);
                 orderRepairApi.createdOrderService(orderServiceDTO);
                 // Cerrar la ventana
                 Stage stage = (Stage) nameField.getScene().getWindow();
@@ -147,8 +149,6 @@ public class CrearOrdenReparacionesController implements Initializable {
             System.err.println("Error: Ingrese valores numéricos válidos para presupuesto, abono y restante.");
         }
 
-        //  OrderServiceDTO orderServiceDTO =   new OrderServiceDTO(nombre, servicio, cliente, pagado, restante, nota, telefono, costoReparacion);
-        //  orderRepairApi.createdOrderService(orderServiceDTO);
     }
 
     private String validateForm() {

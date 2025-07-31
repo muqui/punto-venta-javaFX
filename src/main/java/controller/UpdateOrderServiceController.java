@@ -203,8 +203,10 @@ public class UpdateOrderServiceController implements Initializable {
 
                 //  OrderServiceDTO orderServiceDTO = new OrderServiceDTO(falla, nombre, telefono, presupuesto, abono, restante, nota, correo, marca, modelo, falla, estadoRecibido, password, imei);
                 // OrderServiceDTO orderServiceDTO = new OrderServiceDTO(nombre, telefono, correo, marca, modelo, imei, presupuesto, abono, restante, falla, estadoRecibido, contraseña, nota);
-                System.out.println("ENVIAR A ACTUALIZAR ..................FECHA = " + orderServiceDTO.getDate());
+                System.out.println("orden reparacion ENVIAR A ACTUALIZAR ..................datos = " + orderServiceDTO);
                 orderRepairApi.updateOrderRepair(orderServiceDTO);
+               // orderServiceDTO.setEmail("albert@gmail.com");
+                orderRepairApi.updateOrderRepairRemote(orderServiceDTO);//actualiza el remoto
                 Stage stage = (Stage) nameField.getScene().getWindow();
                 stage.close();
             } else {

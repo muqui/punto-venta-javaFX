@@ -40,7 +40,7 @@ public class OrderRepairApi {
     String endpointCreatedServiceOrder = configManager.getProperty("api.endpoint.created.service.order");
     String endpointRepairservice = configManager.getProperty("api.endpoint.repair.service");
     String endPointRepairServiceUpdate = configManager.getProperty("api.endpoint.repaor.service.update");
-      String clientId = configManager.getProperty("x.client.id");
+    String clientId = configManager.getProperty("x.client.id");
     //api.endpoint.repair.service
 
     public void createdOrderService(OrderServiceDTO orderServiceDTO) {
@@ -55,7 +55,7 @@ public class OrderRepairApi {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI(baseUrl + endpointCreatedServiceOrder)) // Cambiar el endpoint a POST si es necesario
                     .header("Content-Type", "application/json")
-                       .header("x-client-id", clientId)
+                    .header("x-client-id", clientId)
                     .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
                     .POST(HttpRequest.BodyPublishers.ofString(jsonProduct)) // Cambiado a POST
                     .build();
@@ -80,7 +80,7 @@ public class OrderRepairApi {
                         PrintOrderService.printOrderReparirLetter(order);
                         break;
                 }
-                
+
                 PrintOrderService.printOrderReparir80mmDataClient(order);
                 showAlert(Alert.AlertType.INFORMATION, "Éxito", "Order de servcio creada con exito.");
 
@@ -104,8 +104,57 @@ public class OrderRepairApi {
 
         } catch (Exception e) {
             System.out.println("Error API " + e);
-            //  showAlert("Error", "Error al conectarse con la API.");
+            showAlert(Alert.AlertType.ERROR, "Éxito", "Order de servcio creada con exito.");
         }
+    }
+
+    public String createdOrderServiceRemote(OrderServiceDTO orderServiceDTO) {
+        String baseUrlRemote = configManager.getProperty("api.base.url.remote");
+        String clientIdRemote = configManager.getProperty("x.client.id.remote");
+        String folio = "";
+        try {
+            // Convertir ProductDTO a JSON
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonProduct = objectMapper.writeValueAsString(orderServiceDTO);
+
+            // Crear cliente HTTP
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI(baseUrlRemote + endpointCreatedServiceOrder)) // Cambiar el endpoint a POST si es necesario
+                    .header("Content-Type", "application/json")
+                    .header("x-client-id", clientIdRemote)
+                    .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonProduct)) // Cambiado a POST
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            System.out.println("RESPONSE= " + response.body());
+
+            if (response.statusCode() == 200 || response.statusCode() == 201) {
+                // Convertimos a objeto JSON
+                JSONObject jsonObject = new JSONObject(response.body());
+                folio = jsonObject.getString("folio");
+                OrderServiceDTO order = objectMapper.readValue(response.body(), OrderServiceDTO.class);
+                System.out.println("Orden insertada= " + order.toString());
+
+            } else {
+                String responseBody = response.body();
+                System.out.println("Resultado =" + responseBody);
+
+                // Parsear el cuerpo de la respuesta como JSON
+                JSONObject jsonResponse = new JSONObject(responseBody);
+                // Acceder al campo "message"
+                String message = jsonResponse.getString("message");
+                System.out.println("Message = " + message);
+
+                showAlert(Alert.AlertType.ERROR, "ERROR", "Error al crear la orden remoto.");
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error API " + e);
+            showAlert(Alert.AlertType.ERROR, "ERROR", "Error al crear la orden remoto." + e);
+        }
+        return folio;
     }
 
     public List<OrderServiceDTO> fetchOrdersService(String StartDate, String endDate, String status) throws IOException {
@@ -192,7 +241,57 @@ public class OrderRepairApi {
                     //  .uri(new URI("http://localhost:3000/products/" + product.getBarcode())) // Asegúrate de pasar el ID del producto
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
-                       .header("x-client-id", clientId) 
+                    .header("x-client-id", clientId)
+                    .method("PATCH", HttpRequest.BodyPublishers.ofString(jsonProduct)) // Cambiar POST a PATCH
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                showAlert(Alert.AlertType.INFORMATION, "Éxito", "Order actualizada con exito.");
+            } else {
+                String responseBody = response.body();
+                System.out.println("Resultado =" + responseBody);
+
+                // Parsear el cuerpo de la respuesta como JSON
+                JSONObject jsonResponse = new JSONObject(responseBody);
+                // Acceder al campo "message"
+                String message = jsonResponse.getString("message");
+                System.out.println("Message = " + message);
+                showAlert(Alert.AlertType.ERROR, "Error", "Orden Finalizada no se puede modificar.");
+                // Manejar error de autenticación
+                if (message.equalsIgnoreCase("product not found")) {
+                    //    showAlert("Info", "El producto no existe.");
+                } else {
+                    //      showAlert("Error", "Error al actualizar el producto. Código de estado: " + response.statusCode());
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error API " + e);
+            //  showAlert("Error", "Error al conectarse con la API.");
+        }
+
+    }
+
+    public void updateOrderRepairRemote(OrderServiceDTO orderServiceDTO) {
+        System.out.println("actualizar remoto");
+        String baseUrlRemote = configManager.getProperty("api.base.url.remote");
+        String clientIdRemote = configManager.getProperty("x.client.id.remote");
+        try {
+            // Convertir ProductDTO a JSON
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonProduct = objectMapper.writeValueAsString(orderServiceDTO);
+
+            // Crear cliente HTTP
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI(baseUrlRemote + endpointRepairservice + "/" + orderServiceDTO.getFolio())) // Asegúrate de pasar el ID del producto
+
+                    //  .uri(new URI("http://localhost:3000/products/" + product.getBarcode())) // Asegúrate de pasar el ID del producto
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
+                    .header("x-client-id", clientIdRemote)
                     .method("PATCH", HttpRequest.BodyPublishers.ofString(jsonProduct)) // Cambiar POST a PATCH
                     .build();
 

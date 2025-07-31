@@ -122,14 +122,9 @@ public class CelularesController implements Initializable {
             CrearOrdenReparacionesController crearOrdenReparacionesController = fxmlLoader.getController();
             Scene scene = new Scene(root);
             Stage stage = new Stage();
-            //stage.setResizable(false);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setScene(scene);
             stage.showAndWait();
-
-            //  String codigo = buscarController.getCodigo();
-            //  initializeTableColumns();
-            // tableOrdersRepair.getColumns().clear(); // Limpiar las columnas de la tabla antes de agregar nuevas
             tableOrdersRepair.setItems(fetchOrdersServices(""));
 
         } catch (IOException ex) {

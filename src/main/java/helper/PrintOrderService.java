@@ -10,7 +10,7 @@ import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import org.apache.pdfbox.pdmodel.PDDocument;
-
+import com.itextpdf.layout.element.Image;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
@@ -23,8 +23,10 @@ import com.itextpdf.layout.element.LineSeparator;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.element.Text;
+import com.itextpdf.layout.properties.HorizontalAlignment;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
+import config.ConfigManager;
 import helper.NumeroALetras;
 import dto.OrderServiceDTO;
 import java.awt.print.PrinterException;
@@ -48,6 +50,15 @@ import org.apache.pdfbox.printing.PDFPageable;
  */
 public class PrintOrderService {
 
+    private static ConfigManager configManager = new ConfigManager();
+    private static String baseFront;
+    private static String baseFrontReport;
+
+    static {
+        baseFront = configManager.getProperty("api.base.url.front");
+        baseFrontReport = configManager.getProperty("api.base.url.front.report");
+    }
+
     public static void printOrderReparirLetter(OrderServiceDTO order) {
         System.out.println("SE ENVIA A PDF PARA IMPRIMIR");
         String dest = "/home/albert/Documents/miArchivoCarta.pdf";
@@ -59,12 +70,12 @@ public class PrintOrderService {
             PdfWriter writer = new PdfWriter(new FileOutputStream(file));
             PdfDocument pdfDoc = new PdfDocument(writer);
             Document document = new Document(pdfDoc, PageSize.LETTER);
-            document.setMargins(40f, 40f, 40f, 40f);
+            document.setMargins(10f, 30f, 10f, 30f);
 
-            float fontSizeTitle = 14f;
-            float fontSizeMain = 12f;
-            float fontSizeSmall = 11f;
-            float fontSizeMicroSmall = 9f;
+            float fontSizeTitle = 13f;
+            float fontSizeMain = 11f;
+            float fontSizeSmall = 10f;
+            float fontSizeMicroSmall = 8f;
 
             PdfFont font = PdfFontFactory.createFont(StandardFonts.HELVETICA);
             document.setFont(font);
@@ -74,7 +85,8 @@ public class PrintOrderService {
                     .setFontSize(fontSizeTitle)
                     .setBold()
                     .setTextAlignment(TextAlignment.CENTER)
-                    .setMarginBottom(10f));
+                    .setMarginTop(1f) // margen superior
+                    .setMarginBottom(3f));
 
             document.add(new Paragraph("NAVARRO TECH")
                     .setFontSize(fontSizeTitle)
@@ -84,7 +96,7 @@ public class PrintOrderService {
             document.add(new Paragraph("📍 Dirección: Calle Juarez #80 A. \n📞 33 20 87 48 74")
                     .setFontSize(fontSizeMain)
                     .setTextAlignment(TextAlignment.CENTER)
-                    .setMarginBottom(20f));
+                    .setMarginBottom(5f));
 
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
             String formattedDate = sdf.format(order.getDate());
@@ -94,7 +106,7 @@ public class PrintOrderService {
                     .setFontSize(fontSizeMain));
             document.add(new Paragraph("Folio: " + order.getFolio())
                     .setFontSize(fontSizeMain)
-                    .setMarginBottom(15f));
+                    .setMarginBottom(5f));
 
             // Tabla datos cliente
             Table clienteTable = new Table(UnitValue.createPercentArray(new float[]{1, 1}))
@@ -116,7 +128,7 @@ public class PrintOrderService {
                         .setFontSize(fontSizeMain))
                         .setBorder(new SolidBorder(1)));
             }
-            document.add(clienteTable.setMarginBottom(20f));
+            document.add(clienteTable.setMarginBottom(5f));
 
             // Tabla datos equipo (marca y modelo)
             Table equipoTable = new Table(UnitValue.createPercentArray(new float[]{1, 1}))
@@ -133,7 +145,7 @@ public class PrintOrderService {
             equipoTable.addCell(new Cell().add(new Paragraph(order.getModel()).setFontSize(fontSizeMain))
                     .setBorder(new SolidBorder(1)));
 
-            document.add(equipoTable.setMarginBottom(20f));
+            document.add(equipoTable.setMarginBottom(5f));
 
             // Tabla Servicio (dos filas, título y descripción, cada fila abarca dos columnas)
             Table servicioTable = new Table(UnitValue.createPercentArray(new float[]{1, 1}))
@@ -148,7 +160,7 @@ public class PrintOrderService {
                     .add(new Paragraph(order.getService()).setFontSize(fontSizeMain))
                     .setBorder(new SolidBorder(1)));
 
-            document.add(servicioTable.setMarginBottom(20f));
+            document.add(servicioTable.setMarginBottom(5f));
 
             // Tabla Detalles de pago (dos filas, título y contenido, cada fila abarca dos columnas)
             if (order.getRepairCost() != null && order.getRepairCost() > 0) {
@@ -167,14 +179,22 @@ public class PrintOrderService {
                         .setBorder(new SolidBorder(1))
                         .setTextAlignment(TextAlignment.LEFT));
 
-                document.add(pagoTable.setMarginBottom(20f));
+                document.add(pagoTable.setMarginBottom(5f));
             }
-
+            String qrText = baseFront + baseFrontReport + "/" + order.getFolio();
+            Image qrCode = CreateQR.generateQrImage(qrText, 200);
+            qrCode.setHorizontalAlignment(HorizontalAlignment.CENTER); // Centrado
+            qrCode.setMarginTop(2f);
+            qrCode.setMarginBottom(1f);
+            document.add(new Paragraph("Escanea para ver tu orden:").setTextAlignment(TextAlignment.CENTER).setFontSize(fontSizeSmall).setMarginBottom(1f).setMarginRight(1f));
+            document.add(qrCode.setMarginBottom(5f).setMarginTop(1f));
             // Términos y condiciones
             document.add(new Paragraph("TÉRMINOS Y CONDICIONES")
                     .setBold()
                     .setFontSize(fontSizeSmall)
-                    .setMarginBottom(5f));
+                    .setMarginBottom(5f)
+                    .setMarginTop(1f)
+            );
 
             document.add(new Paragraph("Anticipo: Se requiere 50% de anticipo para todas las reparaciones.\n"
                     + "Garantía: La garantía es de 1 mes para reparaciones de display, solo si el equipo no tiene daños adicionales, como golpes, humedad o intervención externa.\n"
@@ -282,7 +302,12 @@ public class PrintOrderService {
                 document.add(new Paragraph("📉 Saldo: " + String.format("%.2f", order.getLeft()))
                         .setFontSize(fontSizeMain));
             }
-
+            String qrText = baseFront + baseFrontReport + "/" + order.getFolio();
+            Image qrCode = CreateQR.generateQrImage(qrText, 180);
+            qrCode.setHorizontalAlignment(HorizontalAlignment.CENTER); // Centrado
+            qrCode.setMarginTop(2f);
+            document.add(new Paragraph("Escanea para ver tu orden:").setTextAlignment(TextAlignment.CENTER).setFontSize(fontSizeSmall));
+            document.add(qrCode);
             document.add(new Paragraph("📜 TÉRMINOS Y CONDICIONES")
                     .setBold().setFontSize(fontSizeSmall));
 
@@ -323,7 +348,7 @@ public class PrintOrderService {
             float fontSizeTitle = 12f;
             float fontSizeMain = 10f;
             float fontSizeSmall = 9f;
-            float fontSizeMicroSmall = 7f;
+            float fontSizeMicroSmall = 6f;
 
             PdfFont font = PdfFontFactory.createFont(StandardFonts.HELVETICA);
             document.setFont(font);
@@ -436,7 +461,13 @@ public class PrintOrderService {
                         .setTextAlignment(TextAlignment.LEFT)
                         .setMultipliedLeading(1f));
             }
+            String qrText = baseFront + baseFrontReport + "/" + order.getFolio();
+            Image qrCode = CreateQR.generateQrImage(qrText, 200);
+            qrCode.setHorizontalAlignment(HorizontalAlignment.CENTER); // Centrado
+            qrCode.setMarginTop(2f);
 
+            document.add(new Paragraph("Escanea para ver tu orden:").setTextAlignment(TextAlignment.CENTER).setFontSize(fontSizeSmall));
+            document.add(qrCode);
             document.add(new Paragraph("TÉRMINOS Y CONDICIONES\n"
                     + "Anticipo: Se requiere 50% de anticipo para todas las reparaciones.\n"
                     + "Garantía: La garantía es de 1 mes para reparaciones de display, solo si el equipo no tiene daños adicionales, como golpes, humedad o intervención externa.\n"
@@ -446,14 +477,13 @@ public class PrintOrderService {
                     .setFontSize(fontSizeMicroSmall)
                     .setTextAlignment(TextAlignment.JUSTIFIED)
                     .setMultipliedLeading(1f));
-
             //order.getModel()
             document.close();
             pdfDoc.close();
             writer.close();
 
             sentoToPrinter(dest);
-           // printOrderReparir80mmDataClient(order);
+            // printOrderReparir80mmDataClient(order);
         } catch (Exception e) {
             System.out.println("Error al generar o imprimir el PDF: " + e.getMessage());
             e.printStackTrace();
