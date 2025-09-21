@@ -99,6 +99,13 @@ public class ProductController implements Initializable {
 
     @FXML
     private CheckBox isstocktaking;
+    
+    
+    @FXML
+    private CheckBox isDesactivateProduct;
+
+    @FXML
+    private CheckBox isUpdatestocktaking;
 
     @FXML
     private TextField txtSaveAmount;
@@ -178,7 +185,8 @@ public class ProductController implements Initializable {
         DepartmentDTO selectedDepartment = comboUpdateDepart.getValue();
         int selectedId = selectedDepartment.getId();
         productoToUpdate.setCategoryId(selectedId);
-
+        productoToUpdate.setStocktaking(isUpdatestocktaking.isSelected());
+        productoToUpdate.setIsActive(isDesactivateProduct.isSelected());
         System.out.println("Producto actualizado=  " + productoToUpdate.toString());
         productoToUpdate.setSupplier("sin informacion");
 

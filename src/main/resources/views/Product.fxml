@@ -11,7 +11,7 @@
 <?import javafx.scene.effect.Blend?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane id="AnchorPane" prefHeight="699.0" prefWidth="1067.0" styleClass="mainFxmlClass" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ProductController">
+<AnchorPane id="AnchorPane" prefHeight="699.0" prefWidth="1067.0" styleClass="mainFxmlClass" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ProductController">
    
     <children>
         <TabPane fx:id="tabPaneAddProduct" layoutX="14.0" layoutY="7.0" onMouseClicked="#tabPaneAddProductMouseCliked" prefHeight="389.0" prefWidth="1000.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="4.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="7.0">
@@ -104,11 +104,12 @@
                         </AnchorPane>
                         <AnchorPane fx:id="anchorPaneStock1" layoutX="13.0" layoutY="191.0" prefHeight="91.0" prefWidth="200.0" AnchorPane.leftAnchor="13.0" AnchorPane.rightAnchor="12.0">
                            <children>
-                              <CheckBox fx:id="isUpdatestocktaking" layoutX="22.0" layoutY="5.0" mnemonicParsing="false" text="Usar inventario" AnchorPane.leftAnchor="22.0" />
-                              <TextField fx:id="txtUpdateAmount" layoutX="94.0" layoutY="36.0" prefHeight="26.0" prefWidth="240.0" />
-                              <TextField fx:id="txtUpdateminimumStock" layoutX="420.0" layoutY="36.0" prefHeight="26.0" prefWidth="228.0" />
-                              <Label layoutX="22.0" layoutY="40.0" text="Cantidad" AnchorPane.leftAnchor="22.0" />
-                              <Label layoutX="348.0" layoutY="40.0" text="Minimo" />
+                              <CheckBox fx:id="isUpdatestocktaking" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" text="Usar inventario" AnchorPane.leftAnchor="14.0" />
+                              <TextField fx:id="txtUpdateAmount" layoutX="240.0" layoutY="10.0" prefHeight="26.0" prefWidth="240.0" />
+                              <TextField fx:id="txtUpdateminimumStock" layoutX="566.0" layoutY="10.0" prefHeight="26.0" prefWidth="228.0" />
+                              <Label layoutX="168.0" layoutY="14.0" text="Cantidad" AnchorPane.leftAnchor="168.0" />
+                              <Label layoutX="494.0" layoutY="14.0" text="Minimo" />
+                              <CheckBox fx:id="isDesactivateProduct" layoutX="817.0" layoutY="14.0" mnemonicParsing="false" text="Activo" />
                            </children>
                         </AnchorPane>
                         <Button fx:id="btnUpdateFindProduct" layoutX="351.0" layoutY="53.0" mnemonicParsing="false" onAction="#OnActionFindProductToUpdateProduct" text="Buscar" />
