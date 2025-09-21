@@ -139,22 +139,14 @@ public class InventoryController implements Initializable {
 
     @FXML
     void onActionBtnUpdateProduct(ActionEvent event) {
-//        String barcode = txtAddInventoryBarcode.getText();
-//        ProductDTO productDto = productApi.getProductByBarcode(barcode, user.getToken());
-//        int newStock = Integer.parseInt(txtAddInventoryAdd.getText());
-//        System.out.println("producto amodificar =    " + productDto.toString());
-//        productDto.setEntriy(newStock);
-//        productDto.setPurchasePrice(Double.parseDouble(txtAddInventorypurchasePrice.getText()));
-//        productDto.setPrice(new BigDecimal(txtAddInventoryPrice.getText()));
-//        productDto.setSupplier(txtAddInventorySupplier.getText());
-//        productApi.addINvetory(productDto, user.getToken());
-        // Obtener los valores de los campos
+        System.out.println("AGREGAR A INVENTARIO");
         String barcode = txtAddInventoryBarcode.getText();
         String newStockText = txtAddInventoryAdd.getText();
         String purchasePriceText = txtAddInventorypurchasePrice.getText();
         String priceText = txtAddInventoryPrice.getText();
         String supplier = txtAddInventorySupplier.getText();
-
+        String name = txtAddInventoryName.getText();
+        double wholesalePrice = Double.parseDouble(txtAddInventoryholesalePrice.getText());
         // Validación individual por campo
         if (barcode == null || barcode.trim().isEmpty()) {
             AlertMessage.showAlert(Alert.AlertType.ERROR, "Error", "El campo 'Código de barras' es obligatorio.");
@@ -220,6 +212,8 @@ public class InventoryController implements Initializable {
         productDto.setPurchasePrice(purchasePrice);
         productDto.setPrice(price);
         productDto.setSupplier(supplier);
+        productDto.setName(name);
+        productDto.setWholesalePrice(wholesalePrice);
 
         // Enviar actualización
         productApi.addINvetory(productDto, user.getToken());
