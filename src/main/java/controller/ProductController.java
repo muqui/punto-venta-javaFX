@@ -208,10 +208,10 @@ public class ProductController implements Initializable {
         System.out.println("presionaste crear producto" + tabSeleccionado);
 
         if (tabSeleccionado == 0) {
-            fillChoiceBoxDepartament();
+          //  fillChoiceBoxDepartament();
         }
         if(tabSeleccionado == 1){
-            fillChoiceBoxUpdateDepartament();
+            //fillChoiceBoxUpdateDepartament();
         }
 
     }
@@ -360,6 +360,18 @@ public class ProductController implements Initializable {
         fillChoiceBoxDepartament();
         fillChoiceBoxHowToSell();
         initializeTableColumns();
+            // Listener para cambios de tab
+    tabPaneAddProduct.getSelectionModel().selectedIndexProperty().addListener((obs, oldIndex, newIndex) -> {
+        int tabSeleccionado = newIndex.intValue();
+        System.out.println("Cambiando a tab: " + tabSeleccionado);
+
+        if (tabSeleccionado == 0) {
+            // Solo se recarga ChoiceBox si cambias a la pestaña 0
+            fillChoiceBoxDepartament();
+        } else if (tabSeleccionado == 1) {
+            fillChoiceBoxUpdateDepartament();
+        }
+    });
 
         txtUpdateBarcode.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
@@ -453,6 +465,7 @@ public class ProductController implements Initializable {
         comboUpdateHowTosell.setValue("Unidad");
     }
 
+ 
     private void fillChoiceBoxDepartament() {
 
         ObjectMapper mapper = new ObjectMapper();
@@ -480,6 +493,7 @@ public class ProductController implements Initializable {
         }
 
     }
+
 
     private void fillChoiceBoxUpdateDepartament() {
 
