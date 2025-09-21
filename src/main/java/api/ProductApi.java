@@ -18,9 +18,11 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Scanner;
 import javafx.collections.FXCollections;
@@ -322,7 +324,10 @@ public class ProductApi {
     public List<ProductFindDTO> fetchProducts(String nameProduct, String token) throws IOException {
       //  System.out.println("token en busqueda de producto 888888 " + token);
         List<ProductFindDTO> products = null;
-        String urlString = baseUrl + endpointProductsSearch + "?name=" + nameProduct;
+        
+String encodedName = URLEncoder.encode(nameProduct, StandardCharsets.UTF_8.toString());
+
+        String urlString = baseUrl + endpointProductsSearch + "?name=" + encodedName;
         // String urlString = "http://localhost:3000/products/search?name=" + value;
         URL url = new URL(urlString);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
