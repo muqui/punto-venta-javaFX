@@ -260,7 +260,7 @@ public class InventoryController implements Initializable {
             this.user = App.getUsuario();
             fillChoiceBoxGanancias();
 
-            productApi.fetchProductsInventary("", user.getToken(), 1, 5);
+            productApi.fetchProductsInventary("", user.getToken());
             txtAddInventoryBarcode.setOnKeyPressed(new EventHandler<KeyEvent>() {
                 @Override
                 public void handle(KeyEvent ke) {

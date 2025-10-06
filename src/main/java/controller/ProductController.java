@@ -370,6 +370,7 @@ public class ProductController implements Initializable {
             fillChoiceBoxDepartament();
         } else if (tabSeleccionado == 1) {
             fillChoiceBoxUpdateDepartament();
+            isDesactivateProduct.setSelected(true);
         }
     });
 
