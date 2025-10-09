@@ -54,7 +54,7 @@ public class ProductApi {
 
     public ProductDTO getProductByBarcode(String barcode, String token) {
         ProductDTO product = new ProductDTO();
-       // System.out.println("prueba de token directo de App " + token11);
+        // System.out.println("prueba de token directo de App " + token11);
 
         try {
 
@@ -66,7 +66,7 @@ public class ProductApi {
                     .uri(new URI(baseUrl + endpointProducts + barcode))
                     //.uri(new URI("http://localhost:3000/products/" + barcode))
                     .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
-                       .header("x-client-id", clientId)
+                    .header("x-client-id", clientId)
                     .header("Content-Type", "application/json")
                     .GET()
                     .build();
@@ -128,9 +128,9 @@ public class ProductApi {
 
                     // .uri(new URI("http://localhost:3000/products/addInventory/" + product.getBarcode())) // Asegúrate de pasar el ID del producto
                     .header("Content-Type", "application/json")
-                      .header("x-client-id", clientId)
+                    .header("x-client-id", clientId)
                     .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
-                    
+
                     .method("PATCH", HttpRequest.BodyPublishers.ofString(jsonProduct)) // Cambiar POST a PATCH
                     .build();
 
@@ -178,7 +178,7 @@ public class ProductApi {
                     .uri(new URI(baseUrl + endpointProducts + barcode))
                     // .uri(new URI("http://localhost:3000/products/" + barcode))
                     .header("Content-Type", "application/json")
-                      .header("x-client-id", clientId)
+                    .header("x-client-id", clientId)
                     .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
                     .GET()
                     .build();
@@ -236,7 +236,7 @@ public class ProductApi {
 
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
-              conn.setRequestProperty("x-client-id", clientId);
+            conn.setRequestProperty("x-client-id", clientId);
             conn.setRequestProperty("Content-Type", "application/json");
             conn.connect();
 
@@ -244,7 +244,7 @@ public class ProductApi {
             if (responseCode != 200) {
                 throw new RuntimeException("HttpResponseCode: " + responseCode);
             } else {
-                 Scanner scanner = new Scanner(conn.getInputStream());
+                Scanner scanner = new Scanner(conn.getInputStream());
                 StringBuilder inline = new StringBuilder();
                 while (scanner.hasNext()) {
                     inline.append(scanner.nextLine());
@@ -288,7 +288,7 @@ public class ProductApi {
                     //  .uri(new URI("http://localhost:3000/products/" + product.getBarcode())) // Asegúrate de pasar el ID del producto
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer " + token)
-                        .header("x-client-id", clientId) 
+                    .header("x-client-id", clientId)
                     .method("PATCH", HttpRequest.BodyPublishers.ofString(jsonProduct)) // Cambiar POST a PATCH
                     .build();
 
@@ -322,10 +322,10 @@ public class ProductApi {
     }
 
     public List<ProductFindDTO> fetchProducts(String nameProduct, String token) throws IOException {
-      //  System.out.println("token en busqueda de producto 888888 " + token);
+        //  System.out.println("token en busqueda de producto 888888 " + token);
         List<ProductFindDTO> products = null;
-        
-String encodedName = URLEncoder.encode(nameProduct, StandardCharsets.UTF_8.toString());
+
+        String encodedName = URLEncoder.encode(nameProduct, StandardCharsets.UTF_8.toString());
 
         String urlString = baseUrl + endpointProductsSearch + "?name=" + encodedName;
         // String urlString = "http://localhost:3000/products/search?name=" + value;
@@ -333,7 +333,7 @@ String encodedName = URLEncoder.encode(nameProduct, StandardCharsets.UTF_8.toStr
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
-          conn.setRequestProperty("x-client-id", clientId);
+        conn.setRequestProperty("x-client-id", clientId);
         conn.setRequestProperty("Content-Type", "application/json");
         conn.connect();
 
@@ -342,12 +342,12 @@ String encodedName = URLEncoder.encode(nameProduct, StandardCharsets.UTF_8.toStr
             throw new RuntimeException("HttpResponseCode: " + responseCode);
         } else {
             Scanner scanner = new Scanner(conn.getInputStream()); //Scanner scanner = new Scanner(url.openStream());
-            StringBuilder inline = new StringBuilder(); 
+            StringBuilder inline = new StringBuilder();
             while (scanner.hasNext()) {
                 inline.append(scanner.nextLine());
             }
             scanner.close();
-          //  System.out.println("Busqueda cadena= " + inline);
+            //  System.out.println("Busqueda cadena= " + inline);
             ObjectMapper mapper = new ObjectMapper();
             products = mapper.readValue(inline.toString(), new TypeReference<List<ProductFindDTO>>() {
             });
@@ -371,7 +371,7 @@ String encodedName = URLEncoder.encode(nameProduct, StandardCharsets.UTF_8.toStr
                     // .uri(new URI("http://localhost:3000/products"))
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer " + token) // <-- Agregamos el token aquí
-                        .header("x-client-id", clientId) 
+                    .header("x-client-id", clientId)
                     .POST(HttpRequest.BodyPublishers.ofString(jsonProduct))
                     .build();
 
@@ -461,18 +461,23 @@ String encodedName = URLEncoder.encode(nameProduct, StandardCharsets.UTF_8.toStr
 //        }
 //        return product;
 //    }
-
     //Muestra el inventario 
     public InventoryResponseDTO fetchProductsInventary(String departmentName, String token) throws IOException {
+        System.out.println("clientId" + clientId);
         InventoryResponseDTO response = null;
-        URL url = new URL(baseUrl + endpointProductsInventory + "?name=" + departmentName);
-        System.out.println("" + departmentName);
+        // Codificamos el parámetro para evitar errores con espacios o caracteres especiales
+        String encodedDepartmentName = departmentName != null
+                ? URLEncoder.encode(departmentName, StandardCharsets.UTF_8)
+                : "";
+
+        URL url = new URL(baseUrl + endpointProductsInventory + "?name=" + encodedDepartmentName);
+        System.out.println("" + encodedDepartmentName);
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
 
         conn.setRequestProperty("Authorization", "Bearer " + token); // <-- Agregamos el token aquí
-          conn.setRequestProperty("x-client-id", clientId);
+        conn.setRequestProperty("x-client-id", clientId);
         conn.setRequestProperty("Content-Type", "application/json");
         conn.connect();
 
@@ -494,6 +499,7 @@ String encodedName = URLEncoder.encode(nameProduct, StandardCharsets.UTF_8.toStr
             return response;
         }
     }
+    /*
      public PaginatedInventoryResponseDTO fetchProductsInventary(String departmentName, String token, int page, int limit) throws IOException {
     PaginatedInventoryResponseDTO response = null;
 
@@ -529,6 +535,6 @@ String encodedName = URLEncoder.encode(nameProduct, StandardCharsets.UTF_8.toStr
             }
     return response;
 }
-
+     */
 
 }

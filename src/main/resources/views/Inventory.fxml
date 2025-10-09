@@ -69,7 +69,7 @@
                               <Label layoutX="99.0" layoutY="122.0" text="Nombre" />
                               <Label layoutX="99.0" layoutY="167.0" text="Agregar" />
                               <Label layoutX="67.0" layoutY="209.0" text="Preico Costo" />
-                              <Label layoutX="83.0" layoutY="255.0" text="Ganaccia" />
+                              <Label layoutX="83.0" layoutY="255.0" text="Ganancia" />
                               <Label layoutX="68.0" layoutY="304.0" text="Precio venta" />
                               <Label layoutX="51.0" layoutY="354.0" text="Precio Mayoreo" />
                               <TextField fx:id="txtAddInventoryBarcode" layoutX="161.0" layoutY="77.0" prefHeight="26.0" prefWidth="174.0" />
