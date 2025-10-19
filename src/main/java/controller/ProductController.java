@@ -271,6 +271,7 @@ public class ProductController implements Initializable {
                 product.setPurchasePrice(Double.parseDouble(txtSavepurchasePrice.getText()));
                 product.setWholesalePrice(Double.parseDouble(txtSavewholesalePrice.getText()));
                 product.setStocktaking(isstocktaking.isSelected());
+                product.setIsActive(true);
                 product.setMinimumStock(Integer.parseInt(txtSaveminimumStock.getText()));
                 product.setEntriy(Double.parseDouble(txtSaveAmount.getText()));
                 product.setSupplier(txtSupplier.getText());
