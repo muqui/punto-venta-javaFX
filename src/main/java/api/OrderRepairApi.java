@@ -109,8 +109,8 @@ public class OrderRepairApi {
     }
 
     public String createdOrderServiceRemote(OrderServiceDTO orderServiceDTO) {
-        String baseUrlRemote = configManager.getProperty("api.base.url.remote");
-        String clientIdRemote = configManager.getProperty("x.client.id.remote");
+        String baseUrlRemote = configManager.getProperty("api.base.url.back");
+        String clientIdRemote = configManager.getProperty("database.remote.remote");
         String folio = "";
         try {
             // Convertir ProductDTO a JSON
@@ -276,8 +276,8 @@ public class OrderRepairApi {
 
     public void updateOrderRepairRemote(OrderServiceDTO orderServiceDTO) {
         System.out.println("actualizar remoto");
-        String baseUrlRemote = configManager.getProperty("api.base.url.remote");
-        String clientIdRemote = configManager.getProperty("x.client.id.remote");
+        String baseUrlRemote = configManager.getProperty("api.base.url.back");
+        String clientIdRemote = configManager.getProperty("database.remote.remote");
         try {
             // Convertir ProductDTO a JSON
             ObjectMapper objectMapper = new ObjectMapper();

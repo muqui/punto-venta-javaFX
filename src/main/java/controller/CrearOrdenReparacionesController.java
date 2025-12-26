@@ -5,6 +5,7 @@ package controller;
  * Click nbfs://nbhost/SystemFileSystem/Templates/javafx/FXMLController.java to edit this template
  */
 import api.OrderRepairApi;
+import config.ConfigManager;
 import dto.OrderServiceDTO;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -24,6 +25,8 @@ import javafx.stage.Stage;
  * @author albert
  */
 public class CrearOrdenReparacionesController implements Initializable {
+     ConfigManager configManager = new ConfigManager(); //carga el archivo de config.properties
+   
 
     OrderRepairApi orderRepairApi = new OrderRepairApi();
 
@@ -76,6 +79,7 @@ public class CrearOrdenReparacionesController implements Initializable {
 
     @FXML
     void onActionCrearOrden(ActionEvent event) {
+         boolean baseUrlRemoteFlag = Boolean.parseBoolean(configManager.getProperty("api.base.url.flag"));
         try {
 
             int errorSize = validateForm().length();
@@ -132,12 +136,23 @@ public class CrearOrdenReparacionesController implements Initializable {
                     restante = Double.parseDouble(remainingField.getText().trim());
                 }
 
-                OrderServiceDTO orderServiceDTO = new OrderServiceDTO(falla, nombre, telefono, presupuesto, abono, restante, nota, correo, marca, modelo, falla, estadoRecibido, password, imei);
+                if(baseUrlRemoteFlag){
+                     System.out.println("GUARADA REMOTO Y LOCAL");
+                                   OrderServiceDTO orderServiceDTO = new OrderServiceDTO(falla, nombre, telefono, presupuesto, abono, restante, nota, correo, marca, modelo, falla, estadoRecibido, password, imei);
                 // OrderServiceDTO orderServiceDTO = new OrderServiceDTO(nombre, telefono, correo, marca, modelo, imei, presupuesto, abono, restante, falla, estadoRecibido, contraseña, nota);
-                String folio = orderRepairApi.createdOrderServiceRemote(orderServiceDTO);
+                String folio = orderRepairApi.createdOrderServiceRemote(orderServiceDTO);  
                 System.out.println("FOLIO DESDE REMOTO= " +  folio);
                 orderServiceDTO.setFolio(folio);
                 orderRepairApi.createdOrderService(orderServiceDTO);
+                }
+                else{
+                    System.out.println("GUARADA SOLO LOCAL");
+                                   OrderServiceDTO orderServiceDTO = new OrderServiceDTO(falla, nombre, telefono, presupuesto, abono, restante, nota, correo, marca, modelo, falla, estadoRecibido, password, imei);
+                orderRepairApi.createdOrderService(orderServiceDTO);
+                }
+                    
+                
+ 
                 // Cerrar la ventana
                 Stage stage = (Stage) nameField.getScene().getWindow();
                 stage.close();
