@@ -8,6 +8,7 @@ import api.OrderRepairApi;
 import api.ProductApi;
 import beans.Product;
 import com.albertocoronanavarro.puntoventafx.App;
+import config.ConfigManager;
 import dto.OrderServiceDTO;
 import dto.ProductDTO;
 import dto.SparePartDTO;
@@ -50,7 +51,7 @@ import javafx.util.Callback;
  * @author albert
  */
 public class UpdateOrderServiceController implements Initializable {
-
+  ConfigManager configManager = new ConfigManager(); //carga el archivo de config.properties
     private UserDTO user;
     ProductApi productApi = new ProductApi();
 
@@ -144,6 +145,7 @@ public class UpdateOrderServiceController implements Initializable {
 
     @FXML
     void onActionUpdate(ActionEvent event) {
+         boolean baseUrlRemoteFlag = Boolean.parseBoolean(configManager.getProperty("api.base.url.flag"));
         try {
 
             int errorSize = validateForm().length();
@@ -206,7 +208,11 @@ public class UpdateOrderServiceController implements Initializable {
                 System.out.println("orden reparacion ENVIAR A ACTUALIZAR ..................datos = " + orderServiceDTO);
                 orderRepairApi.updateOrderRepair(orderServiceDTO);
                // orderServiceDTO.setEmail("albert@gmail.com");
-                orderRepairApi.updateOrderRepairRemote(orderServiceDTO);//actualiza el remoto
+               if(baseUrlRemoteFlag){
+                   System.out.println("tambien actualiza remoto");
+                     orderRepairApi.updateOrderRepairRemote(orderServiceDTO); //actualiza datos remotos
+               }
+              
                 Stage stage = (Stage) nameField.getScene().getWindow();
                 stage.close();
             } else {

@@ -23,6 +23,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -39,6 +40,7 @@ import javafx.stage.Stage;
  * @author albert
  */
 public class UserController implements Initializable {
+
     private ToggleGroup paperOrderServiceSizeGroup;
     UserApi userApi = new UserApi();
     @FXML
@@ -66,6 +68,19 @@ public class UserController implements Initializable {
         OpenModalCreateUser(null);
     }
 
+    //configuracion para mandar a remoto los tickes de reparaciones
+    @FXML
+    private TextField txtUrlReparacionBack;
+
+    @FXML
+    private TextField txtUrlReparacionFront;
+
+    @FXML
+    private CheckBox checkboxReparacionRemoto;
+
+    @FXML
+    private TextField txtReparacionDataBase;
+
     @FXML
     void onActionSearchUser(ActionEvent event) {
 
@@ -79,41 +94,68 @@ public class UserController implements Initializable {
         // TODO
         // userApi.fillChoiceBoxUser();
         initializeTableColumns();
-        
-            paperOrderServiceSizeGroup = new ToggleGroup();
 
-    RadioButtonOrderService58.setToggleGroup(paperOrderServiceSizeGroup);
-    RadioButtonOrderService80.setToggleGroup(paperOrderServiceSizeGroup);
-    RadioButtonOrderServiceLetter.setToggleGroup(paperOrderServiceSizeGroup);
+        txtUrlReparacionFront.setText(loadUrlReparacionFrontFromProperties());
+        txtUrlReparacionBack.setText(loadUrlReparacionBackendFromProperties());
+        txtReparacionDataBase.setText(loadReparacionDataBaseFromProperties());
+        checkboxReparacionRemoto.setSelected(loadUrlReparacionFlagFromProperties());
 
-       // Leer el valor guardado
-    String savedPrinter = loadPrinterNameFromProperties();
+        paperOrderServiceSizeGroup = new ToggleGroup();
 
-    if (savedPrinter != null) {
-        switch (savedPrinter) {
-            case "58mm":
-                RadioButtonOrderService58.setSelected(true);
-                break;
-            case "80mm":
-                RadioButtonOrderService80.setSelected(true);
-                break;
-            case "Letter":
-                RadioButtonOrderServiceLetter.setSelected(true);
-                break;
-            default:
-                RadioButtonOrderServiceLetter.setSelected(true); // valor por defecto si no coincide
+        RadioButtonOrderService58.setToggleGroup(paperOrderServiceSizeGroup);
+        RadioButtonOrderService80.setToggleGroup(paperOrderServiceSizeGroup);
+        RadioButtonOrderServiceLetter.setToggleGroup(paperOrderServiceSizeGroup);
+
+        // Leer el valor guardado
+        String savedPrinter = loadPrinterNameFromProperties();
+
+        if (savedPrinter != null) {
+            switch (savedPrinter) {
+                case "58mm":
+                    RadioButtonOrderService58.setSelected(true);
+                    break;
+                case "80mm":
+                    RadioButtonOrderService80.setSelected(true);
+                    break;
+                case "Letter":
+                    RadioButtonOrderServiceLetter.setSelected(true);
+                    break;
+                default:
+                    RadioButtonOrderServiceLetter.setSelected(true); // valor por defecto si no coincide
+            }
+        } else {
+            RadioButtonOrderServiceLetter.setSelected(true); // valor por defecto si no hay archivo
         }
-    } else {
-        RadioButtonOrderServiceLetter.setSelected(true); // valor por defecto si no hay archivo
-    }
-    paperOrderServiceSizeGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
-    if (newToggle != null) {
-        RadioButton selectedRadio = (RadioButton) newToggle;
-        String printerName = selectedRadio.getText(); // o usa .getId() si prefieres el ID
+        paperOrderServiceSizeGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+            if (newToggle != null) {
+                RadioButton selectedRadio = (RadioButton) newToggle;
+                String printerName = selectedRadio.getText(); // o usa .getId() si prefieres el ID
 
-        savePrinterNameToProperties(printerName);
-    }
-});
+                savePrinterNameToProperties(printerName);
+            }
+        });
+
+        checkboxReparacionRemoto.selectedProperty().addListener((obs, oldValue, newValue) -> {
+            saveUrlReparacionFlagToProperties(newValue);
+        });
+
+        txtUrlReparacionBack.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal) { // perdió el foco
+                saveUrlReparacionBackendToProperties(txtUrlReparacionBack.getText());
+            }
+        });
+
+        txtUrlReparacionFront.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal) {
+                saveUrlReparacionFrontToProperties(txtUrlReparacionFront.getText());
+            }
+        });
+
+        txtReparacionDataBase.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal) {
+                saveReparacionDataBaseToProperties(txtReparacionDataBase.getText());
+            }
+        });
 
     }
 
@@ -192,41 +234,154 @@ public class UserController implements Initializable {
         }
 
     }
-    
+
     private void savePrinterNameToProperties(String printerName) {
-    Properties config = new Properties();
-    File file = new File("config.properties");
+        Properties config = new Properties();
+        File file = new File("config.properties");
 
-    try {
-        if (file.exists()) {
-            try (FileInputStream in = new FileInputStream(file)) {
-                config.load(in);
+        try {
+            if (file.exists()) {
+                try (FileInputStream in = new FileInputStream(file)) {
+                    config.load(in);
+                }
             }
+
+            config.setProperty("printer.order.service.name", printerName);
+
+            try (FileOutputStream out = new FileOutputStream(file)) {
+                config.store(out, "Configuración de impresora actualizada");
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        config.setProperty("printer.order.service.name", printerName);
-
-        try (FileOutputStream out = new FileOutputStream(file)) {
-            config.store(out, "Configuración de impresora actualizada");
-        }
-
-    } catch (IOException e) {
-        e.printStackTrace();
     }
-}
 
     private String loadPrinterNameFromProperties() {
-    Properties config = new Properties();
-    File file = new File("config.properties");
+        Properties config = new Properties();
+        File file = new File("config.properties");
 
-    try (FileInputStream in = new FileInputStream(file)) {
-        config.load(in);
-        return config.getProperty("printer.order.service.name"); // puede devolver null si no existe
-    } catch (IOException e) {
-        e.printStackTrace();
-        return null;
+        try (FileInputStream in = new FileInputStream(file)) {
+            config.load(in);
+            return config.getProperty("printer.order.service.name"); // puede devolver null si no existe
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
-}
 
+    private String loadUrlReparacionFrontFromProperties() {
+        Properties config = new Properties();
+        File file = new File("config.properties");
+
+        try (FileInputStream in = new FileInputStream(file)) {
+            config.load(in);
+            return config.getProperty("api.base.url.front"); // puede devolver null si no existe
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private String loadUrlReparacionBackendFromProperties() {
+        Properties config = new Properties();
+        File file = new File("config.properties");
+
+        try (FileInputStream in = new FileInputStream(file)) {
+            config.load(in);
+            return config.getProperty("api.base.url.back"); // puede devolver null si no existe
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private boolean loadUrlReparacionFlagFromProperties() {
+        Properties config = new Properties();
+        File file = new File("config.properties");
+
+        try (FileInputStream in = new FileInputStream(file)) {
+            config.load(in);
+
+            String value = config.getProperty("api.base.url.flag", "false");
+            return Boolean.parseBoolean(value);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private void saveUrlReparacionFlagToProperties(boolean value) {
+        Properties config = new Properties();
+        File file = new File("config.properties");
+
+        try {
+            // Si el archivo existe, lo cargamos primero
+            if (file.exists()) {
+                try (FileInputStream in = new FileInputStream(file)) {
+                    config.load(in);
+                }
+            }
+
+            // Cambiamos el valor
+            config.setProperty("api.base.url.flag", String.valueOf(value));
+
+            // Guardamos
+            try (FileOutputStream out = new FileOutputStream(file)) {
+                config.store(out, "App configuration");
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void saveUrlReparacionBackendToProperties(String value) {
+        saveProperty("api.base.url.back", value);
+    }
+
+    private void saveUrlReparacionFrontToProperties(String value) {
+        saveProperty("api.base.url.front", value);
+    }
+
+    private void saveProperty(String key, String value) {
+        Properties config = new Properties();
+        File file = new File("config.properties");
+
+        try {
+            if (file.exists()) {
+                try (FileInputStream in = new FileInputStream(file)) {
+                    config.load(in);
+                }
+            }
+
+            config.setProperty(key, value == null ? "" : value);
+
+            try (FileOutputStream out = new FileOutputStream(file)) {
+                config.store(out, "App configuration");
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String loadReparacionDataBaseFromProperties() {
+        Properties config = new Properties();
+        File file = new File("config.properties");
+
+        try (FileInputStream in = new FileInputStream(file)) {
+            config.load(in);
+            return config.getProperty("database.remote.remote"); // puede devolver null si no existe
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void saveReparacionDataBaseToProperties(String value) {
+        saveProperty("database.remote.remote", value);
+    }
 
 }
