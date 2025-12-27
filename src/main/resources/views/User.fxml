@@ -38,6 +38,8 @@
                         <RadioButton fx:id="RadioButtonOrderService58" layoutX="14.0" layoutY="51.0" mnemonicParsing="false" text="58mm" />
                         <RadioButton fx:id="RadioButtonOrderService80" layoutX="91.0" layoutY="51.0" mnemonicParsing="false" text="80mm" />
                         <RadioButton fx:id="RadioButtonOrderServiceLetter" layoutX="171.0" layoutY="51.0" mnemonicParsing="false" text="Carta" />
+                        <Label layoutX="14.0" layoutY="99.0" text="Nombre negocio" />
+                        <TextField fx:id="txtBusinessName" layoutX="131.0" layoutY="95.0" prefHeight="26.0" prefWidth="273.0" />
                      </children></AnchorPane>
             </content>
           </Tab>

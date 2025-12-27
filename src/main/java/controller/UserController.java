@@ -54,6 +54,9 @@ public class UserController implements Initializable {
 
     @FXML
     private TableView<UserDTO> tableUsers;
+    /*
+    Datos de impresion
+    */
     @FXML
     private RadioButton RadioButtonOrderService58;
 
@@ -62,6 +65,12 @@ public class UserController implements Initializable {
 
     @FXML
     private RadioButton RadioButtonOrderServiceLetter;
+    
+     @FXML
+    private TextField txtBusinessName;
+     /*
+     FIN datos impresion
+     */
 
     @FXML
     void onActionCreatedUser(ActionEvent event) {
@@ -99,6 +108,7 @@ public class UserController implements Initializable {
         txtUrlReparacionBack.setText(loadUrlReparacionBackendFromProperties());
         txtReparacionDataBase.setText(loadReparacionDataBaseFromProperties());
         checkboxReparacionRemoto.setSelected(loadUrlReparacionFlagFromProperties());
+        txtBusinessName.setText(loadBusinessNameFromProperties());
 
         paperOrderServiceSizeGroup = new ToggleGroup();
 
@@ -154,6 +164,12 @@ public class UserController implements Initializable {
         txtReparacionDataBase.focusedProperty().addListener((obs, oldVal, newVal) -> {
             if (!newVal) {
                 saveReparacionDataBaseToProperties(txtReparacionDataBase.getText());
+            }
+        });
+        
+          txtBusinessName.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal) {
+                saveBusinessNameToProperties(txtBusinessName.getText());
             }
         });
 
@@ -382,6 +398,25 @@ public class UserController implements Initializable {
 
     private void saveReparacionDataBaseToProperties(String value) {
         saveProperty("database.remote.remote", value);
+    }
+
+    private String loadBusinessNameFromProperties() {
+        
+      Properties config = new Properties();
+        File file = new File("config.properties");
+
+        try (FileInputStream in = new FileInputStream(file)) {
+            config.load(in);
+            return config.getProperty("printer.name.business"); // puede devolver null si no existe
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void saveBusinessNameToProperties(String value) {
+        
+         saveProperty("printer.name.business", value);
     }
 
 }

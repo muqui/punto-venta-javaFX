@@ -53,12 +53,18 @@ public class PrintOrderService {
     private static ConfigManager configManager = new ConfigManager();
     private static String baseFront;
     private static String baseFrontReport;
+    private static String nameBusinessPOS;
 
     static {
         baseFront = configManager.getProperty("api.base.url.front");
         baseFrontReport = configManager.getProperty("api.base.url.front.report");
+        nameBusinessPOS = configManager.getProperty("printer.name.business");
+
     }
 
+    /*
+    ORDEN DE SERVICIO TAMAÑO CARTA
+     */
     public static void printOrderReparirLetter(OrderServiceDTO order) {
         System.out.println("SE ENVIA A PDF PARA IMPRIMIR");
         String dest = "/home/albert/Documents/miArchivoCarta.pdf";
@@ -223,6 +229,9 @@ public class PrintOrderService {
         }
     }
 
+    /*
+    ORDEN DE SERVICIO 58MM
+     */
     public static void printOrderReparir58mm(OrderServiceDTO order) {
         System.out.println("SE ENVIA A PDF PARA IMPRIMIR");
         String dest = "/home/albert/Documents/miArchivo58mm.pdf";
@@ -331,6 +340,9 @@ public class PrintOrderService {
         }
     }
 
+    /*
+    ORDEN DE SERVICIO 80MM
+     */
     public static void printOrderReparir80mm(OrderServiceDTO order) {
         System.out.println("SE ENVIA A PDF PARA IMPRIMIR");
         String dest = "/home/albert/Documents/miArchivo.pdf";
@@ -490,6 +502,9 @@ public class PrintOrderService {
         }
     }
 
+    /*
+    IMPRIME DATOS DEL CLIENTE DE LA ORDEN DE SERVICIO 80 MM
+     */
     public static void printOrderReparir80mmDataClient(OrderServiceDTO order) {
         System.out.println("SE ENVIA A PDF PARA IMPRIMIR");
         String dest = "/home/albert/Documents/client.pdf";
@@ -532,6 +547,9 @@ public class PrintOrderService {
         }
     }
 
+    /*
+    IMRPIME TICKET DE COMPRA 
+    */
     private static void sentoToPrinter(String dest) throws PrinterException, IOException {
         //  String dest = "/home/albert/Documents/miArchivo.pdf";
         // Cargar el PDF
@@ -558,7 +576,7 @@ public class PrintOrderService {
     }
 
     /*
-    ** Imprime el ticket de la venta del POS
+    ** Imprime el ticket de la venta del POS 80mm
      */
     public static void createdPdf80mm(ObservableList<OrderDetail> orderDetails) {
         System.out.println("SE ENVIA A PDF PARA IMPRIMIR");
@@ -575,7 +593,7 @@ public class PrintOrderService {
             PageSize thermalPageSize = new PageSize(226.77f, 1000f); // 80mm ≈ 226.77 puntos, altura flexible
             Document document = new Document(pdfDoc, thermalPageSize);
             document.setMargins(5f, 10f, 5f, 10f); // Agregar márgenes mínimos para evitar cortes
-            document.add(new Paragraph("MATI PAPELERIA")
+            document.add(new Paragraph(nameBusinessPOS)
                     .setBold().setFontSize(14).setTextAlignment(TextAlignment.CENTER));
             document.add(new Paragraph("Fecha: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")))
                     .setFontSize(12).setTextAlignment(TextAlignment.CENTER));
@@ -625,7 +643,9 @@ public class PrintOrderService {
         }
 
     }
-
+/*
+    IMPRIME EL TICKET DE COMPRA DE LA VENTA POS EN TAMAÑO CARTA
+    */
     public static void createdPdfLetterTiclekPOS(ObservableList<OrderDetail> orderDetails) {
         // Obtener timestamp actual
         long timestamp = System.currentTimeMillis();
@@ -647,7 +667,7 @@ public class PrintOrderService {
             document.setMargins(40f, 40f, 40f, 40f); // Márgenes amplios para carta
 
             // Encabezado
-            document.add(new Paragraph("MATI PAPELERIA")
+            document.add(new Paragraph(nameBusinessPOS)
                     .setBold().setFontSize(18).setTextAlignment(TextAlignment.CENTER));
             document.add(new Paragraph("Fecha: "
                     + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")))
