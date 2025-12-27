@@ -14,6 +14,7 @@ Además, el módulo de reparaciones le permite crear, listar y modificar órdene
 <p>La parte del backed esta desarrolla con nestJS utilizando postgresql como base de datos </p>
 <p>version jdk: 17 </p>
 <h3> Login</h3>
+<p>El usuario por defecto es usuario: Administrador y contraseña: <strong> Admin123* </strong> <p> 
 
 ![Texto alternativo](./img/login.png)
 
