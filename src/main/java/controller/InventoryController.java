@@ -15,6 +15,7 @@ import dto.DepartmentDTO;
 import dto.EntryDTO;
 import dto.InventoryResponseDTO;
 import dto.OrderDetailDTO;
+import dto.OrderDetailsResponseDTO;
 import dto.PaginatedInventoryResponseDTO;
 import dto.ProductDTO;
 import dto.UserDTO;
@@ -123,6 +124,17 @@ public class InventoryController implements Initializable {
 
     @FXML
     private Button btnEntriesUpdate;
+    
+    /*
+     datos para salidas del inventario
+    */
+     @FXML
+    private ComboBox<DepartmentDTO> comboBoxDepartamentSales;
+     @FXML
+    private DatePicker datePickerSalesSartDate;
+      @FXML
+    private DatePicker datePickerSalesEndDate;
+    
 
     @FXML
     void onActionEntriesUpdate(ActionEvent event) {
@@ -259,6 +271,10 @@ public class InventoryController implements Initializable {
         try {
             this.user = App.getUsuario();
             fillChoiceBoxGanancias();
+            fillChoiceBoxDepartamentOutputs();
+            //datePickerINcomeStatDay.setValue(LocalDate.now());
+            datePickerSalesSartDate.setValue(LocalDate.now());
+            datePickerSalesEndDate.setValue(LocalDate.now());
 
             productApi.fetchProductsInventary("", user.getToken());
             txtAddInventoryBarcode.setOnKeyPressed(new EventHandler<KeyEvent>() {
@@ -345,6 +361,16 @@ public class InventoryController implements Initializable {
             Logger.getLogger(InventoryController.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+         comboBoxDepartamentSales.setOnAction(event -> {
+        DepartmentDTO selected = comboBoxDepartamentSales.getValue();
+        if (selected != null) {
+            System.out.println("Departamento seleccionado: " + selected.getName());
+            System.out.println("fecha inicio" + datePickerSalesSartDate.getValue().toString());
+             System.out.println("fecha inicio" + datePickerSalesEndDate.getValue().toString());
+            // aquí tu lógica
+            updateTableSells();
+        }
+    });
     }
 
     public void fetchDataInventorie() {
@@ -684,6 +710,82 @@ public class InventoryController implements Initializable {
         columnPrice.setPrefWidth(tableWidth * 0.10);
         columnTotalPrice.setPrefWidth(tableWidth * 0.10);
         columnSupplier.setPrefWidth(tableWidth * 0.10);
+    }
+    
+    private void fillChoiceBoxDepartamentOutputs() {
+ ObjectMapper mapper = new ObjectMapper();
+        List<DepartmentDTO> departments = productApi.DepartamenNametList(user.getToken());
+
+        // Crear una lista observable
+        ObservableList<DepartmentDTO> departamentList = FXCollections.observableArrayList();
+
+        // Agregar la opción "Todos los departamentos" al inicio
+        DepartmentDTO allDepartmentsOption = new DepartmentDTO();
+        allDepartmentsOption.setId(-1);
+        allDepartmentsOption.setName("TODOS LOS DEPARTAMENTOS");
+        departamentList.add(allDepartmentsOption);
+
+        // Agregar los departamentos reales
+        departamentList.addAll(departments);
+
+        // Configurar los elementos en el ComboBox
+        comboBoxDepartamentSales.setItems(departamentList);
+
+        // Configurar el StringConverter para mostrar solo el nombre
+        comboBoxDepartamentSales.setConverter(new StringConverter<DepartmentDTO>() {
+            @Override
+            public String toString(DepartmentDTO department) {
+                return department.getName();
+            }
+
+            @Override
+            public DepartmentDTO fromString(String string) {
+                return departamentList.stream().filter(department -> department.getName().equals(string)).findFirst().orElse(null);
+            }
+        });
+
+        // Establecer "Todos los departamentos" como valor por defecto
+        comboBoxDepartamentSales.setValue(allDepartmentsOption);
+}
+
+       private void updateTableSells() {
+
+        DepartmentDTO departament = comboBoxDepartamentSales.getValue();
+       // UserDTO user = comboUser.getValue();
+        String  userx= user.getName();
+        String departamentName = departament.getName();
+        try {
+            if(user.getId() == 0){
+                 userx = "";
+            }
+            if(departament.getId() <= 0){
+                departamentName = "";
+            }
+            System.out.println("DEPARTAMENTOOOOOOOOOO  = " + departament.getId());
+        
+              fetchOrderDetailsTable(datePickerSalesSartDate.getValue().toString(), datePickerSalesEndDate.getValue().toString(), "", departamentName);
+
+        } catch (Exception ex) {
+            Logger.getLogger(ReportesController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+       
+          private void fetchOrderDetailsTable(String startDay, String endDay, String user, String category) {
+        try {
+            OrderDetailsResponseDTO orderDetailsResponseDTO = orderApia.fetchOrderDetails(startDay, endDay, user, category);
+            List<OrderDetailDTO> orders = orderDetailsResponseDTO.getOrderDetails();
+            String totalPrice = orderDetailsResponseDTO.getTotalPrice();
+            String totalPurchasePrice = orderDetailsResponseDTO.getTotalPurchasePrice();
+            String profit = orderDetailsResponseDTO.getProfit();
+           // txttotalPrice.setText("Ventas: " + totalPrice);
+           // txttotalPurchasePrice.setText("Costo: " + totalPurchasePrice);
+          //  txtProfit.setText("Ganancia: " + profit);
+            ObservableList<OrderDetailDTO> orderDetailsList = FXCollections.observableArrayList(orders);
+            tableViewOutputs.setItems(orderDetailsList);
+        } catch (IOException ex) {
+            Logger.getLogger(ReportesController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }
 
 }

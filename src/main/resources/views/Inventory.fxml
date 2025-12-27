@@ -51,9 +51,13 @@
                     <content>
                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                            <children>
-                              <Label layoutX="21.0" layoutY="14.0" text="Label" />
-                              <ComboBox layoutX="75.0" layoutY="10.0" prefWidth="150.0" />
                               <TableView fx:id="tableViewOutputs" layoutX="14.0" layoutY="43.0" prefHeight="246.0" prefWidth="628.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="51.0" />
+                              <Label layoutX="14.0" layoutY="18.0" text="Desde" />
+                              <DatePicker fx:id="datePickerSalesSartDate" layoutX="59.0" layoutY="14.0" />
+                              <Label layoutX="258.0" layoutY="18.0" text="Hasta" />
+                              <DatePicker fx:id="datePickerSalesEndDate" layoutX="298.0" layoutY="14.0" />
+                              <Label layoutX="509.0" layoutY="18.0" text="Departamento" />
+                              <ComboBox fx:id="comboBoxDepartamentSales" layoutX="608.0" layoutY="14.0" prefHeight="26.0" prefWidth="232.0" />
                            </children></AnchorPane>
                     </content>
                   </Tab>
