@@ -54,7 +54,7 @@
                         </AnchorPane>
                         <AnchorPane fx:id="anchorPaneStock" layoutX="13.0" layoutY="191.0" prefHeight="91.0" prefWidth="200.0" AnchorPane.leftAnchor="13.0" AnchorPane.rightAnchor="12.0">
                            <children>
-                                       <CheckBox fx:id="isstocktaking" layoutX="22.0" layoutY="5.0" mnemonicParsing="false" text="Usar inventario" AnchorPane.leftAnchor="22.0" />
+                                       <CheckBox fx:id="isstocktaking" layoutX="22.0" layoutY="5.0" mnemonicParsing="false" selected="true" text="Usar inventario" AnchorPane.leftAnchor="22.0" />
                                       <TextField fx:id="txtSaveAmount" layoutX="94.0" layoutY="36.0" prefHeight="26.0" prefWidth="240.0" />
                                       <TextField fx:id="txtSaveminimumStock" layoutX="420.0" layoutY="36.0" prefHeight="26.0" prefWidth="228.0" />
                                       <TextField fx:id="txtSupplier" layoutX="740.0" layoutY="36.0" prefHeight="26.0" prefWidth="241.0" AnchorPane.leftAnchor="740.0" AnchorPane.rightAnchor="46.0" />

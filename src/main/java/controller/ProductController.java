@@ -63,112 +63,112 @@ import org.json.JSONObject;
  * @author albert
  */
 public class ProductController implements Initializable {
+
     private UserDTO user;
     ProductApi productApi = new ProductApi();
     ProductDTO productoToUpdate = new ProductDTO();
     CategoriesApi CategoriesApi = new CategoriesApi();
-
+    
     ObservableList<Product> data;
-
+    
     ArrayList<Product> productList = new ArrayList<Product>();
-
+    
     @FXML
     private Button btnSaveProduct;
     @FXML
     private AnchorPane anchorPanePackage;
     @FXML
     private AnchorPane anchorPaneStock;
-
+    
     @FXML
     private ChoiceBox<String> comboSaveGanancia;
-
+    
     @FXML
     private ChoiceBox<String> comboSaveHowTosell;
-
+    
     @FXML
     private ChoiceBox<DepartmentDTO> comboSaveDepart;
-
+    
     @FXML
     private ChoiceBox<DepartmentDTO> comboUpdateDepart;
-
+    
     @FXML
     private ChoiceBox<String> comboUpdateGanancia;
-
+    
     @FXML
     private ChoiceBox<String> comboUpdateHowTosell;
-
+    
     @FXML
     private CheckBox isstocktaking;
     
-    
     @FXML
     private CheckBox isDesactivateProduct;
-
+    
     @FXML
     private CheckBox isUpdatestocktaking;
-
+    
     @FXML
     private TextField txtSaveAmount;
-
+    
     @FXML
     private TextField txtSaveName;
-
+    
     @FXML
     private TextField txtSaveBarcode;
-
+    
     @FXML
     private TextField txtSaveDescription;
-
+    
     @FXML
     private TextField txtSavePrice;
-
+    
     @FXML
     private TextField txtSaveminimumStock;
-
+    
     @FXML
     private TextField txtSavepurchasePrice;
-
+    
     @FXML
     private TextField txtSavewholesalePrice;
-
+    
     @FXML
     private TextField txtSupplier;
-
+    
     @FXML
     private TableView<Product> tableViewPackage;   // ESTA TABLA MUESTRA LOS PRODUCTOS QUE SERAN GUARDADOS EN LA TABLA
 
     @FXML
     private TextField txtCrearDepartamento;
-
+    
     @FXML
     private TabPane tabPaneAddProduct;
-
+    
     @FXML
     private TextField txtUpdateBarcode;
     @FXML
     private TextField txtUpdateAmount;
-
+    
     @FXML
     private TextField txtUpdateDescription;
-
+    
     @FXML
     private TextField txtUpdateName;
-
+    
     @FXML
     private TextField txtUpdatePrice;
-
+    
     @FXML
     private TextField txtUpdateSupplier;
-
+    
     @FXML
     private TextField txtUpdateminimumStock;
-
+    
     @FXML
     private TextField txtUpdatepurchasePrice;
-
+    
     @FXML
     private TextField txtUpdatewholesalePrice;
-
+    
     @FXML
     void btnUpdateAction(ActionEvent event) {
         //ACTUALIZAR PRODUCTO
@@ -189,7 +189,7 @@ public class ProductController implements Initializable {
         productoToUpdate.setIsActive(isDesactivateProduct.isSelected());
         System.out.println("Producto actualizado=  " + productoToUpdate.toString());
         productoToUpdate.setSupplier("sin informacion");
-
+        
         productApi.updateProduct(productoToUpdate, user.getToken());
         txtUpdateName.setText("");
         txtUpdateDescription.setText("");
@@ -199,46 +199,46 @@ public class ProductController implements Initializable {
         txtUpdateAmount.setText("");
         txtUpdateminimumStock.setText("");
         txtUpdateBarcode.setText("");
-
+        
     }
-
+    
     @FXML
     void tabPaneAddProductMouseCliked(MouseEvent event) {
         int tabSeleccionado = tabPaneAddProduct.getSelectionModel().getSelectedIndex();
         System.out.println("presionaste crear producto" + tabSeleccionado);
-
+        
         if (tabSeleccionado == 0) {
-          //  fillChoiceBoxDepartament();
+            //  fillChoiceBoxDepartament();
         }
-        if(tabSeleccionado == 1){
+        if (tabSeleccionado == 1) {
             //fillChoiceBoxUpdateDepartament();
         }
-
+        
     }
-
+    
     @FXML
     void OnActionBtnCrearDepartamento(ActionEvent event) {
         DepartmentDTO departamentDto = new DepartmentDTO();
         departamentDto.setName(txtCrearDepartamento.getText().trim());
         CategoriesApi.createDepartment(departamentDto);
-
+        
     }
-
+    
     @FXML
     void OnKeyComboHowToSell(KeyEvent event) {
-
+        
     }
-
+    
     @FXML
     void OnMouseClickedComboHowTosell(MouseEvent event) {
-
+        
     }
-
+    
     @FXML
     void btnFindProductAnction(ActionEvent event) {
         System.out.println("SE EJECUTA EL BOTON BUSCAR");
         ProductDTO product = buscarProducto();
-        System.out.println("PRODUCTO precio compra = " +  product.getPurchasePrice());
+        System.out.println("PRODUCTO precio compra = " + product.getPurchasePrice());
         Product p = new Product();
         p.setName(product.getName());
         p.setBarcode(product.getBarcode());
@@ -248,13 +248,13 @@ public class ProductController implements Initializable {
         p.setId(product.getId());
         addTable(p);
     }
-
+    
     @FXML
     void btnSaveAction(ActionEvent event) {
         try {
-           
+            
             String erros = validateCreatedProductForm();
-             int errorSize = erros.length();
+            int errorSize = erros.length();
             if (errorSize == 0) {
                 ProductDTO product = new ProductDTO();
                 product.setName(txtSaveName.getText());
@@ -262,7 +262,8 @@ public class ProductController implements Initializable {
                 product.setBarcode(txtSaveBarcode.getText());
                 //product.setPrice(Double.parseDouble(txtSavePrice.getText()));
                 product.setPrice(new BigDecimal(txtSavePrice.getText()));
-                product.setStock(Integer.parseInt(txtSaveAmount.getText()));
+                // product.setStock(Integer.parseInt(txtSaveAmount.getText()));
+                product.setStock(Double.parseDouble(txtSaveAmount.getText()));
                 product.setImgUrl("imagen url");
                 DepartmentDTO selectedDepartment = comboSaveDepart.getValue();
                 int selectedId = selectedDepartment.getId();
@@ -281,7 +282,7 @@ public class ProductController implements Initializable {
 // Iterar sobre la lista usando el índice
                 boolean save = true;
                 if (comboSaveHowTosell.getValue().equalsIgnoreCase("Paquete")) {
-
+                    
                     if (data == null) {
                         System.out.println("ESTA VACIA LA LISTA");
                         showAlert("Error", "Productos del paquete no puede estar vacio.");
@@ -292,60 +293,58 @@ public class ProductController implements Initializable {
                             content.setProductId(data.get(i).getId());
                             content.setQuantity(data.get(i).getAmount());
                             product.getPackageContents().add(content);
-
+                            
                         }
                         save = true;
                     }
-
+                    
                 }
-
+                
                 System.out.println(product.toString());
                 if (save) {
-                  String result =   productApi.sendProductToApi(product, user.getToken());
-                  if(result.equalsIgnoreCase("200") || result.equalsIgnoreCase("201")){
-                      //sendProductToApi(product);
-                    txtSaveBarcode.setText("");
-                    txtSaveName.setText("");
-                    txtSaveDescription.setText("");
-                    txtSavePrice.setText("");
-                    txtSavepurchasePrice.setText("");
-                    txtSavewholesalePrice.setText("");
-                    txtSaveAmount.setText("");
-                    txtSaveminimumStock.setText("");
-                    txtSupplier.setText("");
-                  }else{
-                      if(result.equalsIgnoreCase("409")){
-                           showAlert("Error", "El producto ya existe");
-                      }
-                      else{
-                           showAlert("Error al crear el producto", "Error Al crear el producto");
-                      }
-                      
-                  }
+                    String result = productApi.sendProductToApi(product, user.getToken());
+                    if (result.equalsIgnoreCase("200") || result.equalsIgnoreCase("201")) {
+                        //sendProductToApi(product);
+                        txtSaveBarcode.setText("");
+                        txtSaveName.setText("");
+                        txtSaveDescription.setText("");
+                        txtSavePrice.setText("");
+                        txtSavepurchasePrice.setText("");
+                        txtSavewholesalePrice.setText("");
+                        txtSaveAmount.setText("");
+                        txtSaveminimumStock.setText("");
+                        txtSupplier.setText("");
+                    } else {
+                        if (result.equalsIgnoreCase("409")) {
+                            showAlert("Error", "El producto ya existe");
+                        } else {
+                            showAlert("Error al crear el producto", "Error Al crear el producto");
+                        }
+                        
+                    }
                     
-
                 }
-
+                
             } else {
                 showAlert("errores", erros);
             }
-
+            
         } catch (Exception e) {
-
+            
             System.out.println("exection " + e);
         }
-
+        
     }
-
+    
     @FXML
     void OnActionFindProductToUpdateProduct(ActionEvent event) {
         System.out.println("LANZAR MODAL PARA BUSCAR PRODUCTO...........");
         buscarProductoDesdeModal();
     }
-
+    
     @FXML
     void btnFindProductUpdateAnction(ActionEvent event) {
-
+        
     }
 
     /**
@@ -361,32 +360,34 @@ public class ProductController implements Initializable {
         fillChoiceBoxDepartament();
         fillChoiceBoxHowToSell();
         initializeTableColumns();
-            // Listener para cambios de tab
-    tabPaneAddProduct.getSelectionModel().selectedIndexProperty().addListener((obs, oldIndex, newIndex) -> {
-        int tabSeleccionado = newIndex.intValue();
-        System.out.println("Cambiando a tab: " + tabSeleccionado);
-
-        if (tabSeleccionado == 0) {
-            // Solo se recarga ChoiceBox si cambias a la pestaña 0
-            fillChoiceBoxDepartament();
-        } else if (tabSeleccionado == 1) {
-            fillChoiceBoxUpdateDepartament();
-            isDesactivateProduct.setSelected(true);
-        }
-    });
-
+        // Listener para cambios de tab
+        tabPaneAddProduct.getSelectionModel().selectedIndexProperty().addListener((obs, oldIndex, newIndex) -> {
+            int tabSeleccionado = newIndex.intValue();
+            System.out.println("Cambiando a tab: " + tabSeleccionado);
+            
+            if (tabSeleccionado == 0) {
+                // Solo se recarga ChoiceBox si cambias a la pestaña 0
+                isstocktaking.setSelected(true);
+                fillChoiceBoxDepartament();
+            } else if (tabSeleccionado == 1) {
+                fillChoiceBoxUpdateDepartament();
+                isDesactivateProduct.setSelected(true);
+                isUpdatestocktaking.setSelected(true);
+            }
+        });
+        
         txtUpdateBarcode.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent ke) {
                 if (ke.getCode().equals(KeyCode.ENTER)) {
-
+                    
                     System.out.println("BUSCAR PRODUCTO ACTUALIZAR");
-
+                    
                     updateProduct(txtUpdateBarcode.getText());
-
+                    
                 }
             }
-
+            
         });
         txtSavepurchasePrice.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue) {
@@ -411,14 +412,14 @@ public class ProductController implements Initializable {
                 //  anchorPaneStock.setManaged(true);
             }
         });
-        
+
         // Listener para detectar cambios en el ComboBox de ganancia
         comboSaveGanancia.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             System.out.println("COMO SE VENDE COMBO: " + newValue);
             handleTextFieldFocusLost();
         });
     }
-
+    
     private void handleTextFieldFocusLost() {
         // Código para manejar la pérdida de foco del TextField
         System.out.println("txtSavePrice ha perdido el foco");
@@ -430,10 +431,10 @@ public class ProductController implements Initializable {
         } catch (NumberFormatException e) {
             System.out.println("Formato de precio inválido");
             // Muestra una alerta si el formato es inválido
-           // showAlert("Error", "Formato de precio inválido");
+            // showAlert("Error", "Formato de precio inválido");
         }
     }
-
+    
     private void showAlert(String title, String message) {
         Alert alert = new Alert(AlertType.ERROR);
         alert.setTitle(title);
@@ -441,7 +442,7 @@ public class ProductController implements Initializable {
         alert.setContentText(message);
         alert.showAndWait();
     }
-
+    
     private void fillChoiceBoxGanancias() {
         ObservableList<String> gananciaOptions = FXCollections.observableArrayList();
         for (int i = 5; i <= 100; i += 1) {
@@ -453,7 +454,7 @@ public class ProductController implements Initializable {
         comboSaveGanancia.setValue("43");
         comboUpdateGanancia.setValue("43");
     }
-
+    
     private void fillChoiceBoxHowToSell() {
         ObservableList<String> howToSell = FXCollections.observableArrayList();
         howToSell.add("Unidad");
@@ -466,13 +467,12 @@ public class ProductController implements Initializable {
         comboSaveHowTosell.setValue("Unidad");
         comboUpdateHowTosell.setValue("Unidad");
     }
-
- 
+    
     private void fillChoiceBoxDepartament() {
-
+        
         ObjectMapper mapper = new ObjectMapper();
         List<DepartmentDTO> departments = productApi.DepartamenNametList(user.getToken());
-
+        
         ObservableList<DepartmentDTO> departamentList = FXCollections.observableArrayList(departments);
         comboSaveDepart.setItems(departamentList);
 
@@ -482,7 +482,7 @@ public class ProductController implements Initializable {
             public String toString(DepartmentDTO department) {
                 return department.getName();
             }
-
+            
             @Override
             public DepartmentDTO fromString(String string) {
                 return departamentList.stream().filter(department -> department.getName().equals(string)).findFirst().orElse(null);
@@ -493,15 +493,14 @@ public class ProductController implements Initializable {
         if (!departamentList.isEmpty()) {
             comboSaveDepart.setValue(departamentList.get(0));
         }
-
+        
     }
-
-
+    
     private void fillChoiceBoxUpdateDepartament() {
-
+        
         ObjectMapper mapper = new ObjectMapper();
         List<DepartmentDTO> departments = productApi.DepartamenNametList(user.getToken());
-
+        
         ObservableList<DepartmentDTO> departamentList = FXCollections.observableArrayList(departments);
         comboUpdateDepart.setItems(departamentList);
 
@@ -511,7 +510,7 @@ public class ProductController implements Initializable {
             public String toString(DepartmentDTO department) {
                 return department.getName();
             }
-
+            
             @Override
             public DepartmentDTO fromString(String string) {
                 return departamentList.stream().filter(department -> department.getName().equals(string)).findFirst().orElse(null);
@@ -522,9 +521,9 @@ public class ProductController implements Initializable {
         if (!departamentList.isEmpty()) {
             comboUpdateDepart.setValue(departamentList.get(0));
         }
-
+        
     }
-
+    
     public static BigDecimal calculateSellingPrice(BigDecimal cost, BigDecimal profitMargin) {
         // Convertir el porcentaje de margen de beneficio a un decimal
         BigDecimal profitMarginDecimal = profitMargin.divide(BigDecimal.valueOf(100));
@@ -532,7 +531,7 @@ public class ProductController implements Initializable {
         BigDecimal sellingPrice = cost.divide(BigDecimal.ONE.subtract(profitMarginDecimal), RoundingMode.HALF_UP);
         return sellingPrice;
     }
-
+    
     private ProductDTO buscarProducto() {
         ProductDTO product = null;
         try {
@@ -545,35 +544,33 @@ public class ProductController implements Initializable {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setScene(scene);
             stage.showAndWait();
-
+            
             String codigo = buscarController.getCodigo();
             
-          
-
             if (!codigo.isEmpty()) {
-                 
+
                 // product = getProductByBarcode(codigo);
                 product = productApi.getProductByBarcode(codigo, user.getToken());
                 
-                 System.out.println("CODIGO PARA QUE SE VA A BUSCAR.............." + product.toString());
-             //   product.setAmount(new BigDecimal("1"));
-             //   product.setTotal(product.getPurchasePrice());
+                System.out.println("CODIGO PARA QUE SE VA A BUSCAR.............." + product.toString());
+                //   product.setAmount(new BigDecimal("1"));
+                //   product.setTotal(product.getPurchasePrice());
 
             }
-
+            
         } catch (IOException ex) {
             Logger.getLogger(VentasController.class.getName()).log(Level.SEVERE, null, ex);
         }
         return product;
     }
-
+    
     private void addTable(Product product) {
-
+        
         boolean exists = existProdcutIntable(product.getBarcode(), new BigDecimal("1"));
         if (exists == false) {  //si ek producto no esta en la tabla se agrega 1.
             productList.add(product);
         }
-
+        
         data = FXCollections.observableList(productList);
         data.forEach((tab) -> {
             tab.getBotonAgregar().setOnAction(this::eventoTabla);
@@ -582,45 +579,46 @@ public class ProductController implements Initializable {
             tab.getBotonBorrar().setOnAction(this::eventoTabla);
             tab.getBotonBorrar().setMaxWidth(Double.MAX_VALUE);
             tab.getBotonBorrar().setMaxHeight(Double.MAX_VALUE);
-
+            
             tab.getBotonEliminar().setOnAction(this::eventoTabla);
             tab.getBotonEliminar().setMaxWidth(Double.MAX_VALUE);
             tab.getBotonEliminar().setMaxHeight(Double.MAX_VALUE);
-
+            
         });
         tableViewPackage.setItems(data);
         tableViewPackage.refresh();
-
+        
     }
-    private void initializeTableColumns() {
 
+    private void initializeTableColumns() {
+        
         System.out.println("se lanzo");
         tableViewPackage.getColumns().clear(); // Limpiar las columnas de la tabla antes de agregar nuevas
 
         TableColumn<Product, String> columnBarcode = new TableColumn<>("Codigo");
         columnBarcode.setCellValueFactory(new PropertyValueFactory<>("barcode"));
-
+        
         TableColumn<Product, String> columnAmount = new TableColumn<>("Cantidad");
         columnAmount.setCellValueFactory(new PropertyValueFactory<>("amount"));
-
+        
         TableColumn<Product, String> columnName = new TableColumn<>("Nombre");
         columnName.setCellValueFactory(new PropertyValueFactory<>("name"));
-
+        
         TableColumn<Product, Double> columnPrice = new TableColumn<>("Precio de compra");
         columnPrice.setCellValueFactory(new PropertyValueFactory<>("purchasePrice")); //purchasePrice
 
         TableColumn<Product, Integer> columnStock = new TableColumn<>("total Precio de compra");
         columnStock.setCellValueFactory(new PropertyValueFactory<>("total"));
-
+        
         TableColumn<Product, Button> columnButtonAdd = new TableColumn<>("Acción");
         columnButtonAdd.setCellValueFactory(new PropertyValueFactory<>("botonAgregar"));
-
+        
         TableColumn<Product, Button> columnButtonDelete = new TableColumn<>("Acción");
         columnButtonDelete.setCellValueFactory(new PropertyValueFactory<>("botonEliminar"));
-
+        
         TableColumn<Product, Button> columnButtonless = new TableColumn<>("Acción");
         columnButtonless.setCellValueFactory(new PropertyValueFactory<>("botonBorrar"));
-
+        
         tableViewPackage.getColumns().addAll(columnBarcode, columnName, columnAmount, columnPrice, columnStock, columnButtonAdd, columnButtonless, columnButtonDelete);
 
         // Set table width listener to adjust column widths in percentages
@@ -636,7 +634,7 @@ public class ProductController implements Initializable {
             columnButtonDelete.setPrefWidth(tableWidth * 0.10);
         });
     }
-
+    
     private void eventoTabla(ActionEvent event) {
         for (int i = 0; data.size() > i; i++) {
             Product p = data.get(i);
@@ -645,7 +643,7 @@ public class ProductController implements Initializable {
 
                 // delete by itself
                 data.remove(p);
-
+                
             }
             if (event.getSource() == p.getBotonAgregar()) {
 
@@ -653,10 +651,10 @@ public class ProductController implements Initializable {
                 p.setAmount(p.getAmount().add(BigDecimal.ONE));
                 //  p.setTotal(p.getAmount() * p.getPrice());
                 p.setTotal(p.getAmount().multiply(p.getPurchasePrice()));
-
+                
             }
             if (event.getSource() == p.getBotonBorrar()) {
-
+                
                 if (p.getAmount().compareTo(BigDecimal.ONE) > 0) {
                     p.setAmount(p.getAmount().subtract(BigDecimal.ONE));
                     p.setTotal(p.getAmount().multiply(p.getPurchasePrice()));
@@ -670,12 +668,12 @@ public class ProductController implements Initializable {
 //                }
             }
         }
-
+        
         tableViewPackage.setItems(data);
         tableViewPackage.refresh();
-
+        
     }
-
+    
     public boolean existProdcutIntable(String codigoBarras, BigDecimal cantidad) {
         boolean exists = false;
         for (int i = 0; i < productList.size(); i++) {
@@ -689,7 +687,7 @@ public class ProductController implements Initializable {
                 BigDecimal price = cantidadTotal.multiply(p.getPrice());
                 BigDecimal purchasePrice = cantidadTotal.multiply(p.getPurchasePrice());
                 System.out.println("TOTAL NUEVO " + price);
-
+                
                 p.setAmount(cantidadTotal);
                 p.setPrice(price);
                 p.setTotal(purchasePrice);
@@ -697,11 +695,11 @@ public class ProductController implements Initializable {
                 break;
             }
         }
-
+        
         return exists;
-
+        
     }
-
+    
     public void showAlertUpdateProduct(String title, String message) {
         // Crear una alerta de tipo INFORMACIÓN
         Alert alert = new Alert(AlertType.INFORMATION);
@@ -712,7 +710,7 @@ public class ProductController implements Initializable {
         // Añadir los botones "OK" y "Actualizar"
         ButtonType cancelButton = new ButtonType("Cancelar");
         ButtonType updateButton = new ButtonType("Actualizar");
-
+        
         alert.getButtonTypes().setAll(cancelButton, updateButton);
 
         // Mostrar la alerta y esperar a que el usuario responda
@@ -730,12 +728,12 @@ public class ProductController implements Initializable {
             // Aquí puedes agregar el código para manejar la opción "OK"
         }
     }
-
+    
     private void updateProduct(String codigo) {
-
+        
         productoToUpdate = productApi.getProductByBarcode(codigo, user.getToken());
         System.out.println("Producto " + productoToUpdate.toString());
-
+        
         txtUpdateName.setText((productoToUpdate.getName()));
         txtUpdateDescription.setText(productoToUpdate.getDescription());
         txtUpdatepurchasePrice.setText(String.valueOf(productoToUpdate.getPurchasePrice()));
@@ -745,12 +743,10 @@ public class ProductController implements Initializable {
         txtUpdateminimumStock.setText("" + productoToUpdate.getMinimumStock());
         comboUpdateHowTosell.setValue("" + productoToUpdate.getHowToSell());
         comboUpdateGanancia.setValue("43");
-       //  String categoryName = productoToUpdate.getCategory().getName();
-        
+        //  String categoryName = productoToUpdate.getCategory().getName();
+
         //Carga en comboUpdateDepart su respectivo departamento
-     //  if (productoToUpdate != null && productoToUpdate.getCategory() != null) {
-          
-       
+        //  if (productoToUpdate != null && productoToUpdate.getCategory() != null) {
         for (DepartmentDTO department : comboUpdateDepart.getItems()) {
             System.out.println("Id departamento" + department.getId());
             if (productoToUpdate.getCategoryId() == department.getId()) {
@@ -758,10 +754,10 @@ public class ProductController implements Initializable {
                 break;
             }
         }
-   // }
+        // }
 
     }
-
+    
     private void buscarProductoDesdeModal() {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/views/buscar.fxml"));
@@ -773,9 +769,9 @@ public class ProductController implements Initializable {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setScene(scene);
             stage.showAndWait();
-
+            
             String codigo = buscarController.getCodigo();
-
+            
             System.out.println("CODIGO = " + codigo);
             //  txtAddInventoryBarcode.setText(codigo);
             updateProduct(codigo);
@@ -789,50 +785,46 @@ public class ProductController implements Initializable {
                 //  txtAddInventoryPrice.setText("" + product.getPrice());
                 // txtAddInventoryholesalePrice.setText("" + product.getWholesalePrice());
             }
-
+            
         } catch (IOException ex) {
             Logger.getLogger(VentasController.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+        
     }
-
+    
     public String validateCreatedProductForm() {
         StringBuilder errors = new StringBuilder();
         // Validar codigo de barras
         if (txtSaveBarcode.getText().trim().isEmpty()) {
             errors.append("El campo 'Codigo de barras' no puede estar vacío.\n");
         }
-        if(txtSaveName.getText().trim().isEmpty()){
+        if (txtSaveName.getText().trim().isEmpty()) {
             errors.append("El campo 'Nombre' no puede estar vacío.\n");
         }
-         if(txtSaveDescription.getText().trim().isEmpty()){
+        if (txtSaveDescription.getText().trim().isEmpty()) {
             errors.append("El campo 'Descripcion' no puede estar vacío.\n");
         }
-         
-       
-         
-         /*cantidad*/
-        if(txtSaveAmount.getText().trim().isEmpty()){
+
+        /*cantidad*/
+        if (txtSaveAmount.getText().trim().isEmpty()) {
             errors.append("El campo 'Cantidad' no puede estar vacío.\n");
-        } 
+        }
         /*Precio mayoreo*/
         
-        if(txtSavewholesalePrice.getText().trim().isEmpty()){
+        if (txtSavewholesalePrice.getText().trim().isEmpty()) {
             errors.append("El campo 'Precio mayoreo' no puede estar vacío.\n");
-        } 
+        }
         /*Minimo*/
-          if(txtSaveminimumStock.getText().trim().isEmpty()){
+        if (txtSaveminimumStock.getText().trim().isEmpty()) {
             errors.append("El campo 'Minimo' no puede estar vacío.\n");
-        } 
-        /*Proveedor*/  
-           if(txtSupplier.getText().trim().isEmpty()){
+        }
+        /*Proveedor*/        
+        if (txtSupplier.getText().trim().isEmpty()) {
             errors.append("El campo 'Proveedor' no puede estar vacío.\n");
-        } 
-          
-          
-        
+        }
+
         /*cantidad*/
-        if(txtSavepurchasePrice.getText().trim().isEmpty()){
+        if (txtSavepurchasePrice.getText().trim().isEmpty()) {
             errors.append("El campo 'Precio compra' no puede estar vacío.\n");
         }
         /*
@@ -848,9 +840,8 @@ public class ProductController implements Initializable {
             errors.append("'Precio compra' No es un numero.\n");
         }
         }
-      */
-         
-
+         */
+        
         return errors.toString();
     }
 }
