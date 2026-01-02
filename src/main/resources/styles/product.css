@@ -5,3 +5,44 @@
 .mainFxmlClass {
 
 }
+/* BOTÓN AGREGAR / BUSCAR */
+.btn-primary {
+    -fx-background-color: #3498db;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.btn-primary:hover {
+    -fx-background-color: #2980b9;
+}
+
+/* BOTÓN GUARDAR */
+.btn-success {
+    -fx-background-color: #2ecc71;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.btn-success:hover {
+    -fx-background-color: #27ae60;
+}
+
+/* BOTÓN PAQUETE */
+.btn-package {
+    -fx-background-color: #27ae60;
+    -fx-text-fill: white;
+}
+
+.btn-package:hover {
+    -fx-background-color: #1e8449;
+}
+
+/* BOTÓN PELIGRO */
+.btn-danger {
+    -fx-background-color: #e74c3c;
+    -fx-text-fill: white;
+}
+
+.btn-danger:hover {
+    -fx-background-color: #c0392b;
+}

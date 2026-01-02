@@ -11,7 +11,7 @@
 <?import javafx.scene.effect.Blend?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane id="AnchorPane" prefHeight="699.0" prefWidth="1067.0" styleClass="mainFxmlClass" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ProductController">
+<AnchorPane id="AnchorPane"  stylesheets="@/styles/product.css"   prefHeight="699.0" prefWidth="1067.0" styleClass="mainFxmlClass" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ProductController">
    
     <children>
         <TabPane fx:id="tabPaneAddProduct" layoutX="14.0" layoutY="7.0" onMouseClicked="#tabPaneAddProductMouseCliked" prefHeight="389.0" prefWidth="1000.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="4.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="7.0">
@@ -37,7 +37,7 @@
                                 <Label layoutX="259.0" layoutY="148.0" text="\% Ganancia" />
                                 <Label layoutX="12.0" layoutY="148.0" text="Precio compra" AnchorPane.leftAnchor="12.0" />
                                 <ChoiceBox fx:id="comboSaveGanancia" layoutX="334.0" layoutY="144.0" prefHeight="26.0" prefWidth="157.0" AnchorPane.leftAnchor="334.0" />
-                                <Button fx:id="btnSaveProduct" layoutX="913.0" layoutY="318.0" mnemonicParsing="false" onAction="#btnSaveAction" text="Guardar" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="18.0" />
+                                <Button fx:id="btnSaveProduct" styleClass="btn-success" layoutX="913.0" layoutY="318.0" mnemonicParsing="false" onAction="#btnSaveAction" text="Guardar" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="18.0" />
                                 <Label layoutX="743.0" layoutY="148.0" text="Precio mayoreo" AnchorPane.leftAnchor="743.0" />
                                 <ChoiceBox fx:id="comboSaveHowTosell" layoutX="460.0" layoutY="53.0" onKeyPressed="#OnKeyComboHowToSell" onMouseClicked="#OnMouseClickedComboHowTosell" prefHeight="26.0" prefWidth="194.0" />
                                 <ChoiceBox fx:id="comboSaveDepart" layoutX="772.0" layoutY="53.0" prefWidth="150.0" />
