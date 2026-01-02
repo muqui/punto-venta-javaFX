@@ -43,17 +43,23 @@
                      </children></AnchorPane>
             </content>
           </Tab>
-            <Tab text="Reparaciones">
+            <Tab text="Ulr's">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <CheckBox fx:id="checkboxReparacionRemoto" layoutX="20.0" layoutY="26.0" mnemonicParsing="false" text="Remoto" />
+                        <CheckBox fx:id="checkboxReparacionRemoto" layoutX="20.0" layoutY="39.0" mnemonicParsing="false" text="Remoto" />
                         <Label layoutX="20.0" layoutY="70.0" text="ulr frontend" />
                         <TextField fx:id="txtUrlReparacionFront" layoutX="108.0" layoutY="66.0" prefHeight="26.0" prefWidth="330.0" />
                         <Label layoutX="20.0" layoutY="117.0" text="url backend" />
                         <TextField fx:id="txtUrlReparacionBack" layoutX="108.0" layoutY="113.0" prefHeight="26.0" prefWidth="331.0" />
                         <Label layoutX="20.0" layoutY="157.0" text="base datos" />
                         <TextField fx:id="txtReparacionDataBase" layoutX="108.0" layoutY="153.0" prefHeight="26.0" prefWidth="332.0" />
+                        <Label layoutX="20.0" layoutY="212.0" text="Url del servidor" />
+                        <Label layoutX="20.0" layoutY="250.0" text="url" />
+                        <TextField fx:id="txtUrlServer" layoutX="108.0" layoutY="246.0" prefHeight="26.0" prefWidth="331.0" />
+                        <Label layoutX="21.0" layoutY="14.0" text="Ordenes de servicio en remoto" />
+                        <Label layoutX="16.0" layoutY="286.0" text="base de datos" />
+                        <TextField fx:id="txtdababase" layoutX="108.0" layoutY="282.0" prefHeight="26.0" prefWidth="330.0" />
                      </children>
                   </AnchorPane>
               </content>

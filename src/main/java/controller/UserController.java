@@ -72,6 +72,13 @@ public class UserController implements Initializable {
      FIN datos impresion
      */
 
+     /*
+     URL SERVERSSS
+     */
+       @FXML
+    private TextField txtUrlServer;
+       @FXML
+    private TextField  txtdababase;
     @FXML
     void onActionCreatedUser(ActionEvent event) {
         OpenModalCreateUser(null);
@@ -109,6 +116,8 @@ public class UserController implements Initializable {
         txtReparacionDataBase.setText(loadReparacionDataBaseFromProperties());
         checkboxReparacionRemoto.setSelected(loadUrlReparacionFlagFromProperties());
         txtBusinessName.setText(loadBusinessNameFromProperties());
+        txtUrlServer.setText(loadUrlServerFromProperties());
+        txtdababase.setText(loadDataBaseFromProperties());
 
         paperOrderServiceSizeGroup = new ToggleGroup();
 
@@ -170,6 +179,17 @@ public class UserController implements Initializable {
           txtBusinessName.focusedProperty().addListener((obs, oldVal, newVal) -> {
             if (!newVal) {
                 saveBusinessNameToProperties(txtBusinessName.getText());
+            }
+        });
+          
+                            txtUrlServer.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal) {
+                saveUrlServerToProperties(txtUrlServer.getText());
+            }
+        });
+                                             txtdababase.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal) {
+                saveDataBaseToProperties(txtUrlServer.getText());
             }
         });
 
@@ -417,6 +437,43 @@ public class UserController implements Initializable {
     private void saveBusinessNameToProperties(String value) {
         
          saveProperty("printer.name.business", value);
+    }
+
+    private String loadUrlServerFromProperties() {
+        
+        Properties config = new Properties();
+        File file = new File("config.properties");
+
+        try (FileInputStream in = new FileInputStream(file)) {
+            config.load(in);
+            return config.getProperty("api.base.url"); // puede devolver null si no existe
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void saveUrlServerToProperties(String value) {
+         saveProperty("api.base.url", value);
+    }
+
+    private String loadDataBaseFromProperties() {
+        
+        Properties config = new Properties();
+        File file = new File("config.properties");
+
+        try (FileInputStream in = new FileInputStream(file)) {
+            config.load(in);
+            return config.getProperty("x.client.id"); // puede devolver null si no existe
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void saveDataBaseToProperties(String value) {
+        
+        saveProperty("x.client.id", value);
     }
 
 }
