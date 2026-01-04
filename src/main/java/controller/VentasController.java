@@ -128,6 +128,52 @@ public class VentasController implements Initializable {
         
 
         crearTicket("Ticket 1");
+        txtCodigoBarras.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+
+    int tabIndex = tabPaneTicket.getSelectionModel().getSelectedIndex();
+    if (tabIndex < 0) return;
+
+    Node content = tabArrayList.get(tabIndex).getContent();
+    TableView<Product> tableView =
+            (TableView<Product>) content.lookup("#miTabla");
+
+    if (tableView == null || tableView.getItems().isEmpty()) return;
+
+    var sm = tableView.getSelectionModel();
+    int index = sm.getSelectedIndex();
+
+    switch (event.getCode()) {
+
+        case DOWN:
+            if (index < tableView.getItems().size() - 1) {
+                sm.select(index + 1);
+            } else {
+                sm.selectFirst();
+            }
+            tableView.scrollTo(sm.getSelectedIndex());
+            event.consume();
+            break;
+
+        case UP:
+            if (index > 0) {
+                sm.select(index - 1);
+            } else {
+                sm.selectLast();
+            }
+            tableView.scrollTo(sm.getSelectedIndex());
+            event.consume();
+            break;
+
+        case DELETE:
+            eliminarFilaSeleccionada();
+            event.consume();
+            break;
+
+        default:
+            // NO hacemos nada
+    }
+});
+
         txtCodigoBarras.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent ke) {
@@ -869,14 +915,14 @@ public class VentasController implements Initializable {
                 = (TableView<Product>) selectedContent.lookup("#miTabla");
 
         Product seleccionado = tableView.getSelectionModel().getSelectedItem();
-
+/*
         if (seleccionado == null) {
             showAlert(Alert.AlertType.WARNING,
                     "Aviso",
                     "Seleccione un producto para eliminar");
             return;
         }
-
+*/
         // 🔥 Eliminar del modelo real
         listaProductoArrayList.get(tabSeleccionado).remove(seleccionado);
 
