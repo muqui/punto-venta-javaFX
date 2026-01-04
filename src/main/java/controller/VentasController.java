@@ -12,27 +12,13 @@ import beans.Product;
 import beans.User;
 
 import com.albertocoronanavarro.puntoventafx.App;
-import com.itextpdf.kernel.geom.PageSize;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Cell;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.element.Table;
-import com.itextpdf.layout.properties.TextAlignment;
-import com.itextpdf.layout.properties.UnitValue;
 
 import dto.UserDTO;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URL;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -52,6 +38,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
@@ -64,15 +51,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javax.print.Doc;
-import javax.print.DocFlavor;
-import javax.print.DocPrintJob;
-import javax.print.PrintService;
-import javax.print.PrintServiceLookup;
-import javax.print.SimpleDoc;
-import javax.print.attribute.HashPrintRequestAttributeSet;
-import javax.print.attribute.PrintRequestAttributeSet;
-import javax.print.attribute.standard.MediaSizeName;
 
 /**
  * FXML Controller class
@@ -136,8 +114,66 @@ public class VentasController implements Initializable {
         //recibimos el usuario desde Main(App)
         this.user = App.getUsuario();
         System.out.println("Desde ventas controller token= " + this.user.toString());
+        
+        tabPaneTicket.sceneProperty().addListener((obs, oldScene, newScene) -> {
+    if (newScene != null) {
+        newScene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            if (event.getCode() == KeyCode.DELETE) {
+                eliminarFilaSeleccionada();
+                event.consume();
+            }
+        });
+    }
+});
+        
 
         crearTicket("Ticket 1");
+        txtCodigoBarras.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+
+    int tabIndex = tabPaneTicket.getSelectionModel().getSelectedIndex();
+    if (tabIndex < 0) return;
+
+    Node content = tabArrayList.get(tabIndex).getContent();
+    TableView<Product> tableView =
+            (TableView<Product>) content.lookup("#miTabla");
+
+    if (tableView == null || tableView.getItems().isEmpty()) return;
+
+    var sm = tableView.getSelectionModel();
+    int index = sm.getSelectedIndex();
+
+    switch (event.getCode()) {
+
+        case DOWN:
+            if (index < tableView.getItems().size() - 1) {
+                sm.select(index + 1);
+            } else {
+                sm.selectFirst();
+            }
+            tableView.scrollTo(sm.getSelectedIndex());
+            event.consume();
+            break;
+
+        case UP:
+            if (index > 0) {
+                sm.select(index - 1);
+            } else {
+                sm.selectLast();
+            }
+            tableView.scrollTo(sm.getSelectedIndex());
+            event.consume();
+            break;
+
+        case DELETE:
+            eliminarFilaSeleccionada();
+            event.consume();
+            break;
+
+        default:
+            // NO hacemos nada
+    }
+});
+
         txtCodigoBarras.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent ke) {
@@ -278,6 +314,21 @@ public class VentasController implements Initializable {
         TableView tableView = new TableView();
         tableView.setId("miTabla");
         tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY); // NECESARIO PARA CAMBIAR EL ANCHO DE LA TABLA
+        tableView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+        // 🔥 Listener de selección
+        tableView.getSelectionModel()
+                .selectedItemProperty()
+                .addListener((obs, oldSelection, newSelection) -> {
+                    if (newSelection != null) {
+                        System.out.println("Producto seleccionado: " );
+                    }
+                });
+        tableView.setOnMouseClicked(e -> tableView.requestFocus());
+        tableView.setOnKeyPressed(event -> {
+    if (event.getCode() == KeyCode.DELETE) {
+        eliminarFilaSeleccionada();
+    }
+});
 
         int numTabs = tabPaneTicket.getTabs().size();
 
@@ -714,82 +765,6 @@ public class VentasController implements Initializable {
         return cantidad;
     }
 
-//    public void printProductsToPdf1(ObservableList<Product> products, String dest, BigDecimal totalTicket) throws IOException {
-//        System.out.println("SE ENVIA A PDF PARA IMPRIMIR");
-//        PdfWriter writer = null;
-//        PdfDocument pdfDoc = null;
-//        Document document = null;
-//
-//        try {
-//            // Crear archivo y directorios si no existen
-//            File file = new File(dest);
-//            file.getParentFile().mkdirs();
-//
-//            // Inicializar el escritor de PDF
-//            writer = new PdfWriter(new FileOutputStream(file));
-//
-//            // Inicializar el documento PDF
-//            pdfDoc = new PdfDocument(writer);
-//            document = new Document(pdfDoc, PageSize.A4);
-//
-//            // Agregar título
-//            document.add(new Paragraph("MATI PAPELERÍA").setBold().setFontSize(18).setTextAlignment(TextAlignment.CENTER));
-//            // Crear tabla con 5 columnas
-//            //  float[] columnWidths = {2, 4, 3, 3, 4}; // Ajustar los tamaños de las columnas según sea necesario
-//            // Table table = new Table(columnWidths);
-//            Table table = new Table(UnitValue.createPercentArray(5)).useAllAvailableWidth();
-//
-//            // Encabezado de la tabla
-//            table.addHeaderCell(new Cell().add(new Paragraph("Código")));
-//            table.addHeaderCell(new Cell().add(new Paragraph("Nombre")));
-//            table.addHeaderCell(new Cell().add(new Paragraph("Precio")));
-//            table.addHeaderCell(new Cell().add(new Paragraph("Cantidad")));
-//            table.addHeaderCell(new Cell().add(new Paragraph("Total")));
-//
-//            // Crear un formateador de decimales
-//            DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
-//            // Agregar datos de los productos a la tabla
-//            for (Product product : products) {
-//                table.addCell(new Cell().add(new Paragraph(product.getBarcode())));
-//                table.addCell(new Cell().add(new Paragraph(product.getName())));
-//                table.addCell(new Cell().add(new Paragraph(product.getPrice().toString())));
-//                table.addCell(new Cell().add(new Paragraph(product.getAmount().toString())));
-//                BigDecimal total = product.getPrice().multiply(product.getAmount());
-//                table.addCell(new Cell().add(new Paragraph(decimalFormat.format(total))));
-//
-//            }
-//
-//            // Agregar tabla al documento
-//            document.add(table);
-//            // Agregar total después de la tabla y alinearlo a la derecha
-//            String totalText = "Total $ " + decimalFormat.format(totalTicket);
-//            Paragraph totalParagraph = new Paragraph(totalText)
-//                    .setBold()
-//                    .setFontSize(18)
-//                    .setMarginTop(10)
-//                    .setTextAlignment(TextAlignment.RIGHT); // Alineación a la derecha
-//            document.add(totalParagraph);
-//
-//            // Enviar el PDF creado a la impresora seleccionada por el usuario
-//            // printPdf(dest);
-//        } catch (IOException e) {
-//            System.out.println("error desde metod imprimir" + e);
-//            e.printStackTrace();
-//        } finally {
-//            // Cerrar el documento y el escritor
-//            if (document != null) {
-//                document.close();
-//            }
-//            if (pdfDoc != null) {
-//                pdfDoc.close();
-//            }
-//            if (writer != null) {
-//                writer.close();
-//            }
-//
-//        }
-//        printPdf(dest);
-//    }
     public static BigDecimal calculateDiscountedPrice(BigDecimal originalPrice, BigDecimal discountPercentage) {
         // Convertir el porcentaje de descuento a un decimal
         BigDecimal discountDecimal = discountPercentage.divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
@@ -801,47 +776,6 @@ public class VentasController implements Initializable {
         return discountedPrice;
     }
 
-//    private void printPdf(String pdfFilePath) {
-//        try (InputStream pdfInputStream = new FileInputStream(pdfFilePath)) {
-//            // Crear un documento imprimible a partir del PDF
-//            Doc pdfDoc = new SimpleDoc(pdfInputStream, DocFlavor.INPUT_STREAM.PDF, null);
-//
-//            // Configurar atributos de impresión
-//            PrintRequestAttributeSet printAttributes = new HashPrintRequestAttributeSet();
-//            printAttributes.add(MediaSizeName.ISO_A4);
-//
-//            // Obtener todas las impresoras disponibles
-//            PrintService[] printServices = PrintServiceLookup.lookupPrintServices(null, null);
-//            if (printServices.length == 0) {
-//                System.out.println("No se encontraron impresoras.");
-//                return;
-//            }
-//
-//            // Mostrar opciones de impresora y permitir selección
-//            PrintService selectedService = (PrintService) javax.swing.JOptionPane.showInputDialog(
-//                    null,
-//                    "Seleccione una impresora:",
-//                    "Seleccionar impresora",
-//                    javax.swing.JOptionPane.PLAIN_MESSAGE,
-//                    null,
-//                    printServices,
-//                    printServices[0]
-//            );
-//
-//            if (selectedService != null) {
-//                // Enviar el PDF a la impresora seleccionada
-//                DocPrintJob printJob = selectedService.createPrintJob();
-//                printJob.print(pdfDoc, printAttributes);
-//                System.out.println("Documento enviado a la impresora: " + selectedService.getName());
-//            } else {
-//                System.out.println("Impresión cancelada por el usuario.");
-//            }
-//
-//        } catch (Exception e) {
-//            System.out.println("Error al enviar el PDF a la impresora: " + e.getMessage());
-//            e.printStackTrace();
-//        }
-//    }
     private void showAlert(Alert.AlertType alertType, String title, String message) {
         Alert alert = new Alert(alertType);  // Usar el tipo de alerta proporcionado como parámetro
         alert.setTitle(title);
@@ -968,4 +902,40 @@ public class VentasController implements Initializable {
         return discountedPrice;
     }
 
+    private void eliminarFilaSeleccionada() {
+
+        int tabSeleccionado = tabPaneTicket.getSelectionModel().getSelectedIndex();
+
+        if (tabSeleccionado < 0) {
+            return;
+        }
+
+        Node selectedContent = tabArrayList.get(tabSeleccionado).getContent();
+        TableView<Product> tableView
+                = (TableView<Product>) selectedContent.lookup("#miTabla");
+
+        Product seleccionado = tableView.getSelectionModel().getSelectedItem();
+/*
+        if (seleccionado == null) {
+            showAlert(Alert.AlertType.WARNING,
+                    "Aviso",
+                    "Seleccione un producto para eliminar");
+            return;
+        }
+*/
+        // 🔥 Eliminar del modelo real
+        listaProductoArrayList.get(tabSeleccionado).remove(seleccionado);
+
+        // 🔄 Refrescar tabla
+        ObservableList<Product> data
+                = FXCollections.observableList(listaProductoArrayList.get(tabSeleccionado));
+        tableView.setItems(data);
+        tableView.refresh();
+
+        // 🔢 Recalcular totales
+        labelTotal.setText("" + totalTicket(tabSeleccionado));
+        labelTotalProductos.setText(
+                CantidadProductosTicket(tabSeleccionado) + leyendaCantidadTotal
+        );
+    }
 }

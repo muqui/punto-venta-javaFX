@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" maxHeight="454.0" maxWidth="452.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="454.0" prefWidth="452.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.LoginController">
+<AnchorPane id="AnchorPane" stylesheets="@/styles/product.css"  maxHeight="454.0" maxWidth="452.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="454.0" prefWidth="452.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.LoginController">
     <stylesheets>
         <URL value="@/styles/login.css" />
     </stylesheets>
@@ -19,7 +19,7 @@
         <Label layoutX="26.0" layoutY="302.0" text="Contraseña" />
         <TextField fx:id="txtUsuer" layoutX="26.0" layoutY="265.0" onAction="#onActionUser" prefHeight="26.0" prefWidth="401.0" text="alberto" />
         <PasswordField fx:id="txtPassword" layoutX="26.0" layoutY="320.0" onAction="#onActionPassword" prefHeight="26.0" prefWidth="401.0" text="123456" />      
-        <Button fx:id="btnAceptar" layoutX="26.0" layoutY="391.0" mnemonicParsing="false" onAction="#btnAceptarAction" prefHeight="49.0" prefWidth="401.0" text="Log in" />
+        <Button fx:id="btnAceptar" styleClass="btn-primary " layoutX="26.0" layoutY="391.0" mnemonicParsing="false" onAction="#btnAceptarAction" prefHeight="49.0" prefWidth="401.0" text="Log in" />
         <Label fx:id="txtError" layoutX="25.0" layoutY="355.0" prefHeight="20.0" prefWidth="401.0" text="Label" textFill="#e80606">
             <font>
                 <Font name="System Bold" size="14.0" />
