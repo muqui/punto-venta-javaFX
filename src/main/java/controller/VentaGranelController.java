@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
@@ -82,7 +83,15 @@ public class VentaGranelController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
-       
+        txtTotal.sceneProperty().addListener((obs, oldScene, newScene) -> {
+        if (newScene != null) {
+            newScene.windowProperty().addListener((obsWin, oldWin, newWin) -> {
+                if (newWin != null) {
+                    Platform.runLater(() -> txtTotal.requestFocus());
+                }
+            });
+        }
+    });
     }
 
   
@@ -151,22 +160,23 @@ public class VentaGranelController implements Initializable {
         
     }
     
-//    public BigDecimal calculateQuantity() {
-//    try {
-//        BigDecimal costToPay = new BigDecimal(txtTotal.getText().toString()); // Capturas el costo total
-//        BigDecimal quantity = costToPay.divide(price, RoundingMode.HALF_UP); // Divides el costo total por el precio por unidad
-//        setCantidad(quantity); // Estableces la cantidad calculada
-//        return quantity; // Devuelves la cantidad
-//    } catch (NumberFormatException e) {
-//        System.out.println("Error: El valor ingresado no es un número válido.");
-//        return BigDecimal.ZERO; // Devuelves 0 si hay error
-//    } catch (ArithmeticException e) {
-//        System.out.println("Error: División por cero.");
-//        return BigDecimal.ZERO; // Devuelves 0 si el precio por unidad es cero
-//    }
-//}
-    
+
     public BigDecimal calculateQuantity() {
+    try {
+        BigDecimal total = new BigDecimal(txtTotal.getText());
+
+        // Cantidad SIN redondear (alta precisión)
+        BigDecimal quantity = total.divide(price, 6, RoundingMode.HALF_UP);
+
+        setCantidad(quantity);
+        return quantity;
+
+    } catch (Exception e) {
+        return BigDecimal.ZERO;
+    }
+}
+    
+    public BigDecimal calculateQuantity(String s) {
     try {
         BigDecimal costToPay = new BigDecimal(txtTotal.getText().toString()); // Capturas el costo total
         BigDecimal quantity = costToPay.divide(price, 2, RoundingMode.HALF_UP); // Divides con escala de 2 decimales

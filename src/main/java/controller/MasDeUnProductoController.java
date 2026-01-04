@@ -6,6 +6,7 @@ package controller;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -96,6 +97,16 @@ public class MasDeUnProductoController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
+         txtCodigo.sceneProperty().addListener((obs, oldScene, newScene) -> {
+        if (newScene != null) {
+            newScene.windowProperty().addListener((obsWin, oldWin, newWin) -> {
+                if (newWin != null) {
+                    Platform.runLater(() -> txtCodigo.requestFocus());
+                }
+            });
+        }
+    });
+         
         txtCodigo.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent ke) {
